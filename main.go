@@ -19,7 +19,7 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet pixel.Picture, anims map[string][]pixel.Rect, err error) {
+func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet pixel.Picture, anims map[string][]pixel.Rect, animKeys []string, err error) {
 	// total hack, nicely format the error at the end, so I don't have to type it every time
 	defer func() {
 		if err != nil {
@@ -30,12 +30,12 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 	// open and load the spritesheet
 	sheetFile, err := os.Open(sheetPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	defer sheetFile.Close()
 	sheetImg, _, err := image.Decode(sheetFile)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	sheet = pixel.PictureDataFromImage(sheetImg)
 
@@ -52,11 +52,12 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 
 	descFile, err := os.Open(descPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	defer descFile.Close()
 
 	anims = make(map[string][]pixel.Rect)
+	animKeys = make([]string, 0)
 
 	// load the animation information, name and interval inside the spritesheet
 	desc := csv.NewReader(descFile)
@@ -66,7 +67,7 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 			break
 		}
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 
 		name := anim[0]
@@ -74,89 +75,71 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 		end, _ := strconv.Atoi(anim[2])
 
 		anims[name] = frames[start : end+1]
+		animKeys = append(animKeys, name)
 	}
 
-	return sheet, anims, nil
+	return sheet, anims, animKeys, nil
 }
 
 type animState int
 
 const (
 	idle animState = iota
+	moving
 )
 
-func (ga *pinkAnim) draw(t pixel.Target, phys *pinkPhys) {
-	if ga.sprite == nil {
-		ga.sprite = pixel.NewSprite(nil, pixel.Rect{})
-	}
-	// draw the correct frame with the correct position and direction
-	ga.sprite.Set(ga.sheet, ga.frame)
-	ga.sprite.Draw(t, pixel.IM.Moved(phys.rect.Center()))
-}
-
-func (gp *pinkPhys) update(dt float64) {
-	// apply controls
-	switch {
-	default:
-		gp.vel.X = 0
-	}
-}
-
-func (pa *pinkAnim) update(dt float64, phys *pinkPhys) {
-	pa.counter += dt
-
-	// determine the new animation state
-	var newState animState
-	switch {
-	case phys.vel.Len() == 0:
-		newState = idle
-	}
-
-	// reset the time counter if the state changed
-	if pa.state != newState {
-		pa.state = newState
-		pa.counter = 0
-	}
-
-	// determine the correct animation frame
-	switch pa.state {
-	case idle:
-		i := int(math.Floor(pa.counter / pa.rate))
-		pa.frame = pa.anims["HangingOut"][i%len(pa.anims["HangingOut"])]
-	}
-}
-
-type pinkPhys struct {
-	runSpeed  float64
-	jumpSpeed float64
-
-	rect pixel.Rect
-	vel  pixel.Vec
-}
-
-type pinkAnim struct {
-	sheet pixel.Picture
-	anims map[string][]pixel.Rect
-	rate  float64
-
+type pinkObject struct {
+	sheet   pixel.Picture
+	anims   map[string][]pixel.Rect
+	sprite  *pixel.Sprite
+	rate    float64
 	state   animState
 	counter float64
 	dir     float64
+}
 
-	frame pixel.Rect
+func (po *pinkObject) update(dt float64) {
+	po.counter += dt
 
-	sprite *pixel.Sprite
+	// determine the new animation state
+	var newState animState
+	newState = idle
+
+	// determine the correct animation frame
+	switch po.state {
+	case idle:
+		i := int(math.Floor(po.counter / po.rate))
+		po.sprite.Set(po.sheet, po.anims["idle"][i%len(po.anims["idle"])])
+	}
+
+	// reset the time counter if the state changed
+	if po.state != newState {
+		po.state = newState
+		po.counter = 0
+	}
 }
 
 func run() {
 
-	sheet, anims, err := loadAnimationSheet("assets/pink.png", "assets/pink_animations.csv", 12)
+	var (
+		camPos       = pixel.ZV
+		camSpeed     = 500.0
+		camZoom      = 1.0
+		camZoomSpeed = 1.2
+		pinks        []*pinkObject
+		matrices     []pixel.Matrix
+		frames       = 0
+		second       = time.Tick(time.Second)
+	)
+
+	pinkSheet, pinkAnims, pinkAnimKeys, err := loadAnimationSheet("assets/pink.png", "assets/pink_animations.csv", 32)
+
 	if err != nil {
 		panic(err)
 	}
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "PixelLifeGo!",
+		Title:  "Pixel Rocks!",
 		Bounds: pixel.R(0, 0, 1024, 768),
 		VSync:  false,
 	}
@@ -165,54 +148,32 @@ func run() {
 		panic(err)
 	}
 
-	phys := &pinkPhys{
-		runSpeed:  64,
-		jumpSpeed: 192,
-		rect:      pixel.R(0, 0, 32, 32),
-	}
-
-	anim := &pinkAnim{
-		sheet: sheet,
-		anims: anims,
-		rate:  1.0 / 10,
-		dir:   +1,
-	}
-
-	batch := pixel.NewBatch(&pixel.TrianglesData{}, sheet)
-
-	var pinkFrames []pixel.Rect
-	for x := sheet.Bounds().Min.X; x < sheet.Bounds().Max.X; x += 32 {
-		for y := sheet.Bounds().Min.Y; y < sheet.Bounds().Max.Y; y += 32 {
-			pinkFrames = append(pinkFrames, pixel.R(x, y, x+32, y+32))
-		}
-	}
-
-	var (
-		camZoom      = 1.0
-		camZoomSpeed = 1.2
-		camPos       = pixel.ZV
-		camSpeed     = 500.0
-		frames       = 0
-		second       = time.Tick(time.Second)
-	)
-
 	last := time.Now()
 	for !win.Closed() {
+		//handle delta
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 
+		//handle input
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
 		if win.JustPressed(pixelgl.MouseButtonLeft) {
-			pink := pixel.NewSprite(sheet, pinkFrames[rand.Intn(len(pinkFrames))])
+			randomAnimationKey := pinkAnimKeys[rand.Intn(len(pinkAnimKeys))]
+			randomAnimationFrame := rand.Intn(len(pinkAnims[randomAnimationKey]))
+			pinkSprite := pixel.NewSprite(pinkSheet, pinkAnims[randomAnimationKey][randomAnimationFrame])
+			pinkObject := &pinkObject{
+				sheet:  pinkSheet,
+				sprite: pinkSprite,
+				anims:  pinkAnims,
+				state:  idle,
+				rate:   1.0 / 10,
+				dir:    +1,
+			}
+			pinks = append(pinks, pinkObject)
 			mouse := cam.Unproject(win.MousePosition())
-			pink.Draw(batch, pixel.IM.Scaled(pixel.ZV, 1).Moved(mouse))
+			matrices = append(matrices, pixel.IM.Scaled(pixel.ZV, 1).Moved(mouse))
 		}
-
-		// update the physics and animation
-		phys.update(dt)
-		anim.update(dt, phys)
 
 		if win.Pressed(pixelgl.KeyA) {
 			camPos.X -= camSpeed * dt
@@ -226,18 +187,26 @@ func run() {
 		if win.Pressed(pixelgl.KeyW) {
 			camPos.Y += camSpeed * dt
 		}
-
 		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
-		//draw
+		//handle updates
+		for _, pink := range pinks {
+			pink.update(dt)
+		}
+
+		//handle drawing
 		win.Clear(colornames.Black)
-		batch.Draw(win)
+
+		for i, pink := range pinks {
+			pink.sprite.Draw(win, matrices[i])
+		}
+
 		win.Update()
 
 		frames++
 		select {
 		case <-second:
-			win.SetTitle(fmt.Sprintf("%s | FPS: %d", cfg.Title, frames))
+			win.SetTitle(fmt.Sprintf("%s | FPS: %d | CELLS: %d", cfg.Title, frames, len(pinks)))
 			frames = 0
 		default:
 		}
