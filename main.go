@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"image"
+	"math"
+	"math/rand"
 	"os"
+	"time"
 
 	_ "image/png"
 
@@ -27,7 +29,7 @@ func loadPicture(path string) (pixel.Picture, error) {
 
 func run() {
 	cfg := pixelgl.WindowConfig{
-		Title:  "PixelLifeGo",
+		Title:  "PixelLifeGo!",
 		Bounds: pixel.R(0, 0, 1024, 768),
 		VSync:  true,
 	}
@@ -36,24 +38,69 @@ func run() {
 		panic(err)
 	}
 
-	pic, err := loadPicture("hiking.png")
+	//win.SetSmooth(true)
+
+	spritesheet, err := loadPicture("trees.png")
 	if err != nil {
 		panic(err)
 	}
 
-	sprite := pixel.NewSprite(pic, pic.Bounds())
+	var treesFrames []pixel.Rect
+	for x := spritesheet.Bounds().Min.X; x < spritesheet.Bounds().Max.X; x += 32 {
+		for y := spritesheet.Bounds().Min.Y; y < spritesheet.Bounds().Max.Y; y += 32 {
+			treesFrames = append(treesFrames, pixel.R(x, y, x+32, y+32))
+		}
+	}
 
+	var (
+		camZoom      = 1.0
+		camZoomSpeed = 1.2
+		camPos       = pixel.ZV
+		camSpeed     = 500.0
+		trees        []*pixel.Sprite
+		matrices     []pixel.Matrix
+	)
+
+	last := time.Now()
 	for !win.Closed() {
-		win.Clear(colornames.Greenyellow)
+		dt := time.Since(last).Seconds()
+		last = time.Now()
 
-		sprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
+		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
+		win.SetMatrix(cam)
+
+		if win.JustPressed(pixelgl.MouseButtonLeft) {
+			tree := pixel.NewSprite(spritesheet, treesFrames[rand.Intn(len(treesFrames))])
+			trees = append(trees, tree)
+			mouse := cam.Unproject(win.MousePosition())
+			matrices = append(matrices, pixel.IM.Scaled(pixel.ZV, 4).Moved(mouse))
+		}
+
+		if win.Pressed(pixelgl.KeyA) {
+			camPos.X -= camSpeed * dt
+		}
+		if win.Pressed(pixelgl.KeyD) {
+			camPos.X += camSpeed * dt
+		}
+		if win.Pressed(pixelgl.KeyS) {
+			camPos.Y -= camSpeed * dt
+		}
+		if win.Pressed(pixelgl.KeyW) {
+			camPos.Y += camSpeed * dt
+		}
+
+		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
+
+		win.Clear(colornames.Forestgreen)
+
+		for i, tree := range trees {
+			tree.Draw(win, matrices[i])
+		}
+
 		win.Update()
 	}
 }
 
 func main() {
-	go func() {
-		fmt.Printf(welcome_string)
-	}()
 	pixelgl.Run(run)
 }
