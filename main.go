@@ -2,18 +2,27 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"os"
+
+	_ "image/png"
 
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 )
 
-func imd_draw(image *imdraw.IMDraw) {
-	image.Color = colornames.Red
-	image.EndShape = imdraw.RoundEndShape
-	image.Push(pixel.V(100, 100), pixel.V(700, 100))
-	image.Line(30)
+func loadPicture(path string) (pixel.Picture, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+	return pixel.PictureDataFromImage(img), nil
 }
 
 func run() {
@@ -27,13 +36,17 @@ func run() {
 		panic(err)
 	}
 
-	imd := imdraw.New(nil)
+	pic, err := loadPicture("hiking.png")
+	if err != nil {
+		panic(err)
+	}
+
+	sprite := pixel.NewSprite(pic, pic.Bounds())
 
 	for !win.Closed() {
-		imd.Clear()
-		imd_draw(imd)
-		win.Clear(colornames.Mediumspringgreen)
-		imd.Draw(win)
+		win.Clear(colornames.Greenyellow)
+
+		sprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 		win.Update()
 	}
 }
