@@ -15,7 +15,8 @@ const (
 	moving           //incoming
 )
 
-const MAX_GAME_OBJECTS = 800
+//MaxGameObjects is the maximum number of objects to draw
+const MaxGameObjects = 800
 
 type gameObject struct {
 	sheet    pixel.Picture
@@ -28,26 +29,28 @@ type gameObject struct {
 	location pixel.Matrix
 }
 
+//GameObjects is the slice of gameObject pointers
 type GameObjects []*gameObject
 
 func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, location pixel.Matrix) GameObjects {
-	if len(gameObjs) >= MAX_GAME_OBJECTS {
+	if len(gameObjs) >= MaxGameObjects {
 		return gameObjs
-	} else {
-		randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
-		randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
-		newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
-		newObject := &gameObject{
-			sheet:    sheet,
-			sprite:   newSprite,
-			anims:    animations,
-			state:    idle,
-			rate:     1.0 / 10,
-			dir:      +1,
-			location: location,
-		}
-		return append(gameObjs, newObject)
 	}
+
+	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
+	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
+	newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
+	newObject := &gameObject{
+		sheet:    sheet,
+		sprite:   newSprite,
+		anims:    animations,
+		state:    idle,
+		rate:     1.0 / 10,
+		dir:      +1,
+		location: location,
+	}
+	return append(gameObjs, newObject)
+
 }
 
 func (gameObj *gameObject) update(dt float64) {
