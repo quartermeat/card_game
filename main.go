@@ -59,11 +59,15 @@ func run() {
 		if win.JustPressed(pixelgl.MouseButtonLeft) {
 			if win.Pressed(pixelgl.KeyLeftControl) {
 				mouse := cam.Unproject(win.MousePosition())
-				selectedObj, err := gameObjs.getSelectedGameObj(mouse)
+				selectedObj, hit, err := gameObjs.getSelectedGameObj(mouse)
 				if err != nil {
 					fmt.Printf(err.Error())
 				}
-				fmt.Println("object id:", selectedObj.id)
+				if hit {
+					fmt.Println("object id:", selectedObj.id)
+				} else {
+					fmt.Println("no object selected")
+				}
 			} else {
 				mouse := cam.Unproject(win.MousePosition())
 				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)

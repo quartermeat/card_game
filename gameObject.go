@@ -50,16 +50,16 @@ type objAttributes struct {
 //GameObjects is a slice of all the gameObjects
 type GameObjects []*gameObject
 
-func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, error) {
+func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, bool, error) {
 	if gameObjs == nil {
-		return gameObject{}, errors.New("no game object exist")
+		return gameObject{}, false, errors.New("no game object exist")
 	}
 	for _, object := range gameObjs {
 		if object.hitBox.Contains(position) {
-			return *object, nil
+			return *object, true, nil
 		}
 	}
-	return *gameObjs[0], nil
+	return *gameObjs[0], false, nil
 }
 
 func setHitBox(position pixel.Vec, hitBox pixel.Rect) pixel.Rect {
