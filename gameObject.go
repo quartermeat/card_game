@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"math"
 	"math/rand"
 	"sync"
@@ -38,35 +39,47 @@ type gameObject struct {
 type objAttributes struct {
 	initiative float64
 	speed      float64
+	stamina    float64
 }
 
 //GameObjects is a slice of all the gameObjects
 type GameObjects []*gameObject
 
+func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, error) {
+	if gameObjs == nil {
+		return gameObject{}, errors.New("no game object exist")
+	}
+	for i := 0; i < len(gameObjs); i++ {
+
+	}
+	return *gameObjs[0], nil
+}
+
 func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
 	if len(gameObjs) >= MaxGameObjects {
 		return gameObjs
-	} else {
-		randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
-		randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
-		newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
-		newObject := &gameObject{
-			sheet:    sheet,
-			sprite:   newSprite,
-			anims:    animations,
-			state:    idle,
-			rate:     1.0 / 10,
-			dir:      0, //direction in radians
-			position: position,
-			vel:      pixel.V(0, 0),
-			matrix:   pixel.IM.Moved(position),
-			attributes: objAttributes{
-				initiative: 1 + rand.Float64()*(10-1),
-				speed:      1 + rand.Float64()*(100-1),
-			},
-		}
-		return append(gameObjs, newObject)
 	}
+	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
+	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
+	newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
+	newObject := &gameObject{
+		sheet:    sheet,
+		sprite:   newSprite,
+		anims:    animations,
+		state:    idle,
+		rate:     1.0 / 10,
+		dir:      0, //direction in radians
+		position: position,
+		vel:      pixel.V(0, 0),
+		matrix:   pixel.IM.Moved(position),
+		attributes: objAttributes{
+			initiative: 1 + rand.Float64()*(10-1),
+			speed:      1 + rand.Float64()*(100-1),
+			stamina:    1 + rand.Float64()*(100-1),
+		},
+	}
+	return append(gameObjs, newObject)
+
 }
 
 var toggle bool = true
@@ -83,6 +96,8 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 		{
 			//update idle animation
 			gameObj.sprite.Set(gameObj.sheet, gameObj.anims["idle"][interval%len(gameObj.anims["idle"])])
+
+			gameObj.attributes.stamina += gameObj.counter
 
 			//start moving in a random direction
 			if gameObj.counter >= gameObj.attributes.initiative {
@@ -101,7 +116,9 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 			gameObj.vel.Y = gameObj.attributes.speed * math.Cos(gameObj.dir)
 			gameObj.matrix = gameObj.matrix.Moved(gameObj.vel.Scaled(dt))
 
-			if gameObj.counter >= gameObj.attributes.initiative {
+			gameObj.attributes.stamina -= gameObj.counter
+
+			if gameObj.attributes.stamina <= 0 {
 				gameObj.state = idle
 				gameObj.counter = 0
 				gameObj.position = gameObj.matrix.Project(gameObj.vel.Scaled(dt))

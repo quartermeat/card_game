@@ -16,14 +16,17 @@ import (
 func run() {
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "Deck Builder Tactical Resource Manager",
+		Title:  "Aeon Ex Machina",
 		Bounds: pixel.R(0, 0, 1024, 768),
 		VSync:  false,
 	}
+
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
 		panic(err)
 	}
+
+	go StartServer()
 
 	//game variables
 	var (
@@ -53,10 +56,22 @@ func run() {
 
 		//handle input
 		if win.JustPressed(pixelgl.MouseButtonLeft) {
-			//TODO: Add a way to select which type of gameObject gets added
-			mouse := cam.Unproject(win.MousePosition())
-			gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
-			// gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, pixel.IM.Scaled(pixel.ZV, 1).Moved(mouse))
+			if !win.Pressed(pixelgl.KeyLeftControl) {
+				mouse := cam.Unproject(win.MousePosition())
+				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+			}
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) {
+			if win.JustPressed(pixelgl.MouseButtonLeft) {
+				mouse := cam.Unproject(win.MousePosition())
+				selectedObj, err := gameObjs.getSelectedGameObj(mouse)
+				if err != nil {
+					fmt.Printf(err.Error())
+				}
+
+				fmt.Println("first objects initiative:", selectedObj.attributes.initiative)
+			}
 		}
 
 		if win.Pressed(pixelgl.KeyA) {
