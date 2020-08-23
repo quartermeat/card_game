@@ -55,22 +55,25 @@ func run() {
 		win.SetMatrix(cam)
 
 		//handle input
-		if win.JustPressed(pixelgl.MouseButtonLeft) {
-			if !win.Pressed(pixelgl.KeyLeftControl) {
-				mouse := cam.Unproject(win.MousePosition())
-				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
-			}
-		}
 
-		if win.Pressed(pixelgl.KeyLeftControl) {
-			if win.JustPressed(pixelgl.MouseButtonLeft) {
+		if win.JustPressed(pixelgl.MouseButtonLeft) {
+			if win.Pressed(pixelgl.KeyLeftControl) {
 				mouse := cam.Unproject(win.MousePosition())
 				selectedObj, err := gameObjs.getSelectedGameObj(mouse)
 				if err != nil {
 					fmt.Printf(err.Error())
 				}
+				fmt.Println("object id:", selectedObj.id)
+			} else {
+				mouse := cam.Unproject(win.MousePosition())
+				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+			}
+		}
 
-				fmt.Println("first objects initiative:", selectedObj.attributes.initiative)
+		if win.Pressed(pixelgl.MouseButtonLeft) {
+			if win.Pressed(pixelgl.KeyLeftShift) {
+				mouse := cam.Unproject(win.MousePosition())
+				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
 			}
 		}
 

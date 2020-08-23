@@ -19,9 +19,13 @@ const (
 )
 
 //MaxGameObjects is the max number of gameObjects to be rendered
-const MaxGameObjects = 800
+const MaxGameObjects = 300
+
+//nextID is the next assignable ID
+var nextID = 0
 
 type gameObject struct {
+	id      int
 	sheet   pixel.Picture
 	anims   map[string][]pixel.Rect
 	sprite  *pixel.Sprite
@@ -31,6 +35,7 @@ type gameObject struct {
 	dir     float64
 
 	vel        pixel.Vec
+	hitBox     pixel.Rect
 	position   pixel.Vec
 	matrix     pixel.Matrix
 	attributes objAttributes
@@ -49,10 +54,20 @@ func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, 
 	if gameObjs == nil {
 		return gameObject{}, errors.New("no game object exist")
 	}
-	for i := 0; i < len(gameObjs); i++ {
-
+	for _, object := range gameObjs {
+		if object.hitBox.Contains(position) {
+			return *object, nil
+		}
 	}
 	return *gameObjs[0], nil
+}
+
+func setHitBox(position pixel.Vec, hitBox pixel.Rect) pixel.Rect {
+	width := hitBox.Max.X - hitBox.Min.X
+	height := hitBox.Max.Y - hitBox.Min.Y
+	topRight := pixel.V(position.X-(width/2), position.Y-(height/2))
+	bottomLeft := pixel.V(position.X+(width/2), position.Y+(width/2))
+	return pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
 }
 
 func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
@@ -63,6 +78,7 @@ func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map
 	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
 	newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
 	newObject := &gameObject{
+		id:       nextID,
 		sheet:    sheet,
 		sprite:   newSprite,
 		anims:    animations,
@@ -72,17 +88,17 @@ func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map
 		position: position,
 		vel:      pixel.V(0, 0),
 		matrix:   pixel.IM.Moved(position),
+		hitBox:   setHitBox(position, newSprite.Frame()),
 		attributes: objAttributes{
 			initiative: 1 + rand.Float64()*(10-1),
 			speed:      1 + rand.Float64()*(100-1),
 			stamina:    1 + rand.Float64()*(100-1),
 		},
 	}
+	nextID++
 	return append(gameObjs, newObject)
 
 }
-
-var toggle bool = true
 
 func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 
@@ -115,6 +131,7 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 			gameObj.vel.X = gameObj.attributes.speed * math.Sin(gameObj.dir) * -1
 			gameObj.vel.Y = gameObj.attributes.speed * math.Cos(gameObj.dir)
 			gameObj.matrix = gameObj.matrix.Moved(gameObj.vel.Scaled(dt))
+			gameObj.hitBox = gameObj.hitBox.Moved(gameObj.vel.Scaled(dt))
 
 			gameObj.attributes.stamina -= gameObj.counter
 
