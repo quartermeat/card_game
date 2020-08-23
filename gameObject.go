@@ -3,6 +3,8 @@ package main
 import (
 	"math"
 	"math/rand"
+	"sync"
+	"time"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -15,76 +17,117 @@ const (
 	moving           //incoming
 )
 
-//MaxGameObjects is the maximum number of objects to draw
+//MaxGameObjects is the max number of gameObjects to be rendered
 const MaxGameObjects = 800
 
 type gameObject struct {
-	sheet    pixel.Picture
-	anims    map[string][]pixel.Rect
-	sprite   *pixel.Sprite
-	rate     float64
-	state    animState
-	counter  float64
-	dir      float64
-	location pixel.Matrix
+	sheet   pixel.Picture
+	anims   map[string][]pixel.Rect
+	sprite  *pixel.Sprite
+	rate    float64
+	state   animState
+	counter float64
+	dir     float64
+
+	vel        pixel.Vec
+	position   pixel.Vec
+	matrix     pixel.Matrix
+	attributes objAttributes
 }
 
-//GameObjects is the slice of gameObject pointers
+type objAttributes struct {
+	initiative float64
+	speed      float64
+}
+
+//GameObjects is a slice of all the gameObjects
 type GameObjects []*gameObject
 
-func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, location pixel.Matrix) GameObjects {
+func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
 	if len(gameObjs) >= MaxGameObjects {
 		return gameObjs
+	} else {
+		randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
+		randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
+		newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
+		newObject := &gameObject{
+			sheet:    sheet,
+			sprite:   newSprite,
+			anims:    animations,
+			state:    idle,
+			rate:     1.0 / 10,
+			dir:      0, //direction in radians
+			position: position,
+			vel:      pixel.V(0, 0),
+			matrix:   pixel.IM.Moved(position),
+			attributes: objAttributes{
+				initiative: 1 + rand.Float64()*(10-1),
+				speed:      1 + rand.Float64()*(100-1),
+			},
+		}
+		return append(gameObjs, newObject)
 	}
-
-	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
-	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
-	newSprite := pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame])
-	newObject := &gameObject{
-		sheet:    sheet,
-		sprite:   newSprite,
-		anims:    animations,
-		state:    idle,
-		rate:     1.0 / 10,
-		dir:      +1,
-		location: location,
-	}
-	return append(gameObjs, newObject)
-
 }
 
-func (gameObj *gameObject) update(dt float64) {
+var toggle bool = true
+
+func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
+
+	rand.Seed(time.Now().UnixNano())
+
 	gameObj.counter += dt
-
-	// determine the new animation state, do some check here and set
-	newState := idle
-
-	// determine the correct animation frame
+	interval := int(math.Floor(gameObj.counter / gameObj.rate))
+	// just have it start to move based on initiative
 	switch gameObj.state {
 	case idle:
-		i := int(math.Floor(gameObj.counter / gameObj.rate))
-		gameObj.sprite.Set(gameObj.sheet, gameObj.anims["idle"][i%len(gameObj.anims["idle"])])
+		{
+			//update idle animation
+			gameObj.sprite.Set(gameObj.sheet, gameObj.anims["idle"][interval%len(gameObj.anims["idle"])])
+
+			//start moving in a random direction
+			if gameObj.counter >= gameObj.attributes.initiative {
+				gameObj.state = moving
+				gameObj.dir = float64(rand.Intn(360)) * (math.Pi / 180)
+				gameObj.matrix = gameObj.matrix.Rotated(gameObj.position, gameObj.dir)
+				gameObj.counter = 0
+			}
+		}
+	case moving:
+		{
+			//update moving animation
+			gameObj.sprite.Set(gameObj.sheet, gameObj.anims["moving"][interval%len(gameObj.anims["moving"])])
+			//invert x axis
+			gameObj.vel.X = gameObj.attributes.speed * math.Sin(gameObj.dir) * -1
+			gameObj.vel.Y = gameObj.attributes.speed * math.Cos(gameObj.dir)
+			gameObj.matrix = gameObj.matrix.Moved(gameObj.vel.Scaled(dt))
+
+			if gameObj.counter >= gameObj.attributes.initiative {
+				gameObj.state = idle
+				gameObj.counter = 0
+				gameObj.position = gameObj.matrix.Project(gameObj.vel.Scaled(dt))
+				gameObj.matrix = pixel.IM.Moved(gameObj.position)
+			}
+		}
 	}
 
-	// reset the time counter if the state changed
-	if gameObj.state != newState {
-		gameObj.state = newState
-		gameObj.counter = 0
-	}
+	waitGroup.Done()
 }
 
-func (gameObj *gameObject) draw(win *pixelgl.Window) {
-	gameObj.sprite.Draw(win, gameObj.location)
+func (gameObj *gameObject) draw(win *pixelgl.Window, waitGroup *sync.WaitGroup) {
+	gameObj.sprite.Draw(win, gameObj.matrix)
+	waitGroup.Done()
 }
 
-func (gameObjs GameObjects) updateAll(dt float64) {
+func (gameObjs GameObjects) updateAll(dt float64, waitGroup *sync.WaitGroup) {
 	for _, obj := range gameObjs {
-		obj.update(dt)
+		waitGroup.Add(1)
+		go obj.update(dt, waitGroup)
 	}
 }
 
-func (gameObjs GameObjects) drawAll(win *pixelgl.Window) {
+func (gameObjs GameObjects) drawAll(win *pixelgl.Window, waitGroup *sync.WaitGroup) {
 	for _, obj := range gameObjs {
-		obj.draw(win)
+		waitGroup.Add(1)
+		obj.draw(win, waitGroup)
 	}
 }

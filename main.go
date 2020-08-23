@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	_ "image/png"
@@ -15,9 +16,9 @@ import (
 func run() {
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "Pixel Life in Go",
+		Title:  "Deck Builder Tactical Resource Manager",
 		Bounds: pixel.R(0, 0, 1024, 768),
-		VSync:  true,
+		VSync:  false,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
@@ -52,8 +53,10 @@ func run() {
 
 		//handle input
 		if win.JustPressed(pixelgl.MouseButtonLeft) {
+			//TODO: Add a way to select which type of gameObject gets added
 			mouse := cam.Unproject(win.MousePosition())
-			gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, pixel.IM.Scaled(pixel.ZV, 1).Moved(mouse))
+			gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+			// gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, pixel.IM.Scaled(pixel.ZV, 1).Moved(mouse))
 		}
 
 		if win.Pressed(pixelgl.KeyA) {
@@ -70,13 +73,17 @@ func run() {
 		}
 		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
-		//handle updates
-		gameObjs.updateAll(dt)
-
 		win.Clear(colornames.Black)
 
+		//this is craziness
+		var waitGroup sync.WaitGroup
+
+		//handle updates
+		gameObjs.updateAll(dt, &waitGroup)
+		waitGroup.Wait()
 		//handle drawing
-		gameObjs.drawAll(win)
+		gameObjs.drawAll(win, &waitGroup)
+		waitGroup.Wait()
 
 		win.Update()
 
