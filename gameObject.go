@@ -5,21 +5,25 @@ import (
 	"math"
 	"math/rand"
 	"sync"
-	"time"
 
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 )
 
-type animState int
+type objectState int
 
 const (
-	idle   animState = iota
-	moving           //incoming
+	idle   objectState = iota
+	moving             //incoming
 )
 
-//MaxGameObjects is the max number of gameObjects to be rendered
-const MaxGameObjects = 300
+const (
+	maxGameObjects = 400
+	maxInitiative  = 10.0
+	maxSpeed       = 100.0
+	maxStamina     = 100.0
+)
 
 //nextID is the next assignable ID
 var nextID = 0
@@ -30,7 +34,7 @@ type gameObject struct {
 	anims   map[string][]pixel.Rect
 	sprite  *pixel.Sprite
 	rate    float64
-	state   animState
+	state   objectState
 	counter float64
 	dir     float64
 
@@ -50,16 +54,26 @@ type objAttributes struct {
 //GameObjects is a slice of all the gameObjects
 type GameObjects []*gameObject
 
-func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, bool, error) {
+func (gameObjs GameObjects) fastRemoveIndex(index int) GameObjects {
+	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.
+	gameObjs[len(gameObjs)-1] = nil             // Erase last element (write zero value).
+	gameObjs = gameObjs[:len(gameObjs)-1]       // Truncate slice.
+	return gameObjs
+}
+
+func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, int, bool, error) {
+	foundObject := true
+	noIndex := -1
+
 	if gameObjs == nil {
-		return gameObject{}, false, errors.New("no game object exist")
+		return gameObject{}, noIndex, !foundObject, errors.New("no game object exist")
 	}
-	for _, object := range gameObjs {
+	for index, object := range gameObjs {
 		if object.hitBox.Contains(position) {
-			return *object, true, nil
+			return *object, index, foundObject, nil
 		}
 	}
-	return *gameObjs[0], false, nil
+	return *gameObjs[0], noIndex, !foundObject, nil
 }
 
 func setHitBox(position pixel.Vec, hitBox pixel.Rect) pixel.Rect {
@@ -71,7 +85,7 @@ func setHitBox(position pixel.Vec, hitBox pixel.Rect) pixel.Rect {
 }
 
 func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
-	if len(gameObjs) >= MaxGameObjects {
+	if len(gameObjs) >= maxGameObjects {
 		return gameObjs
 	}
 	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
@@ -90,9 +104,9 @@ func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map
 		matrix:   pixel.IM.Moved(position),
 		hitBox:   setHitBox(position, newSprite.Frame()),
 		attributes: objAttributes{
-			initiative: 1 + rand.Float64()*(10-1),
-			speed:      1 + rand.Float64()*(100-1),
-			stamina:    1 + rand.Float64()*(100-1),
+			initiative: 1 + rand.Float64()*(maxInitiative-1),
+			speed:      1 + rand.Float64()*(maxSpeed-1),
+			stamina:    1 + rand.Float64()*(maxStamina-1),
 		},
 	}
 	nextID++
@@ -100,9 +114,7 @@ func (gameObjs GameObjects) addGameObject(animationKeys []string, animations map
 
 }
 
-func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
-
-	rand.Seed(time.Now().UnixNano())
+func (gameObj *gameObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
 
 	gameObj.counter += dt
 	interval := int(math.Floor(gameObj.counter / gameObj.rate))
@@ -117,10 +129,7 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 
 			//start moving in a random direction
 			if gameObj.counter >= gameObj.attributes.initiative {
-				gameObj.state = moving
-				gameObj.dir = float64(rand.Intn(360)) * (math.Pi / 180)
-				gameObj.matrix = gameObj.matrix.Rotated(gameObj.position, gameObj.dir)
-				gameObj.counter = 0
+				gameObj.changeState(moving)
 			}
 		}
 	case moving:
@@ -131,15 +140,19 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 			gameObj.vel.X = gameObj.attributes.speed * math.Sin(gameObj.dir) * -1
 			gameObj.vel.Y = gameObj.attributes.speed * math.Cos(gameObj.dir)
 			gameObj.matrix = gameObj.matrix.Moved(gameObj.vel.Scaled(dt))
-			gameObj.hitBox = gameObj.hitBox.Moved(gameObj.vel.Scaled(dt))
-
+			gameObj.position = gameObj.matrix.Project(gameObj.vel.Scaled(dt))
+			gameObj.hitBox = setHitBox(gameObj.position, gameObj.sprite.Frame())
 			gameObj.attributes.stamina -= gameObj.counter
 
+			//collision detection
+			for _, otherObj := range gameObjects {
+				if gameObj.hitBox.Intersects(otherObj.hitBox) && otherObj.id != gameObj.id {
+					// fmt.Println("two objects touching(", otherObj.id, ",", gameObj.id, "):", time.Now().UnixNano())
+				}
+			}
+
 			if gameObj.attributes.stamina <= 0 {
-				gameObj.state = idle
-				gameObj.counter = 0
-				gameObj.position = gameObj.matrix.Project(gameObj.vel.Scaled(dt))
-				gameObj.matrix = pixel.IM.Moved(gameObj.position)
+				gameObj.changeState(idle)
 			}
 		}
 	}
@@ -147,21 +160,45 @@ func (gameObj *gameObject) update(dt float64, waitGroup *sync.WaitGroup) {
 	waitGroup.Done()
 }
 
-func (gameObj *gameObject) draw(win *pixelgl.Window, waitGroup *sync.WaitGroup) {
+func (gameObj *gameObject) changeState(newState objectState) {
+	gameObj.state = newState
+	gameObj.counter = 0
+	switch newState {
+	case idle:
+		{
+			gameObj.matrix = pixel.IM.Moved(gameObj.position)
+		}
+	case moving:
+		{
+			gameObj.dir = float64(rand.Intn(360)) * (math.Pi / 180)
+			gameObj.matrix = gameObj.matrix.Rotated(gameObj.position, gameObj.dir)
+		}
+	}
+}
+
+func (gameObj *gameObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	gameObj.sprite.Draw(win, gameObj.matrix)
+
+	if drawHitBox {
+		imd := imdraw.New(nil)
+		imd.Color = pixel.RGB(0, 255, 0)
+		imd.Push(gameObj.hitBox.Min, gameObj.hitBox.Max)
+		imd.Rectangle(1)
+		imd.Draw(win)
+	}
 	waitGroup.Done()
 }
 
 func (gameObjs GameObjects) updateAll(dt float64, waitGroup *sync.WaitGroup) {
 	for _, obj := range gameObjs {
 		waitGroup.Add(1)
-		go obj.update(dt, waitGroup)
+		go obj.update(dt, gameObjs, waitGroup)
 	}
 }
 
-func (gameObjs GameObjects) drawAll(win *pixelgl.Window, waitGroup *sync.WaitGroup) {
+func (gameObjs GameObjects) drawAll(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	for _, obj := range gameObjs {
 		waitGroup.Add(1)
-		obj.draw(win, waitGroup)
+		go obj.draw(win, drawHitBox, waitGroup)
 	}
 }
