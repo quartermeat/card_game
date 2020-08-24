@@ -32,14 +32,10 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 	sheet = pixel.PictureDataFromImage(sheetImg)
 
 	// create a slice of frames inside the spritesheet
+	//todo fix loading of frames (hard coded for specific things right now)
 	var frames []pixel.Rect
 	for x := 0.0; x+frameWidth <= sheet.Bounds().Max.X; x += frameWidth {
-		frames = append(frames, pixel.R(
-			x,
-			0,
-			x+frameWidth,
-			sheet.Bounds().H(),
-		))
+		frames = append(frames, pixel.R(x, 32, x+frameWidth, 64))
 	}
 
 	descFile, err := os.Open(descPath)
@@ -71,4 +67,29 @@ func loadAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet p
 	}
 
 	return sheet, anims, animKeys, nil
+}
+
+func loadCoinSheet(sheetPath string) (sheet pixel.Picture, frame pixel.Rect, err error) {
+	// total hack, nicely format the error at the end, so I don't have to type it every time
+	defer func() {
+		if err != nil {
+			err = errors.Wrap(err, "error loading animation sheet")
+		}
+	}()
+
+	frame = pixel.R(0, 16, 16, 32)
+
+	// open and load the spritesheet
+	sheetFile, err := os.Open(sheetPath)
+	if err != nil {
+		return nil, frame, err
+	}
+	defer sheetFile.Close()
+	sheetImg, _, err := image.Decode(sheetFile)
+	if err != nil {
+		return nil, frame, err
+	}
+	sheet = pixel.PictureDataFromImage(sheetImg)
+
+	return sheet, frame, nil
 }

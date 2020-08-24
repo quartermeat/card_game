@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -28,7 +29,15 @@ func run() {
 
 	go StartServer()
 
-	//game variables
+	//load assets
+	pinkSheet, pinkAnims, pinkAnimKeys, err := loadAnimationSheet("assets/spriteSheet.png", "assets/pink_animations.csv", 32)
+	coinSheet, coinFrame, err := loadCoinSheet("assets/spriteSheet.png")
+	if err != nil {
+		panic(err)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
 	var (
 		camPos       = pixel.ZV
 		camSpeed     = 500.0
@@ -37,13 +46,10 @@ func run() {
 		gameObjs     GameObjects
 		frames       = 0
 		second       = time.Tick(time.Second)
+		drawHitBox   = false
 	)
 
-	//load assets
-	pinkSheet, pinkAnims, pinkAnimKeys, err := loadAnimationSheet("assets/pink.png", "assets/pink_animations.csv", 32)
-	if err != nil {
-		panic(err)
-	}
+	selectedSprite := pixel.NewSprite(coinSheet, coinFrame)
 
 	last := time.Now()
 	for !win.Closed() {
@@ -54,17 +60,39 @@ func run() {
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
-		//handle input
+		if win.JustPressed(pixelgl.MouseButtonRight) {
+			mouse := cam.Unproject(win.MousePosition())
+			selectedObj, index, hit, err := gameObjs.getSelectedGameObj(mouse)
+			if err != nil {
+				fmt.Printf(err.Error())
+			}
+			if hit {
+				fmt.Println("object id:", selectedObj.id, " removed")
+				gameObjs = gameObjs.fastRemoveIndex(index)
+			} else {
+				fmt.Println("no object selected")
+			}
+		}
+
+		if win.JustPressed(pixelgl.Key0) {
+			selectedSprite.Set(coinSheet, coinFrame)
+		}
+		if win.JustPressed(pixelgl.Key1) {
+			selectedSprite.Set(pinkSheet, pinkAnims[pinkAnimKeys[0]][0])
+		}
 
 		if win.JustPressed(pixelgl.MouseButtonLeft) {
 			if win.Pressed(pixelgl.KeyLeftControl) {
 				mouse := cam.Unproject(win.MousePosition())
-				selectedObj, hit, err := gameObjs.getSelectedGameObj(mouse)
+				selectedObj, _, hit, err := gameObjs.getSelectedGameObj(mouse)
 				if err != nil {
 					fmt.Printf(err.Error())
 				}
 				if hit {
 					fmt.Println("object id:", selectedObj.id)
+					fmt.Println("object speed:", selectedObj.attributes.speed)
+					fmt.Println("object initiative:", selectedObj.attributes.initiative)
+					fmt.Println("object stamina:", selectedObj.attributes.stamina)
 				} else {
 					fmt.Println("no object selected")
 				}
@@ -81,6 +109,10 @@ func run() {
 			}
 		}
 
+		if win.JustPressed(pixelgl.KeyH) {
+			drawHitBox = !drawHitBox
+		}
+
 		if win.Pressed(pixelgl.KeyA) {
 			camPos.X -= camSpeed * dt
 		}
@@ -93,7 +125,9 @@ func run() {
 		if win.Pressed(pixelgl.KeyW) {
 			camPos.Y += camSpeed * dt
 		}
-		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
+		if win.Pressed(pixelgl.KeyLeftControl) {
+			camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
+		}
 
 		win.Clear(colornames.Black)
 
@@ -104,8 +138,16 @@ func run() {
 		gameObjs.updateAll(dt, &waitGroup)
 		waitGroup.Wait()
 		//handle drawing
-		gameObjs.drawAll(win, &waitGroup)
+		gameObjs.drawAll(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
+
+		if win.MouseInsideWindow() {
+			win.SetCursorVisible(false)
+			selectedSprite.Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
+
+		} else {
+			win.SetCursorVisible(true)
+		}
 
 		win.Update()
 
