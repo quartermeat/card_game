@@ -18,7 +18,7 @@ func run() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Aeon Ex Machina",
-		Bounds: pixel.R(0, 0, 1024, 768),
+		Bounds: pixel.R(0, 0, 1280, 960),
 		VSync:  false,
 	}
 
@@ -44,6 +44,7 @@ func run() {
 		camZoom      = 1.0
 		camZoomSpeed = 1.2
 		gameObjs     GameObjects
+		livingObjs   LivingObjects
 		frames       = 0
 		second       = time.Tick(time.Second)
 		drawHitBox   = false
@@ -67,7 +68,7 @@ func run() {
 				fmt.Printf(err.Error())
 			}
 			if hit {
-				fmt.Println("object id:", selectedObj.id, " removed")
+				fmt.Println("object id:", selectedObj.getID(), " removed")
 				gameObjs = gameObjs.fastRemoveIndex(index)
 			} else {
 				fmt.Println("no object selected")
@@ -89,23 +90,21 @@ func run() {
 					fmt.Printf(err.Error())
 				}
 				if hit {
-					fmt.Println("object id:", selectedObj.id)
-					fmt.Println("object speed:", selectedObj.attributes.speed)
-					fmt.Println("object initiative:", selectedObj.attributes.initiative)
-					fmt.Println("object stamina:", selectedObj.attributes.stamina)
+					fmt.Println("object id:", selectedObj.getID())
 				} else {
 					fmt.Println("no object selected")
 				}
 			} else {
 				mouse := cam.Unproject(win.MousePosition())
-				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+				//add object based on selectedObj
+				livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
 			}
 		}
 
 		if win.Pressed(pixelgl.MouseButtonLeft) {
 			if win.Pressed(pixelgl.KeyLeftShift) {
 				mouse := cam.Unproject(win.MousePosition())
-				gameObjs = gameObjs.addGameObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+				livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
 			}
 		}
 
@@ -129,16 +128,17 @@ func run() {
 			camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 		}
 
-		win.Clear(colornames.Black)
-
 		//this is craziness
 		var waitGroup sync.WaitGroup
 
-		//handle updates
-		gameObjs.updateAll(dt, &waitGroup)
-		waitGroup.Wait()
+		win.Clear(colornames.Black)
+
 		//handle drawing
-		gameObjs.drawAll(win, drawHitBox, &waitGroup)
+
+		livingObjs.updateAllLivingObjects(dt, gameObjs, &waitGroup)
+		waitGroup.Wait()
+
+		livingObjs.drawAllLivingObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
 
 		if win.MouseInsideWindow() {
