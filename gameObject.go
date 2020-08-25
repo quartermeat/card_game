@@ -22,25 +22,8 @@ const (
 	maxStamina     = 100.0
 )
 
-//NextID is the next assignable ID
+//NextID is the next assignable object ID
 var NextID = 0
-
-// type gameObject struct {
-// 	id      int
-// 	sheet   pixel.Picture
-// 	anims   map[string][]pixel.Rect
-// 	sprite  *pixel.Sprite
-// 	rate    float64
-// 	state   objectState
-// 	counter float64
-// 	dir     float64
-
-// 	vel        pixel.Vec
-// 	hitBox     pixel.Rect
-// 	position   pixel.Vec
-// 	matrix     pixel.Matrix
-// 	attributes objAttributes
-// }
 
 type gameObject interface {
 	getID() int

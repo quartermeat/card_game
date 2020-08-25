@@ -2,11 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"math/rand"
 	"sync"
-	"time"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
@@ -118,7 +116,7 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			//collision detection
 			for _, otherObj := range gameObjects {
 				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
-					fmt.Println("two objects touching(", otherObj.getID(), ",", livingObj.getID(), "):", time.Now().UnixNano())
+					//handle collisions with other objects here
 				}
 			}
 
@@ -128,7 +126,7 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 		}
 	}
 
-	//waitGroup.Done()
+	waitGroup.Done()
 }
 
 func (livingObj *livingObject) changeState(newState objectState) {
@@ -157,7 +155,7 @@ func (livingObj livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGro
 		imd.Rectangle(1)
 		imd.Draw(win)
 	}
-	// waitGroup.Done()
+	waitGroup.Done()
 }
 
 //collection functions
@@ -170,14 +168,15 @@ func (livingObjs LivingObjects) fastRemoveIndexFromLivingObjects(index int) Livi
 
 func (livingObjs LivingObjects) updateAllLivingObjects(dt float64, gameObjs GameObjects, waitGroup *sync.WaitGroup) {
 	for i := 0; i < len(livingObjs); i++ {
-		livingObjs[i].update(dt, gameObjs, waitGroup)
+		waitGroup.Add(1)
+		go livingObjs[i].update(dt, gameObjs, waitGroup)
 	}
 }
 
 func (livingObjs LivingObjects) drawAllLivingObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	for _, obj := range livingObjs {
-		//waitGroup.Add(1)
-		obj.draw(win, drawHitBox, waitGroup)
+		waitGroup.Add(1)
+		go obj.draw(win, drawHitBox, waitGroup)
 	}
 }
 
