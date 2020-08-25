@@ -27,18 +27,11 @@ var NextID = 0
 
 type gameObject interface {
 	getID() int
-	createNewObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) *gameObject
 	setHitBox()
 	getHitBox() pixel.Rect
 	update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
 	changeState(newState objectState)
 	draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup)
-}
-
-type objAttributes struct {
-	initiative float64
-	speed      float64
-	stamina    float64
 }
 
 //GameObjects is a slice of all the gameObjects
