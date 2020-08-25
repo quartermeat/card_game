@@ -14,6 +14,13 @@ import (
 	"golang.org/x/image/colornames"
 )
 
+type objectType int
+
+const (
+	living objectType = iota
+	coin
+)
+
 func run() {
 
 	cfg := pixelgl.WindowConfig{
@@ -30,8 +37,8 @@ func run() {
 	go StartServer()
 
 	//load assets
-	pinkSheet, pinkAnims, pinkAnimKeys, err := loadAnimationSheet("assets/spriteSheet.png", "assets/pink_animations.csv", 32)
-	coinSheet, coinFrame, err := loadCoinSheet("assets/spriteSheet.png")
+	pinkSheet, pinkAnims, pinkAnimKeys, err := loadCellAnimationSheet("assets/spriteSheet.png", "assets/pinkAnimations.csv", 32)
+	coinSheet, coinAnims, coinAnimKeys, err := loadCoinAnimationSheet("assets/spriteSheet.png", "assets/coinAnimations.csv", 16)
 	if err != nil {
 		panic(err)
 	}
@@ -45,12 +52,14 @@ func run() {
 		camZoomSpeed = 1.2
 		gameObjs     GameObjects
 		livingObjs   LivingObjects
+		coinObjs     CoinObjects
 		frames       = 0
 		second       = time.Tick(time.Second)
 		drawHitBox   = false
 	)
 
-	selectedSprite := pixel.NewSprite(coinSheet, coinFrame)
+	selectedObject := coin
+	selectedSprite := pixel.NewSprite(coinSheet, coinAnims["coinIdle"][0])
 
 	last := time.Now()
 	for !win.Closed() {
@@ -70,15 +79,31 @@ func run() {
 			if hit {
 				fmt.Println("object id:", selectedObj.getID(), " removed")
 				gameObjs = gameObjs.fastRemoveIndex(index)
+
+				switch selectedObj.(type) {
+				case *livingObject:
+					{
+						livingObjs = livingObjs.fastRemoveIndexFromLivingObjects(index)
+						selectedObj = nil
+					}
+				case *coinObject:
+					{
+						coinObjs = coinObjs.fastRemoveIndexFromCoinObjects(index)
+						selectedObj = nil
+					}
+				}
 			} else {
 				fmt.Println("no object selected")
 			}
+			hit = false
 		}
 
 		if win.JustPressed(pixelgl.Key0) {
-			selectedSprite.Set(coinSheet, coinFrame)
+			selectedObject = coin
+			selectedSprite.Set(coinSheet, coinAnims[coinAnimKeys[0]][0])
 		}
 		if win.JustPressed(pixelgl.Key1) {
+			selectedObject = living
 			selectedSprite.Set(pinkSheet, pinkAnims[pinkAnimKeys[0]][0])
 		}
 
@@ -97,14 +122,32 @@ func run() {
 			} else {
 				mouse := cam.Unproject(win.MousePosition())
 				//add object based on selectedObj
-				livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+				switch selectedObject {
+				case living:
+					{
+						livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+					}
+				case coin:
+					{
+						coinObjs, gameObjs = coinObjs.appendCoinObject(gameObjs, coinAnimKeys, coinAnims, coinSheet, mouse)
+					}
+				}
 			}
 		}
 
 		if win.Pressed(pixelgl.MouseButtonLeft) {
 			if win.Pressed(pixelgl.KeyLeftShift) {
 				mouse := cam.Unproject(win.MousePosition())
-				livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+				switch selectedObject {
+				case living:
+					{
+						livingObjs, gameObjs = livingObjs.appendLivingObject(gameObjs, pinkAnimKeys, pinkAnims, pinkSheet, mouse)
+					}
+				case coin:
+					{
+						coinObjs, gameObjs = coinObjs.appendCoinObject(gameObjs, coinAnimKeys, coinAnims, coinSheet, mouse)
+					}
+				}
 			}
 		}
 
@@ -137,8 +180,12 @@ func run() {
 
 		livingObjs.updateAllLivingObjects(dt, gameObjs, &waitGroup)
 		waitGroup.Wait()
+		coinObjs.updateAllCoinObjects(dt, gameObjs, &waitGroup)
+		waitGroup.Wait()
 
 		livingObjs.drawAllLivingObjects(win, drawHitBox, &waitGroup)
+		waitGroup.Wait()
+		coinObjs.drawAllCoinObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
 
 		if win.MouseInsideWindow() {

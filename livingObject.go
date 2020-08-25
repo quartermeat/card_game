@@ -16,7 +16,6 @@ const (
 )
 
 type livingObject struct {
-	gameObject
 	id      int
 	sheet   pixel.Picture
 	anims   map[string][]pixel.Rect
@@ -30,7 +29,7 @@ type livingObject struct {
 	hitBox     pixel.Rect
 	position   pixel.Vec
 	matrix     pixel.Matrix
-	attributes objAttributes
+	attributes livingObjAttributes
 }
 
 type livingObjAttributes struct {
@@ -56,7 +55,7 @@ func creatNewLivingObject(animationKeys []string, animations map[string][]pixel.
 		vel:      pixel.V(0, 0),
 		matrix:   pixel.IM.Moved(position),
 		state:    idle,
-		attributes: objAttributes{
+		attributes: livingObjAttributes{
 			initiative: 1 + rand.Float64()*(maxInitiative-1),
 			speed:      1 + rand.Float64()*(maxSpeed-1),
 			stamina:    1 + rand.Float64()*(maxStamina-1),
@@ -67,7 +66,7 @@ func creatNewLivingObject(animationKeys []string, animations map[string][]pixel.
 	return livingObj
 }
 
-func (livingObj livingObject) getID() int {
+func (livingObj *livingObject) getID() int {
 	return livingObj.id
 }
 
@@ -79,7 +78,7 @@ func (livingObj *livingObject) setHitBox() {
 	livingObj.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
 }
 
-func (livingObj livingObject) getHitBox() pixel.Rect {
+func (livingObj *livingObject) getHitBox() pixel.Rect {
 	return livingObj.hitBox
 }
 
@@ -117,6 +116,16 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			for _, otherObj := range gameObjects {
 				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
 					//handle collisions with other objects here
+					switch otherObj.(type) {
+					case *coinObject:
+						{
+							otherObj.changeState(moving)
+						}
+					default:
+						{
+
+						}
+					}
 				}
 			}
 
@@ -145,7 +154,7 @@ func (livingObj *livingObject) changeState(newState objectState) {
 	}
 }
 
-func (livingObj livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	livingObj.sprite.Draw(win, livingObj.matrix)
 
 	if drawHitBox {
@@ -161,8 +170,7 @@ func (livingObj livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGro
 //collection functions
 func (livingObjs LivingObjects) fastRemoveIndexFromLivingObjects(index int) LivingObjects {
 	livingObjs[index] = livingObjs[len(livingObjs)-1] // Copy last element to index i.
-	// livingObjs[len(livingObjs)-1] = nil               // Erase last element (write zero value).
-	livingObjs = livingObjs[:len(livingObjs)-1] // Truncate slice.
+	livingObjs = livingObjs[:len(livingObjs)-1]       // Truncate slice.
 	return livingObjs
 }
 
