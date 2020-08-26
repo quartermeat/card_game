@@ -13,6 +13,7 @@ type objectState int
 const (
 	idle   objectState = iota
 	moving             //incoming
+	selected
 )
 
 const (
@@ -26,10 +27,11 @@ const (
 var NextID = 0
 
 type gameObject interface {
+	Sprite() *pixel.Sprite
 	getID() int
 	setHitBox()
 	getHitBox() pixel.Rect
-	update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
+	update(dt float64, gameObjects *GameObjects, waitGroup *sync.WaitGroup)
 	changeState(newState objectState)
 	draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup)
 }
@@ -39,7 +41,6 @@ type GameObjects []gameObject
 
 func (gameObjs GameObjects) fastRemoveIndex(index int) GameObjects {
 	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.
-	gameObjs[len(gameObjs)-1] = nil             // Erase last element (write zero value).
 	gameObjs = gameObjs[:len(gameObjs)-1]       // Truncate slice.
 	return gameObjs
 }
@@ -56,7 +57,7 @@ func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, 
 	foundObject := true
 	noIndex := -1
 
-	if gameObjs == nil {
+	if gameObjs == nil || len(gameObjs) == 0 {
 		return nil, noIndex, !foundObject, errors.New("no game object exist")
 	}
 	for index, object := range gameObjs {

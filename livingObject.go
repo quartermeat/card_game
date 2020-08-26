@@ -16,20 +16,21 @@ const (
 )
 
 type livingObject struct {
-	id      int
-	sheet   pixel.Picture
-	anims   map[string][]pixel.Rect
-	sprite  *pixel.Sprite
-	rate    float64
-	state   objectState
-	counter float64
-	dir     float64
-
-	vel        pixel.Vec
-	hitBox     pixel.Rect
-	position   pixel.Vec
-	matrix     pixel.Matrix
-	attributes livingObjAttributes
+	id          int
+	sheet       pixel.Picture
+	anims       map[string][]pixel.Rect
+	sprite      *pixel.Sprite
+	rate        float64
+	state       objectState
+	counter     float64
+	dir         float64
+	giblet      *gibletObject
+	destination pixel.Vec
+	vel         pixel.Vec
+	hitBox      pixel.Rect
+	position    pixel.Vec
+	matrix      pixel.Matrix
+	attributes  livingObjAttributes
 }
 
 type livingObjAttributes struct {
@@ -41,6 +42,10 @@ type livingObjAttributes struct {
 //LivingObjects is a slice of all the livingObjects
 type LivingObjects []*livingObject
 
+func (livingObj livingObject) Sprite() *pixel.Sprite {
+	return livingObj.sprite
+}
+
 func creatNewLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) livingObject {
 	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
 	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
@@ -51,6 +56,7 @@ func creatNewLivingObject(animationKeys []string, animations map[string][]pixel.
 		anims:    animations,
 		rate:     1.0 / 10,
 		dir:      0,
+		giblet:   nil,
 		position: position,
 		vel:      pixel.V(0, 0),
 		matrix:   pixel.IM.Moved(position),
@@ -82,7 +88,7 @@ func (livingObj *livingObject) getHitBox() pixel.Rect {
 	return livingObj.hitBox
 }
 
-func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
+func (livingObj *livingObject) update(dt float64, gameObjects *GameObjects, waitGroup *sync.WaitGroup) {
 
 	livingObj.counter += dt
 	interval := int(math.Floor(livingObj.counter / livingObj.rate))
@@ -112,14 +118,28 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			livingObj.setHitBox()
 			livingObj.attributes.stamina -= livingObj.counter
 
+			//handle holding a giblet
+			if livingObj.giblet != nil {
+				//update giblet's position
+				livingObj.giblet.matrix = livingObj.matrix.Moved(livingObj.vel.Scaled(dt))
+				livingObj.giblet.position = livingObj.matrix.Project(livingObj.vel.Scaled(dt))
+				livingObj.attributes.stamina -= float64(livingObj.giblet.attributes.value)
+			}
+
 			//collision detection
-			for _, otherObj := range gameObjects {
+			for _, otherObj := range *gameObjects {
 				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
 					//handle collisions with other objects here
 					switch otherObj.(type) {
-					case *coinObject:
+					case *gibletObject:
 						{
-							otherObj.changeState(moving)
+							livingObj.giblet = otherObj.(*gibletObject)
+							// if livingObj.giblet.host != nil && livingObj.giblet.host != livingObj {
+							// 	//take giblet from other host
+							// 	livingObj.giblet.host.giblet = nil
+							// }
+							livingObj.giblet.changeState(moving)
+							livingObj.giblet.host = livingObj
 						}
 					default:
 						{
@@ -132,6 +152,12 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			if livingObj.attributes.stamina <= 0 {
 				livingObj.changeState(idle)
 			}
+		}
+	case selected:
+		{
+			//make idle
+			livingObj.sprite.Set(livingObj.sheet, livingObj.anims["idle"][interval%len(livingObj.anims["idle"])])
+			livingObj.attributes.stamina += livingObj.counter
 		}
 	}
 
@@ -157,7 +183,7 @@ func (livingObj *livingObject) changeState(newState objectState) {
 func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	livingObj.sprite.Draw(win, livingObj.matrix)
 
-	if drawHitBox {
+	if drawHitBox || livingObj.state == selected {
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
 		imd.Push(livingObj.hitBox.Min, livingObj.hitBox.Max)
@@ -174,7 +200,7 @@ func (livingObjs LivingObjects) fastRemoveIndexFromLivingObjects(index int) Livi
 	return livingObjs
 }
 
-func (livingObjs LivingObjects) updateAllLivingObjects(dt float64, gameObjs GameObjects, waitGroup *sync.WaitGroup) {
+func (livingObjs LivingObjects) updateAllLivingObjects(dt float64, gameObjs *GameObjects, waitGroup *sync.WaitGroup) {
 	for i := 0; i < len(livingObjs); i++ {
 		waitGroup.Add(1)
 		go livingObjs[i].update(dt, gameObjs, waitGroup)
