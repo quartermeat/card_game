@@ -69,7 +69,7 @@ func loadCellAnimationSheet(sheetPath, descPath string, frameWidth float64) (she
 	return sheet, anims, animKeys, nil
 }
 
-func loadCoinAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet pixel.Picture, anims map[string][]pixel.Rect, animKeys []string, err error) {
+func loadgibletAnimationSheet(sheetPath, descPath string, frameWidth float64) (sheet pixel.Picture, anims map[string][]pixel.Rect, animKeys []string, err error) {
 	// total hack, nicely format the error at the end, so I don't have to type it every time
 	defer func() {
 		if err != nil {
