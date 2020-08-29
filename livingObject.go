@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"math"
 	"math/rand"
 	"sync"
@@ -9,10 +8,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
-)
-
-const (
-	maxLivingObjects = 400
 )
 
 type livingObject struct {
@@ -39,10 +34,7 @@ type livingObjAttributes struct {
 	stamina    float64
 }
 
-//LivingObjects is a slice of all the livingObjects
-type LivingObjects []*livingObject
-
-func (livingObj livingObject) Sprite() *pixel.Sprite {
+func (livingObj *livingObject) Sprite() *pixel.Sprite {
 	return livingObj.sprite
 }
 
@@ -88,7 +80,7 @@ func (livingObj *livingObject) getHitBox() pixel.Rect {
 	return livingObj.hitBox
 }
 
-func (livingObj *livingObject) update(dt float64, gameObjects *GameObjects, waitGroup *sync.WaitGroup) {
+func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
 
 	livingObj.counter += dt
 	interval := int(math.Floor(livingObj.counter / livingObj.rate))
@@ -127,7 +119,7 @@ func (livingObj *livingObject) update(dt float64, gameObjects *GameObjects, wait
 			}
 
 			//collision detection
-			for _, otherObj := range *gameObjects {
+			for _, otherObj := range gameObjects {
 				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
 					//handle collisions with other objects here
 					switch otherObj.(type) {
@@ -191,52 +183,4 @@ func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGr
 		imd.Draw(win)
 	}
 	waitGroup.Done()
-}
-
-//collection functions
-func (livingObjs LivingObjects) fastRemoveIndexFromLivingObjects(index int) LivingObjects {
-	livingObjs[index] = livingObjs[len(livingObjs)-1] // Copy last element to index i.
-	livingObjs = livingObjs[:len(livingObjs)-1]       // Truncate slice.
-	return livingObjs
-}
-
-func (livingObjs LivingObjects) updateAllLivingObjects(dt float64, gameObjs *GameObjects, waitGroup *sync.WaitGroup) {
-	for i := 0; i < len(livingObjs); i++ {
-		waitGroup.Add(1)
-		go livingObjs[i].update(dt, gameObjs, waitGroup)
-	}
-}
-
-func (livingObjs LivingObjects) drawAllLivingObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	for _, obj := range livingObjs {
-		waitGroup.Add(1)
-		go obj.draw(win, drawHitBox, waitGroup)
-	}
-}
-
-func (livingObjs LivingObjects) appendLivingObject(gameObjs GameObjects, animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) (LivingObjects, GameObjects) {
-	if len(livingObjs) >= maxLivingObjects {
-		return livingObjs, gameObjs
-	}
-	if len(gameObjs) >= maxGameObjects {
-		return livingObjs, gameObjs
-	}
-	newLivingObject := creatNewLivingObject(animationKeys, animations, sheet, position)
-	gameObjs = gameObjs.appendGameObject(&newLivingObject)
-	return append(livingObjs, &newLivingObject), gameObjs
-}
-
-func (livingObjs LivingObjects) getSelectedLivingObj(position pixel.Vec) (livingObject, int, bool, error) {
-	foundObject := true
-	noIndex := -1
-
-	if livingObjs == nil {
-		return livingObject{}, noIndex, !foundObject, errors.New("no game object exist")
-	}
-	for index, object := range livingObjs {
-		if object.hitBox.Contains(position) {
-			return *object, index, foundObject, nil
-		}
-	}
-	return *livingObjs[0], noIndex, !foundObject, nil
 }
