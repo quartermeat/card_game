@@ -27,7 +27,11 @@ const (
 var NextID = 0
 
 type gameObject interface {
+	ObjectName() string
 	Sprite() *pixel.Sprite
+	Sheet() pixel.Picture
+	AnimationKeys() []string
+	Animations() map[string][]pixel.Rect
 	getID() int
 	setHitBox()
 	getHitBox() pixel.Rect
@@ -54,12 +58,12 @@ func (gameObjs GameObjects) appendGameObject(newObject gameObject) GameObjects {
 }
 
 func (gameObjs GameObjects) appendLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
-	newLivingObject := creatNewLivingObject(animationKeys, animations, sheet, position)
+	newLivingObject := createNewLivingObject(animationKeys, animations, sheet, position)
 	return gameObjs.appendGameObject(&newLivingObject)
 }
 
 func (gameObjs GameObjects) appendGibletObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
-	newGibletObject := creatNewGibletObject(animationKeys, animations, sheet, position)
+	newGibletObject := createNewGibletObject(animationKeys, animations, sheet, position)
 	return gameObjs.appendGameObject(&newGibletObject)
 }
 
@@ -82,7 +86,7 @@ func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, 
 	noIndex := -1
 
 	if gameObjs == nil || len(gameObjs) == 0 {
-		return nil, noIndex, !foundObject, errors.New("no game object exist")
+		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exist")
 	}
 	for index, object := range gameObjs {
 		if object.getHitBox().Contains(position) {

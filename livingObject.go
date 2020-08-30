@@ -13,6 +13,7 @@ import (
 type livingObject struct {
 	id          int
 	sheet       pixel.Picture
+	animKeys    []string
 	anims       map[string][]pixel.Rect
 	sprite      *pixel.Sprite
 	rate        float64
@@ -38,13 +39,52 @@ func (livingObj *livingObject) Sprite() *pixel.Sprite {
 	return livingObj.sprite
 }
 
-func creatNewLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) livingObject {
+func (livingObj *livingObject) Sheet() pixel.Picture {
+	return livingObj.sheet
+}
+
+func (livingObj *livingObject) AnimationKeys() []string {
+	return livingObj.animKeys
+}
+
+func (livingObj *livingObject) Animations() map[string][]pixel.Rect {
+	return livingObj.anims
+}
+
+func (livingObj *livingObject) ObjectName() string {
+	return "Living"
+}
+
+func getShallowLivingObject(livingAnimKeys []string, livingAnims map[string][]pixel.Rect, livingSheet pixel.Picture) *livingObject {
+	return &livingObject{
+		id:       -1,
+		sheet:    livingSheet,
+		sprite:   pixel.NewSprite(livingSheet, livingAnims["idle"][0]),
+		animKeys: livingAnimKeys,
+		anims:    livingAnims,
+		rate:     1.0 / 2,
+		dir:      0,
+		position: pixel.V(0, 0),
+		vel:      pixel.V(0, 0),
+		giblet:   nil,
+		matrix:   pixel.IM.Moved(pixel.V(0, 0)),
+		state:    idle,
+		attributes: livingObjAttributes{
+			initiative: 0,
+			speed:      0,
+			stamina:    0,
+		},
+	}
+}
+
+func createNewLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) livingObject {
 	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
 	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
 	livingObj := livingObject{
 		id:       NextID,
 		sheet:    sheet,
 		sprite:   pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame]),
+		animKeys: animationKeys,
 		anims:    animations,
 		rate:     1.0 / 10,
 		dir:      0,
