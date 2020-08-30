@@ -13,6 +13,7 @@ import (
 type gibletObject struct {
 	id         int
 	sheet      pixel.Picture
+	animKeys   []string
 	anims      map[string][]pixel.Rect
 	sprite     *pixel.Sprite
 	rate       float64
@@ -51,13 +52,50 @@ func (gibletObj *gibletObject) getHitBox() pixel.Rect {
 	return gibletObj.hitBox
 }
 
-func creatNewGibletObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) gibletObject {
+func (gibletObj *gibletObject) Sheet() pixel.Picture {
+	return gibletObj.sheet
+}
+
+func (gibletObj *gibletObject) AnimationKeys() []string {
+	return gibletObj.animKeys
+}
+
+func (gibletObj *gibletObject) Animations() map[string][]pixel.Rect {
+	return gibletObj.anims
+}
+
+func (gibletObj *gibletObject) ObjectName() string {
+	return "Giblet"
+}
+
+func getShallowGibletObject(gibletAnimKeys []string, gibletAnims map[string][]pixel.Rect, gibletSheet pixel.Picture) *gibletObject {
+	return &gibletObject{
+		id:       -1,
+		sheet:    gibletSheet,
+		sprite:   pixel.NewSprite(gibletSheet, gibletAnims["gibletIdle"][0]),
+		animKeys: gibletAnimKeys,
+		anims:    gibletAnims,
+		rate:     1.0 / 2,
+		dir:      0,
+		position: pixel.V(0, 0),
+		host:     nil,
+		vel:      pixel.V(0, 0),
+		matrix:   pixel.IM.Moved(pixel.V(0, 0)),
+		state:    idle,
+		attributes: gibletObjAttributes{
+			value: 1,
+		},
+	}
+}
+
+func createNewGibletObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) gibletObject {
 	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
 	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
 	gibletObj := gibletObject{
 		id:       NextID,
 		sheet:    sheet,
 		sprite:   pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame]),
+		animKeys: animationKeys,
 		anims:    animations,
 		rate:     1.0 / 2,
 		dir:      0,
