@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
+	_ "image/png"
 	"math"
 	"math/rand"
 	"sync"
 	"time"
-
-	_ "image/png"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -134,6 +133,7 @@ func run() {
 						}
 					}
 				} else {
+					//add move command here
 					fmt.Println("destination selected")
 				}
 			}
