@@ -35,6 +35,12 @@ type livingObjAttributes struct {
 	stamina    float64
 }
 
+//#region gameObject implementation
+
+func (livingObj *livingObject) ObjectName() string {
+	return "Living"
+}
+
 func (livingObj *livingObject) Sprite() *pixel.Sprite {
 	return livingObj.sprite
 }
@@ -49,59 +55,6 @@ func (livingObj *livingObject) AnimationKeys() []string {
 
 func (livingObj *livingObject) Animations() map[string][]pixel.Rect {
 	return livingObj.anims
-}
-
-func (livingObj *livingObject) ObjectName() string {
-	return "Living"
-}
-
-func getShallowLivingObject(livingAnimKeys []string, livingAnims map[string][]pixel.Rect, livingSheet pixel.Picture) *livingObject {
-	return &livingObject{
-		id:       -1,
-		sheet:    livingSheet,
-		sprite:   pixel.NewSprite(livingSheet, livingAnims["idle"][0]),
-		animKeys: livingAnimKeys,
-		anims:    livingAnims,
-		rate:     1.0 / 2,
-		dir:      0,
-		position: pixel.V(0, 0),
-		vel:      pixel.V(0, 0),
-		giblet:   nil,
-		matrix:   pixel.IM.Moved(pixel.V(0, 0)),
-		state:    idle,
-		attributes: livingObjAttributes{
-			initiative: 0,
-			speed:      0,
-			stamina:    0,
-		},
-	}
-}
-
-func createNewLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) livingObject {
-	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
-	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
-	livingObj := livingObject{
-		id:       NextID,
-		sheet:    sheet,
-		sprite:   pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame]),
-		animKeys: animationKeys,
-		anims:    animations,
-		rate:     1.0 / 10,
-		dir:      0,
-		giblet:   nil,
-		position: position,
-		vel:      pixel.V(0, 0),
-		matrix:   pixel.IM.Moved(position),
-		state:    idle,
-		attributes: livingObjAttributes{
-			initiative: 1 + rand.Float64()*(maxInitiative-1),
-			speed:      1 + rand.Float64()*(maxSpeed-1),
-			stamina:    1 + rand.Float64()*(maxStamina-1),
-		},
-	}
-	livingObj.setHitBox()
-	NextID++
-	return livingObj
 }
 
 func (livingObj *livingObject) getID() int {
@@ -162,10 +115,10 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			for _, otherObj := range gameObjects {
 				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
 					//handle collisions with other objects here
-					switch otherObj.(type) {
+					switch otherOject := otherObj.(type) {
 					case *gibletObject:
 						{
-							livingObj.giblet = otherObj.(*gibletObject)
+							livingObj.giblet = otherOject
 							// if livingObj.giblet.host != nil && livingObj.giblet.host != livingObj {
 							// 	//take giblet from other host
 							// 	livingObj.giblet.host.giblet = nil
@@ -223,4 +176,55 @@ func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGr
 		imd.Draw(win)
 	}
 	waitGroup.Done()
+}
+
+//#endregion
+
+func getShallowLivingObject(livingAnimKeys []string, livingAnims map[string][]pixel.Rect, livingSheet pixel.Picture) *livingObject {
+	return &livingObject{
+		id:       -1,
+		sheet:    livingSheet,
+		sprite:   pixel.NewSprite(livingSheet, livingAnims["idle"][0]),
+		animKeys: livingAnimKeys,
+		anims:    livingAnims,
+		rate:     1.0 / 2,
+		dir:      0,
+		position: pixel.V(0, 0),
+		vel:      pixel.V(0, 0),
+		giblet:   nil,
+		matrix:   pixel.IM.Moved(pixel.V(0, 0)),
+		state:    idle,
+		attributes: livingObjAttributes{
+			initiative: 0,
+			speed:      0,
+			stamina:    0,
+		},
+	}
+}
+
+func createNewLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) livingObject {
+	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
+	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
+	livingObj := livingObject{
+		id:       NextID,
+		sheet:    sheet,
+		sprite:   pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame]),
+		animKeys: animationKeys,
+		anims:    animations,
+		rate:     1.0 / 10,
+		dir:      0,
+		giblet:   nil,
+		position: position,
+		vel:      pixel.V(0, 0),
+		matrix:   pixel.IM.Moved(position),
+		state:    idle,
+		attributes: livingObjAttributes{
+			initiative: 1 + rand.Float64()*(maxInitiative-1),
+			speed:      1 + rand.Float64()*(maxSpeed-1),
+			stamina:    1 + rand.Float64()*(maxStamina-1),
+		},
+	}
+	livingObj.setHitBox()
+	NextID++
+	return livingObj
 }

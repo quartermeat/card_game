@@ -32,8 +32,26 @@ type gibletObjAttributes struct {
 	value int
 }
 
+//#region gameObject implementation
+
+func (gibletObj *gibletObject) ObjectName() string {
+	return "Giblet"
+}
+
 func (gibletObj *gibletObject) Sprite() *pixel.Sprite {
 	return gibletObj.sprite
+}
+
+func (gibletObj *gibletObject) Sheet() pixel.Picture {
+	return gibletObj.sheet
+}
+
+func (gibletObj *gibletObject) AnimationKeys() []string {
+	return gibletObj.animKeys
+}
+
+func (gibletObj *gibletObject) Animations() map[string][]pixel.Rect {
+	return gibletObj.anims
 }
 
 func (gibletObj *gibletObject) getID() int {
@@ -52,21 +70,56 @@ func (gibletObj *gibletObject) getHitBox() pixel.Rect {
 	return gibletObj.hitBox
 }
 
-func (gibletObj *gibletObject) Sheet() pixel.Picture {
-	return gibletObj.sheet
+func (gibletObj *gibletObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
+	gibletObj.counter += dt
+	interval := int(math.Floor(gibletObj.counter / gibletObj.rate))
+	// just have it start to move based on initiative
+	switch gibletObj.state {
+	case idle: //lying on ground
+		{
+			//update idle animation
+			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
+		}
+	case moving: //held
+		{
+			//update moving animation
+			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
+		}
+	}
+
+	waitGroup.Done()
 }
 
-func (gibletObj *gibletObject) AnimationKeys() []string {
-	return gibletObj.animKeys
+func (gibletObj *gibletObject) changeState(newState objectState) {
+	gibletObj.state = newState
+	gibletObj.counter = 0
+	switch newState {
+	case idle:
+		{
+			//do transistion to idle stuff
+		}
+	case moving:
+		{
+			//do transistion to moving stuff
+
+		}
+	}
 }
 
-func (gibletObj *gibletObject) Animations() map[string][]pixel.Rect {
-	return gibletObj.anims
+func (gibletObj *gibletObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+	gibletObj.sprite.Draw(win, gibletObj.matrix)
+
+	if drawHitBox {
+		imd := imdraw.New(nil)
+		imd.Color = pixel.RGB(0, 255, 0)
+		imd.Push(gibletObj.hitBox.Min, gibletObj.hitBox.Max)
+		imd.Rectangle(1)
+		imd.Draw(win)
+	}
+	waitGroup.Done()
 }
 
-func (gibletObj *gibletObject) ObjectName() string {
-	return "Giblet"
-}
+//#endregion
 
 func getShallowGibletObject(gibletAnimKeys []string, gibletAnims map[string][]pixel.Rect, gibletSheet pixel.Picture) *gibletObject {
 	return &gibletObject{
@@ -111,53 +164,4 @@ func createNewGibletObject(animationKeys []string, animations map[string][]pixel
 	gibletObj.setHitBox()
 	NextID++
 	return gibletObj
-}
-
-func (gibletObj *gibletObject) changeState(newState objectState) {
-	gibletObj.state = newState
-	gibletObj.counter = 0
-	switch newState {
-	case idle:
-		{
-			//do transistion to idle stuff
-		}
-	case moving:
-		{
-			//do transistion to moving stuff
-
-		}
-	}
-}
-
-func (gibletObj *gibletObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
-	gibletObj.counter += dt
-	interval := int(math.Floor(gibletObj.counter / gibletObj.rate))
-	// just have it start to move based on initiative
-	switch gibletObj.state {
-	case idle: //lying on ground
-		{
-			//update idle animation
-			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
-		}
-	case moving: //held
-		{
-			//update moving animation
-			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
-		}
-	}
-
-	waitGroup.Done()
-}
-
-func (gibletObj *gibletObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	gibletObj.sprite.Draw(win, gibletObj.matrix)
-
-	if drawHitBox {
-		imd := imdraw.New(nil)
-		imd.Color = pixel.RGB(0, 255, 0)
-		imd.Push(gibletObj.hitBox.Min, gibletObj.hitBox.Max)
-		imd.Rectangle(1)
-		imd.Draw(win)
-	}
-	waitGroup.Done()
 }
