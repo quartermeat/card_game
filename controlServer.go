@@ -38,7 +38,7 @@ func StartServer() {
 		case "exit":
 			{
 				fmt.Println("Exiting TCP server!")
-				response = fmt.Sprintf("exit")
+				response = fmt.Sprintln("exit", command)
 				connection.Write([]byte(response))
 				connection.Close()
 				return

@@ -69,7 +69,7 @@ type removeObjectCommand struct {
 func (command *removeObjectCommand) execute(waitGroup *sync.WaitGroup) {
 	selectedObj, index, hit, err := command.gameObjs.getSelectedGameObj(command.position)
 	if err != nil {
-		//handle error
+		panic(err)
 	}
 	if hit {
 		fmt.Println("object id:", selectedObj.getID(), " removed")

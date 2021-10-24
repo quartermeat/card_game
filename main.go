@@ -30,6 +30,9 @@ func run() {
 
 	//load assets
 	pinkSheet, pinkAnims, pinkAnimKeys, err := loadCellAnimationSheet("assets/spriteSheet.png", "assets/pinkAnimations.csv", 32)
+	if err != nil {
+		panic(err)
+	}
 	gibletSheet, gibletAnims, gibletAnimKeys, err := loadgibletAnimationSheet("assets/spriteSheet.png", "assets/gibletAnimations.csv", 16)
 	if err != nil {
 		panic(err)
@@ -112,7 +115,7 @@ func run() {
 				mouse := cam.Unproject(win.MousePosition())
 				newSelectedObject, _, hit, err := gameObjs.getSelectedGameObj(mouse)
 				if err != nil {
-					fmt.Printf(err.Error())
+					fmt.Print(err.Error())
 				}
 				if hit {
 					//unselect last object
@@ -161,7 +164,7 @@ func run() {
 		//zoom camera
 		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
-		////used for framerate test
+		//used for framerate test
 		if win.Pressed(pixelgl.MouseButtonLeft) {
 			if win.Pressed(pixelgl.KeyLeftShift) {
 				mouse := cam.Unproject(win.MousePosition())
