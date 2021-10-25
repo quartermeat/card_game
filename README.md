@@ -5,7 +5,7 @@ Controls
 '1': select giblet object for placement
 'LM Click': place object selected for placement
 'Ctrl + LM Click': select an object
-
+'Ctrl + LM Click w/ object selected': move to destination
 
 What it currently looks like:
 https://youtu.be/m09O-xj6gfM

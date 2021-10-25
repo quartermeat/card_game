@@ -10,14 +10,12 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 )
 
-type gibletObject struct {
+type GibletObject struct {
 	id         int
-	sheet      pixel.Picture
-	animKeys   []string
-	anims      map[string][]pixel.Rect
+	assets     ObjectAssets
 	sprite     *pixel.Sprite
 	rate       float64
-	state      objectState
+	state      ObjectState
 	counter    float64
 	dir        float64
 	host       *livingObject
@@ -32,33 +30,25 @@ type gibletObjAttributes struct {
 	value int
 }
 
-//#region gameObject implementation
+//#region GAME OBJECT IMPLEMENTATION
 
-func (gibletObj *gibletObject) ObjectName() string {
+func (gibletObj *GibletObject) ObjectName() string {
 	return "Giblet"
 }
 
-func (gibletObj *gibletObject) Sprite() *pixel.Sprite {
+func (gibletObj *GibletObject) Sprite() *pixel.Sprite {
 	return gibletObj.sprite
 }
 
-func (gibletObj *gibletObject) Sheet() pixel.Picture {
-	return gibletObj.sheet
+func (gibletObj *GibletObject) GetAssets() ObjectAssets {
+	return gibletObj.assets
 }
 
-func (gibletObj *gibletObject) AnimationKeys() []string {
-	return gibletObj.animKeys
-}
-
-func (gibletObj *gibletObject) Animations() map[string][]pixel.Rect {
-	return gibletObj.anims
-}
-
-func (gibletObj *gibletObject) getID() int {
+func (gibletObj *GibletObject) getID() int {
 	return gibletObj.id
 }
 
-func (gibletObj *gibletObject) setHitBox() {
+func (gibletObj *GibletObject) setHitBox() {
 	width := gibletObj.sprite.Frame().Max.X - gibletObj.sprite.Frame().Min.X
 	height := gibletObj.sprite.Frame().Max.Y - gibletObj.sprite.Frame().Min.Y
 	topRight := pixel.V(gibletObj.position.X-(width/2), gibletObj.position.Y-(height/2))
@@ -66,11 +56,11 @@ func (gibletObj *gibletObject) setHitBox() {
 	gibletObj.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
 }
 
-func (gibletObj *gibletObject) getHitBox() pixel.Rect {
+func (gibletObj *GibletObject) getHitBox() pixel.Rect {
 	return gibletObj.hitBox
 }
 
-func (gibletObj *gibletObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
+func (gibletObj *GibletObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
 	gibletObj.counter += dt
 	interval := int(math.Floor(gibletObj.counter / gibletObj.rate))
 	// just have it start to move based on initiative
@@ -78,19 +68,19 @@ func (gibletObj *gibletObject) update(dt float64, gameObjects GameObjects, waitG
 	case idle: //lying on ground
 		{
 			//update idle animation
-			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
+			gibletObj.sprite.Set(gibletObj.assets.sheet, gibletObj.assets.anims["gibletIdle"][interval%len(gibletObj.assets.anims["gibletIdle"])])
 		}
 	case moving: //held
 		{
 			//update moving animation
-			gibletObj.sprite.Set(gibletObj.sheet, gibletObj.anims["gibletIdle"][interval%len(gibletObj.anims["gibletIdle"])])
+			gibletObj.sprite.Set(gibletObj.assets.sheet, gibletObj.assets.anims["gibletIdle"][interval%len(gibletObj.assets.anims["gibletIdle"])])
 		}
 	}
 
 	waitGroup.Done()
 }
 
-func (gibletObj *gibletObject) changeState(newState objectState) {
+func (gibletObj *GibletObject) changeState(newState ObjectState) {
 	gibletObj.state = newState
 	gibletObj.counter = 0
 	switch newState {
@@ -106,7 +96,7 @@ func (gibletObj *gibletObject) changeState(newState objectState) {
 	}
 }
 
-func (gibletObj *gibletObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+func (gibletObj *GibletObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	gibletObj.sprite.Draw(win, gibletObj.matrix)
 
 	if drawHitBox {
@@ -119,15 +109,17 @@ func (gibletObj *gibletObject) draw(win *pixelgl.Window, drawHitBox bool, waitGr
 	waitGroup.Done()
 }
 
+func (gibletObj *GibletObject) moveToPosition(position pixel.Vec) {
+	//doesn't move
+}
+
 //#endregion
 
-func getShallowGibletObject(gibletAnimKeys []string, gibletAnims map[string][]pixel.Rect, gibletSheet pixel.Picture) *gibletObject {
-	return &gibletObject{
+func getShallowGibletObject(objectAssets ObjectAssets) *GibletObject {
+	return &GibletObject{
 		id:       -1,
-		sheet:    gibletSheet,
-		sprite:   pixel.NewSprite(gibletSheet, gibletAnims["gibletIdle"][0]),
-		animKeys: gibletAnimKeys,
-		anims:    gibletAnims,
+		assets:   objectAssets,
+		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims["gibletIdle"][0]),
 		rate:     1.0 / 2,
 		dir:      0,
 		position: pixel.V(0, 0),
@@ -141,15 +133,13 @@ func getShallowGibletObject(gibletAnimKeys []string, gibletAnims map[string][]pi
 	}
 }
 
-func createNewGibletObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) gibletObject {
-	randomAnimationKey := animationKeys[rand.Intn(len(animationKeys))]
-	randomAnimationFrame := rand.Intn(len(animations[randomAnimationKey]))
-	gibletObj := gibletObject{
+func createNewGibletObject(objectAssets ObjectAssets, position pixel.Vec) GibletObject {
+	randomAnimationKey := objectAssets.animKeys[rand.Intn(len(objectAssets.animKeys))]
+	randomAnimationFrame := rand.Intn(len(objectAssets.anims[randomAnimationKey]))
+	gibletObj := GibletObject{
 		id:       NextID,
-		sheet:    sheet,
-		sprite:   pixel.NewSprite(sheet, animations[randomAnimationKey][randomAnimationFrame]),
-		animKeys: animationKeys,
-		anims:    animations,
+		assets:   objectAssets,
+		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims[randomAnimationKey][randomAnimationFrame]),
 		rate:     1.0 / 2,
 		dir:      0,
 		position: position,

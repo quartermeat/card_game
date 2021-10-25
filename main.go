@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	_ "image/png"
-	"math"
 	"math/rand"
 	"sync"
 	"time"
@@ -26,35 +25,36 @@ func run() {
 		panic(err)
 	}
 
+	// start command server
 	go StartServer()
 
-	//load assets
-	pinkSheet, pinkAnims, pinkAnimKeys, err := loadCellAnimationSheet("assets/spriteSheet.png", "assets/pinkAnimations.csv", 32)
-	if err != nil {
-		panic(err)
-	}
-	gibletSheet, gibletAnims, gibletAnimKeys, err := loadgibletAnimationSheet("assets/spriteSheet.png", "assets/gibletAnimations.csv", 16)
-	if err != nil {
-		panic(err)
-	}
-
-	rand.Seed(time.Now().UnixNano())
-
 	var (
-		camPos         = pixel.ZV
-		camSpeed       = 500.0
-		camZoom        = 1.0
-		camZoomSpeed   = 1.2
-		gameObjs       GameObjects
-		gameCommands   = make(Commands)
-		selectedObject gameObject
-		objectToPlace  gameObject
-		frames         = 0
-		second         = time.Tick(time.Second)
-		drawHitBox     = false
+		camPos             = pixel.ZV
+		camSpeed           = 500.0
+		camZoom            = 1.0
+		camZoomSpeed       = 1.2
+		gameObjs           GameObjects
+		gameCommands       = make(Commands)
+		frames             = 0
+		second             = time.Tick(time.Second)
+		drawHitBox         = false
+		inputHandler       InputHandler
+		livingObjectAssets ObjectAssets
+		gibletObjectAssets ObjectAssets
 	)
 
-	objectToPlace = getShallowGibletObject(gibletAnimKeys, gibletAnims, gibletSheet)
+	//load assets
+	err = livingObjectAssets.SetAssets("assets/spriteSheet.png", "assets/pinkAnimations.csv", 32)
+	if err != nil {
+		panic(err)
+	}
+	err = gibletObjectAssets.SetAssets("assets/spriteSheet.png", "assets/gibletAnimations.csv", 16)
+	if err != nil {
+		panic(err)
+	}
+
+	//seed rng
+	rand.Seed(time.Now().UnixNano())
 
 	last := time.Now()
 	for !win.Closed() {
@@ -65,121 +65,20 @@ func run() {
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
-		//handle removing an object
-		if win.JustPressed(pixelgl.MouseButtonRight) && win.Pressed(pixelgl.KeyLeftControl) {
-			mouse := cam.Unproject(win.MousePosition())
-			//add a command to commands
-			gameCommands[fmt.Sprintf("RemoveObject x:%f, y:%f", mouse.X, mouse.Y)] = gameObjs.RemoveObject(mouse)
-		}
-
-		//select giblet
-		if win.JustPressed(pixelgl.Key0) {
-			switch objectToPlace.(type) {
-			case *gibletObject:
-				{
-					//do nothing, already selected
-				}
-			case *livingObject:
-				{
-					objectToPlace = getShallowGibletObject(gibletAnimKeys, gibletAnims, gibletSheet)
-				}
-			}
-		}
-
-		//select living object
-		if win.JustPressed(pixelgl.Key1) {
-			switch objectToPlace.(type) {
-			case *gibletObject:
-				{
-					objectToPlace = getShallowLivingObject(pinkAnimKeys, pinkAnims, pinkSheet)
-				}
-			case *livingObject:
-				{
-					//do nothing, already selected
-				}
-			}
-		}
-
-		//place the selected object
-		if win.JustPressed(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
-			mouse := cam.Unproject(win.MousePosition())
-			// once objectToPlace gets animation information, we can remove the type switch here
-			gameCommands[fmt.Sprintf("AddObject: %s", objectToPlace.ObjectName())] = gameObjs.AddObject(objectToPlace, mouse)
-		}
-
-		//handle ctrl functions
-		if win.Pressed(pixelgl.KeyLeftControl) {
-			win.SetCursorVisible(true)
-			//select an object
-			if win.JustPressed(pixelgl.MouseButtonLeft) {
-				mouse := cam.Unproject(win.MousePosition())
-				newSelectedObject, _, hit, err := gameObjs.getSelectedGameObj(mouse)
-				if err != nil {
-					fmt.Print(err.Error())
-				}
-				if hit {
-					//unselect last object
-					if selectedObject != nil {
-						selectedObject.changeState(idle)
-					}
-
-					selectedObject = newSelectedObject
-					fmt.Println("object id:", selectedObject.getID())
-					switch selectedObject.(type) {
-					case *livingObject:
-						{
-							selectedObject.changeState(selected)
-						}
-					case *gibletObject:
-						{
-
-						}
-					}
-				} else {
-					//add move command here
-					fmt.Println("destination selected")
-				}
-			}
-		}
-
-		//toggle hit box draw
-		if win.JustPressed(pixelgl.KeyH) {
-			drawHitBox = !drawHitBox
-		}
-
-		//move camera
-		if win.Pressed(pixelgl.KeyA) {
-			camPos.X -= camSpeed * dt
-		}
-		if win.Pressed(pixelgl.KeyD) {
-			camPos.X += camSpeed * dt
-		}
-		if win.Pressed(pixelgl.KeyS) {
-			camPos.Y -= camSpeed * dt
-		}
-		if win.Pressed(pixelgl.KeyW) {
-			camPos.Y += camSpeed * dt
-		}
-
-		//zoom camera
-		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
-
-		//used for framerate test
-		if win.Pressed(pixelgl.MouseButtonLeft) {
-			if win.Pressed(pixelgl.KeyLeftShift) {
-				mouse := cam.Unproject(win.MousePosition())
-				switch objectToPlace.(type) {
-				case *livingObject:
-					{
-						gameObjs = gameObjs.appendLivingObject(pinkAnimKeys, pinkAnims, pinkSheet, mouse)
-					}
-				case *gibletObject:
-					{
-						gameObjs = gameObjs.appendGibletObject(gibletAnimKeys, gibletAnims, gibletSheet, mouse)
-					}
-				}
-			}
-		}
+		inputHandler.HandleInput(
+			win,
+			&cam,
+			gameCommands,
+			&gameObjs,
+			gibletObjectAssets,
+			livingObjectAssets,
+			dt,
+			camSpeed,
+			&camZoom,
+			camZoomSpeed,
+			&camPos,
+			&drawHitBox,
+		)
 
 		var waitGroup sync.WaitGroup
 
@@ -198,7 +97,7 @@ func run() {
 		if win.MouseInsideWindow() {
 			if !win.Pressed(pixelgl.KeyLeftControl) {
 				win.SetCursorVisible(false)
-				objectToPlace.Sprite().Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
+				inputHandler.objectToPlace.Sprite().Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
 			}
 		} else {
 			win.SetCursorVisible(true)
