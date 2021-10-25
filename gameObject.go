@@ -8,12 +8,13 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 )
 
-type objectState int
+type ObjectState int
 
 const (
-	idle   objectState = iota
-	moving             //incoming
-	selected
+	idle ObjectState = iota
+	moving
+	selected_idle
+	selected_moving
 )
 
 const (
@@ -26,22 +27,21 @@ const (
 //NextID is the next assignable object ID
 var NextID = 0
 
-type gameObject interface {
+type IGameObject interface {
 	ObjectName() string
 	Sprite() *pixel.Sprite
-	Sheet() pixel.Picture
-	AnimationKeys() []string
-	Animations() map[string][]pixel.Rect
+	GetAssets() ObjectAssets
 	getID() int
 	setHitBox()
 	getHitBox() pixel.Rect
 	update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
-	changeState(newState objectState)
+	changeState(newState ObjectState)
 	draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup)
+	moveToPosition(position pixel.Vec)
 }
 
 //GameObjects is a slice of all the gameObjects
-type GameObjects []gameObject
+type GameObjects []IGameObject
 
 func (gameObjs GameObjects) fastRemoveIndex(index int) GameObjects {
 	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.
@@ -49,7 +49,7 @@ func (gameObjs GameObjects) fastRemoveIndex(index int) GameObjects {
 	return gameObjs
 }
 
-func (gameObjs GameObjects) appendGameObject(newObject gameObject) GameObjects {
+func (gameObjs GameObjects) appendGameObject(newObject IGameObject) GameObjects {
 	if len(gameObjs) >= maxGameObjects {
 		return gameObjs
 	}
@@ -57,13 +57,13 @@ func (gameObjs GameObjects) appendGameObject(newObject gameObject) GameObjects {
 	return gameObjs
 }
 
-func (gameObjs GameObjects) appendLivingObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
-	newLivingObject := createNewLivingObject(animationKeys, animations, sheet, position)
+func (gameObjs GameObjects) appendLivingObject(objectAssets ObjectAssets, position pixel.Vec) GameObjects {
+	newLivingObject := createNewLivingObject(objectAssets, position)
 	return gameObjs.appendGameObject(&newLivingObject)
 }
 
-func (gameObjs GameObjects) appendGibletObject(animationKeys []string, animations map[string][]pixel.Rect, sheet pixel.Picture, position pixel.Vec) GameObjects {
-	newGibletObject := createNewGibletObject(animationKeys, animations, sheet, position)
+func (gameObjs GameObjects) appendGibletObject(objectAssets ObjectAssets, position pixel.Vec) GameObjects {
+	newGibletObject := createNewGibletObject(objectAssets, position)
 	return gameObjs.appendGameObject(&newGibletObject)
 }
 
@@ -81,7 +81,7 @@ func (gameObjs GameObjects) drawAllObjects(win *pixelgl.Window, drawHitBox bool,
 	}
 }
 
-func (gameObjs GameObjects) getSelectedGameObj(position pixel.Vec) (gameObject, int, bool, error) {
+func (gameObjs GameObjects) getSelectedGameObjAtPosition(position pixel.Vec) (IGameObject, int, bool, error) {
 	foundObject := true
 	noIndex := -1
 
