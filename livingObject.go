@@ -91,11 +91,9 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 			//update moving animation
 			livingObj.sprite.Set(livingObj.assets.sheet, livingObj.assets.anims["moving"][interval%len(livingObj.assets.anims["moving"])])
 			//invert x axis
-			livingObj.vel.X = livingObj.attributes.speed * math.Sin(livingObj.dir) * -1
-			livingObj.vel.Y = livingObj.attributes.speed * math.Cos(livingObj.dir)
+			livingObj.vel.X = livingObj.attributes.speed * math.Cos(livingObj.dir)
+			livingObj.vel.Y = livingObj.attributes.speed * math.Sin(livingObj.dir)
 			livingObj.matrix = livingObj.matrix.Moved(livingObj.vel.Scaled(dt))
-			//ADD check destination reached is true
-			//check if destination has been reached, turn off destination flag
 			livingObj.position = livingObj.matrix.Project(livingObj.vel.Scaled(dt))
 			livingObj.setHitBox()
 			livingObj.attributes.stamina -= livingObj.counter
@@ -132,10 +130,10 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 				}
 			}
 
-			//ADD:
-			//if destination reached is true
-			//changeState to idle
-
+			if livingObj.position == livingObj.destination {
+				livingObj.motives.destinationReached = true
+				livingObj.changeState(idle)
+			}
 			if livingObj.attributes.stamina <= 0 {
 				livingObj.changeState(idle)
 			}
@@ -165,7 +163,10 @@ func (livingObj *livingObject) changeState(newState ObjectState) {
 		}
 	case moving:
 		{
-			livingObj.dir = float64(rand.Intn(360)) * (math.Pi / 180)
+			if livingObj.motives.destinationReached {
+				randFloat := float64(rand.Intn(360))
+				livingObj.dir = randFloat * (math.Pi / 180)
+			}
 			livingObj.matrix = livingObj.matrix.Rotated(livingObj.position, livingObj.dir)
 		}
 	case selected_idle:
@@ -174,8 +175,8 @@ func (livingObj *livingObject) changeState(newState ObjectState) {
 		}
 	case selected_moving:
 		{
-			livingObj.matrix = livingObj.matrix.Rotated(livingObj.position, livingObj.dir)
 			livingObj.motives.destinationReached = false
+			livingObj.changeState(moving)
 		}
 	}
 }
@@ -195,9 +196,7 @@ func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGr
 
 func (livingObj *livingObject) moveToPosition(position pixel.Vec) {
 	livingObj.destination = position
-	//calculate angle based on current location vs destination
-	//update object direction based on angle
-
+	livingObj.dir = livingObj.position.To(livingObj.destination).Angle()
 	livingObj.changeState(selected_moving)
 }
 
@@ -209,11 +208,11 @@ func getShallowLivingObject(objectAssets ObjectAssets) *livingObject {
 		assets:   objectAssets,
 		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims["idle"][0]),
 		rate:     1.0 / 2,
-		dir:      0,
+		dir:      0.0,
 		position: pixel.V(0, 0),
 		vel:      pixel.V(0, 0),
 		giblet:   nil,
-		matrix:   pixel.IM.Moved(pixel.V(0, 0)),
+		matrix:   pixel.IM.Moved(pixel.ZV),
 		state:    idle,
 		attributes: livingObjAttributes{
 			initiative: 0,
@@ -231,7 +230,7 @@ func createNewLivingObject(objectAssets ObjectAssets, position pixel.Vec) living
 		assets:   objectAssets,
 		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims[randomAnimationKey][randomAnimationFrame]),
 		rate:     1.0 / 10,
-		dir:      0,
+		dir:      0.0,
 		giblet:   nil,
 		position: position,
 		vel:      pixel.V(0, 0),
@@ -241,6 +240,9 @@ func createNewLivingObject(objectAssets ObjectAssets, position pixel.Vec) living
 			initiative: 1 + rand.Float64()*(maxInitiative-1),
 			speed:      1 + rand.Float64()*(maxSpeed-1),
 			stamina:    1 + rand.Float64()*(maxStamina-1),
+		},
+		motives: livingObjMotives{
+			destinationReached: true,
 		},
 	}
 	livingObj.setHitBox()
