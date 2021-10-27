@@ -1,10 +1,12 @@
-package main
+package input
 
 import (
 	"fmt"
 	"sync"
 
 	"github.com/faiface/pixel"
+	"github.com/quartermeat/aeonExMachina/assets"
+	objects "github.com/quartermeat/aeonExMachina/gameObjects"
 )
 
 //Commands is the map of commands to execute
@@ -15,8 +17,8 @@ type ICommand interface {
 	execute(*sync.WaitGroup)
 }
 
-//concurrently execute queued game commands
-func (commands Commands) executeCommands(waitGroup *sync.WaitGroup) {
+//ExecuteCommands executes the queued list of commands
+func (commands Commands) ExecuteCommands(waitGroup *sync.WaitGroup) {
 	for key, value := range commands {
 		fmt.Printf("executing: %s\n", key)
 		waitGroup.Add(1)
@@ -28,21 +30,21 @@ func (commands Commands) executeCommands(waitGroup *sync.WaitGroup) {
 //#region ADD OBJECT COMMAND
 
 type addObjectAtPositionCommand struct {
-	gameObjs      *GameObjects
-	objectToPlace IGameObject
+	gameObjs      *objects.GameObjects
+	objectToPlace objects.IGameObject
 	position      pixel.Vec
-	objectAssets  ObjectAssets
+	objectAssets  assets.ObjectAssets
 }
 
 func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 	switch command.objectToPlace.(type) {
-	case *livingObject:
+	case *objects.LivingObject:
 		{
-			*command.gameObjs = command.gameObjs.appendLivingObject(command.objectAssets, command.position)
+			*command.gameObjs = command.gameObjs.AppendLivingObject(command.objectAssets, command.position)
 		}
-	case *GibletObject:
+	case *objects.GibletObject:
 		{
-			*command.gameObjs = command.gameObjs.appendGibletObject(command.objectAssets, command.position)
+			*command.gameObjs = command.gameObjs.AppendGibletObject(command.objectAssets, command.position)
 		}
 	}
 
@@ -50,9 +52,9 @@ func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 }
 
 //AddObjectAtPosition allows for the addition of a game object
-func (objects *GameObjects) AddObjectAtPosition(newObject IGameObject, newPosition pixel.Vec) ICommand {
+func AddObjectAtPosition(objs *objects.GameObjects, newObject objects.IGameObject, newPosition pixel.Vec) ICommand {
 	return &addObjectAtPositionCommand{
-		gameObjs:      objects,
+		gameObjs:      objs,
 		position:      newPosition,
 		objectToPlace: newObject,
 		objectAssets:  newObject.GetAssets(),
@@ -64,26 +66,26 @@ func (objects *GameObjects) AddObjectAtPosition(newObject IGameObject, newPositi
 //#region REMOVE OBJECT COMMAND
 
 type removeObjectAtPositionCommand struct {
-	gameObjs *GameObjects
+	gameObjs *objects.GameObjects
 	position pixel.Vec
 }
 
 func (command *removeObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
-	_, index, hit, err := command.gameObjs.getSelectedGameObjAtPosition(command.position)
+	_, index, hit, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
 	if err != nil {
 		panic(err)
 	}
 	if hit {
-		*command.gameObjs = command.gameObjs.fastRemoveIndex(index)
+		*command.gameObjs = command.gameObjs.FastRemoveIndex(index)
 	}
 
 	waitGroup.Done()
 }
 
 //RemoveObjectAtPosition allows for the removal of a game Object based on Vec location
-func (objects *GameObjects) RemoveObjectAtPosition(fromPosition pixel.Vec) ICommand {
+func RemoveObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &removeObjectAtPositionCommand{
-		gameObjs: objects,
+		gameObjs: objs,
 		position: fromPosition,
 	}
 }
@@ -92,26 +94,26 @@ func (objects *GameObjects) RemoveObjectAtPosition(fromPosition pixel.Vec) IComm
 
 //#region SELECT OBJECT COMMAND
 type selectObjectAtPositionCommand struct {
-	gameObjs *GameObjects
+	gameObjs *objects.GameObjects
 	position pixel.Vec
 }
 
 func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
-	selectedObj, _, hit, err := command.gameObjs.getSelectedGameObjAtPosition(command.position)
+	selectedObj, _, hit, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
 	if err != nil {
 		panic(err)
 	}
 	if hit {
-		selectedObj.changeState(selected_idle)
+		selectedObj.ChangeState(objects.SELECTED_IDLE)
 	}
 
 	waitGroup.Done()
 }
 
 //SelectObjectAtPosition allows for changing the state of a game object based on Vec location to selected
-func (objects *GameObjects) SelectObjectAtPosition(fromPosition pixel.Vec) ICommand {
+func SelectObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &selectObjectAtPositionCommand{
-		gameObjs: objects,
+		gameObjs: objs,
 		position: fromPosition,
 	}
 }
@@ -120,21 +122,23 @@ func (objects *GameObjects) SelectObjectAtPosition(fromPosition pixel.Vec) IComm
 
 //#region MOVE SELECTED OBJECT COMMAND TO POSITION
 type moveSelectedObjectToPositionCommand struct {
-	gameObjs *GameObjects
+	gameObjs *objects.GameObjects
 	position pixel.Vec
 }
 
 func (command *moveSelectedObjectToPositionCommand) execute(waitGroup *sync.WaitGroup) {
 	for _, obj := range *command.gameObjs {
-		obj.moveToPosition(command.position)
+		if obj.GetState() == objects.SELECTED_IDLE {
+			obj.MoveToPosition(command.position)
+		}
 	}
 	waitGroup.Done()
 }
 
 //MoveSelectedObject allows for directing selected objects to move to a position
-func (objects *GameObjects) MoveSelectedToPositionObject(fromPosition pixel.Vec) ICommand {
+func MoveSelectedToPositionObject(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &moveSelectedObjectToPositionCommand{
-		gameObjs: objects,
+		gameObjs: objs,
 		position: fromPosition,
 	}
 }

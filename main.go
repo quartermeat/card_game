@@ -9,6 +9,9 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/quartermeat/aeonExMachina/assets"
+	objects "github.com/quartermeat/aeonExMachina/gameObjects"
+	input "github.com/quartermeat/aeonExMachina/inputHandler"
 	"golang.org/x/image/colornames"
 )
 
@@ -33,14 +36,14 @@ func run() {
 		camSpeed           = 500.0
 		camZoom            = 1.0
 		camZoomSpeed       = 1.2
-		gameObjs           GameObjects
-		gameCommands       = make(Commands)
+		gameObjs           objects.GameObjects
+		gameCommands       = make(input.Commands)
 		frames             = 0
 		second             = time.Tick(time.Second)
 		drawHitBox         = false
-		inputHandler       InputHandler
-		livingObjectAssets ObjectAssets
-		gibletObjectAssets ObjectAssets
+		inputHandler       input.InputHandler
+		livingObjectAssets assets.ObjectAssets
+		gibletObjectAssets assets.ObjectAssets
 	)
 
 	//load assets
@@ -83,21 +86,21 @@ func run() {
 		var waitGroup sync.WaitGroup
 
 		//handle game updates
-		gameCommands.executeCommands(&waitGroup)
+		gameCommands.ExecuteCommands(&waitGroup)
 		waitGroup.Wait()
-		gameObjs.updateAllObjects(dt, &waitGroup)
+		gameObjs.UpdateAllObjects(dt, &waitGroup)
 		waitGroup.Wait()
 
 		win.Clear(colornames.Black)
 		//draw game objects
-		gameObjs.drawAllObjects(win, drawHitBox, &waitGroup)
+		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
 
 		//draw cursor based on selected object
 		if win.MouseInsideWindow() {
 			if !win.Pressed(pixelgl.KeyLeftControl) {
 				win.SetCursorVisible(false)
-				inputHandler.objectToPlace.Sprite().Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
+				inputHandler.ObjectToPlace.Sprite().Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
 			}
 		} else {
 			win.SetCursorVisible(true)
