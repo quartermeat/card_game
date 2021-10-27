@@ -1,4 +1,4 @@
-package main
+package assets
 
 import (
 	"encoding/csv"
@@ -11,10 +11,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+//ObjectAssets holds images for objects
 type ObjectAssets struct {
-	sheet    pixel.Picture
-	anims    map[string][]pixel.Rect
-	animKeys []string
+	Sheet    pixel.Picture
+	Anims    map[string][]pixel.Rect
+	AnimKeys []string
 }
 
 func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameWidth float64) error {
@@ -79,8 +80,8 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameWid
 		animKeys = append(animKeys, name)
 	}
 
-	objectAssets.animKeys = animKeys
-	objectAssets.sheet = sheet
-	objectAssets.anims = anims
+	objectAssets.AnimKeys = animKeys
+	objectAssets.Sheet = sheet
+	objectAssets.Anims = anims
 	return nil
 }

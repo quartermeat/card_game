@@ -1,4 +1,4 @@
-package main
+package objects
 
 import (
 	"math"
@@ -8,11 +8,13 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/quartermeat/aeonExMachina/assets"
 )
 
-type livingObject struct {
+//LivingObject is an object with behavior
+type LivingObject struct {
 	id          int
-	assets      ObjectAssets
+	assets      assets.ObjectAssets
 	sprite      *pixel.Sprite
 	rate        float64
 	state       ObjectState
@@ -40,23 +42,23 @@ type livingObjMotives struct {
 
 //#region GAMEOBJECT IMPLEMENTATION
 
-func (livingObj *livingObject) ObjectName() string {
+func (livingObj *LivingObject) ObjectName() string {
 	return "Living"
 }
 
-func (livingObj *livingObject) Sprite() *pixel.Sprite {
+func (livingObj *LivingObject) Sprite() *pixel.Sprite {
 	return livingObj.sprite
 }
 
-func (livingObj *livingObject) GetAssets() ObjectAssets {
+func (livingObj *LivingObject) GetAssets() assets.ObjectAssets {
 	return livingObj.assets
 }
 
-func (livingObj *livingObject) getID() int {
+func (livingObj *LivingObject) GetID() int {
 	return livingObj.id
 }
 
-func (livingObj *livingObject) setHitBox() {
+func (livingObj *LivingObject) SetHitBox() {
 	width := livingObj.sprite.Frame().Max.X - livingObj.sprite.Frame().Min.X
 	height := livingObj.sprite.Frame().Max.Y - livingObj.sprite.Frame().Min.Y
 	topRight := pixel.V(livingObj.position.X-(width/2), livingObj.position.Y-(height/2))
@@ -64,38 +66,38 @@ func (livingObj *livingObject) setHitBox() {
 	livingObj.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
 }
 
-func (livingObj *livingObject) getHitBox() pixel.Rect {
+func (livingObj *LivingObject) GetHitBox() pixel.Rect {
 	return livingObj.hitBox
 }
 
-func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
+func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup) {
 
 	livingObj.counter += dt
 	interval := int(math.Floor(livingObj.counter / livingObj.rate))
 	// just have it start to move based on initiative
 	switch livingObj.state {
-	case idle:
+	case IDLE:
 		{
 			//update idle animation
-			livingObj.sprite.Set(livingObj.assets.sheet, livingObj.assets.anims["idle"][interval%len(livingObj.assets.anims["idle"])])
+			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle"][interval%len(livingObj.assets.Anims["idle"])])
 
 			livingObj.attributes.stamina += livingObj.counter
 
 			//start moving in a random direction
 			if livingObj.counter >= livingObj.attributes.initiative {
-				livingObj.changeState(moving)
+				livingObj.ChangeState(MOVING)
 			}
 		}
-	case moving:
+	case MOVING:
 		{
 			//update moving animation
-			livingObj.sprite.Set(livingObj.assets.sheet, livingObj.assets.anims["moving"][interval%len(livingObj.assets.anims["moving"])])
+			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving"][interval%len(livingObj.assets.Anims["moving"])])
 			//invert x axis
 			livingObj.vel.X = livingObj.attributes.speed * math.Cos(livingObj.dir)
 			livingObj.vel.Y = livingObj.attributes.speed * math.Sin(livingObj.dir)
 			livingObj.matrix = livingObj.matrix.Moved(livingObj.vel.Scaled(dt))
 			livingObj.position = livingObj.matrix.Project(livingObj.vel.Scaled(dt))
-			livingObj.setHitBox()
+			livingObj.SetHitBox()
 			livingObj.attributes.stamina -= livingObj.counter
 
 			//handle holding a giblet
@@ -108,7 +110,7 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 
 			//collision detection
 			for _, otherObj := range gameObjects {
-				if livingObj.hitBox.Intersects(otherObj.getHitBox()) && otherObj.getID() != livingObj.getID() {
+				if livingObj.hitBox.Intersects(otherObj.GetHitBox()) && otherObj.GetID() != livingObj.GetID() {
 					//handle collisions with other objects here
 					switch otherOject := otherObj.(type) {
 					case *GibletObject:
@@ -119,7 +121,7 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 							// 	//take giblet from other host
 							// 	livingObj.giblet.host.giblet = nil
 							// }
-							livingObj.giblet.changeState(moving)
+							livingObj.giblet.ChangeState(MOVING)
 							livingObj.giblet.host = livingObj
 						}
 					default:
@@ -132,19 +134,19 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 
 			if livingObj.position == livingObj.destination {
 				livingObj.motives.destinationReached = true
-				livingObj.changeState(idle)
+				livingObj.ChangeState(IDLE)
 			}
 			if livingObj.attributes.stamina <= 0 {
-				livingObj.changeState(idle)
+				livingObj.ChangeState(IDLE)
 			}
 		}
-	case selected_idle:
+	case SELECTED_IDLE:
 		{
 			//make idle
-			livingObj.sprite.Set(livingObj.assets.sheet, livingObj.assets.anims["idle"][interval%len(livingObj.assets.anims["idle"])])
+			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle"][interval%len(livingObj.assets.Anims["idle"])])
 			livingObj.attributes.stamina += livingObj.counter
 		}
-	case selected_moving:
+	case SELECTED_MOVING:
 		{
 			//change state to moving
 		}
@@ -153,15 +155,15 @@ func (livingObj *livingObject) update(dt float64, gameObjects GameObjects, waitG
 	waitGroup.Done()
 }
 
-func (livingObj *livingObject) changeState(newState ObjectState) {
+func (livingObj *LivingObject) ChangeState(newState ObjectState) {
 	livingObj.state = newState
 	livingObj.counter = 0
 	switch newState {
-	case idle:
+	case IDLE:
 		{
 			livingObj.matrix = pixel.IM.Moved(livingObj.position)
 		}
-	case moving:
+	case MOVING:
 		{
 			if livingObj.motives.destinationReached {
 				randFloat := float64(rand.Intn(360))
@@ -169,22 +171,26 @@ func (livingObj *livingObject) changeState(newState ObjectState) {
 			}
 			livingObj.matrix = livingObj.matrix.Rotated(livingObj.position, livingObj.dir)
 		}
-	case selected_idle:
+	case SELECTED_IDLE:
 		{
 			livingObj.matrix = pixel.IM.Moved(livingObj.position)
 		}
-	case selected_moving:
+	case SELECTED_MOVING:
 		{
 			livingObj.motives.destinationReached = false
-			livingObj.changeState(moving)
+			livingObj.ChangeState(MOVING)
 		}
 	}
 }
 
-func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+func (livingObj *LivingObject) GetState() ObjectState {
+	return livingObj.state
+}
+
+func (livingObj *LivingObject) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	livingObj.sprite.Draw(win, livingObj.matrix)
 
-	if drawHitBox || livingObj.state == selected_idle {
+	if drawHitBox || livingObj.state == SELECTED_IDLE {
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
 		imd.Push(livingObj.hitBox.Min, livingObj.hitBox.Max)
@@ -194,26 +200,26 @@ func (livingObj *livingObject) draw(win *pixelgl.Window, drawHitBox bool, waitGr
 	waitGroup.Done()
 }
 
-func (livingObj *livingObject) moveToPosition(position pixel.Vec) {
+func (livingObj *LivingObject) MoveToPosition(position pixel.Vec) {
 	livingObj.destination = position
 	livingObj.dir = livingObj.position.To(livingObj.destination).Angle()
-	livingObj.changeState(selected_moving)
+	livingObj.ChangeState(SELECTED_MOVING)
 }
 
 //#endregion
 
-func getShallowLivingObject(objectAssets ObjectAssets) *livingObject {
-	return &livingObject{
+func GetShallowLivingObject(objectAssets assets.ObjectAssets) *LivingObject {
+	return &LivingObject{
 		id:       -1,
 		assets:   objectAssets,
-		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims["idle"][0]),
+		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle"][0]),
 		rate:     1.0 / 2,
 		dir:      0.0,
 		position: pixel.V(0, 0),
 		vel:      pixel.V(0, 0),
 		giblet:   nil,
 		matrix:   pixel.IM.Moved(pixel.ZV),
-		state:    idle,
+		state:    IDLE,
 		attributes: livingObjAttributes{
 			initiative: 0,
 			speed:      0,
@@ -222,20 +228,20 @@ func getShallowLivingObject(objectAssets ObjectAssets) *livingObject {
 	}
 }
 
-func createNewLivingObject(objectAssets ObjectAssets, position pixel.Vec) livingObject {
-	randomAnimationKey := objectAssets.animKeys[rand.Intn(len(objectAssets.animKeys))]
-	randomAnimationFrame := rand.Intn(len(objectAssets.anims[randomAnimationKey]))
-	livingObj := livingObject{
+func createNewLivingObject(objectAssets assets.ObjectAssets, position pixel.Vec) LivingObject {
+	randomAnimationKey := objectAssets.AnimKeys[rand.Intn(len(objectAssets.AnimKeys))]
+	randomAnimationFrame := rand.Intn(len(objectAssets.Anims[randomAnimationKey]))
+	livingObj := LivingObject{
 		id:       NextID,
 		assets:   objectAssets,
-		sprite:   pixel.NewSprite(objectAssets.sheet, objectAssets.anims[randomAnimationKey][randomAnimationFrame]),
+		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims[randomAnimationKey][randomAnimationFrame]),
 		rate:     1.0 / 10,
 		dir:      0.0,
 		giblet:   nil,
 		position: position,
 		vel:      pixel.V(0, 0),
 		matrix:   pixel.IM.Moved(position),
-		state:    idle,
+		state:    IDLE,
 		attributes: livingObjAttributes{
 			initiative: 1 + rand.Float64()*(maxInitiative-1),
 			speed:      1 + rand.Float64()*(maxSpeed-1),
@@ -245,7 +251,7 @@ func createNewLivingObject(objectAssets ObjectAssets, position pixel.Vec) living
 			destinationReached: true,
 		},
 	}
-	livingObj.setHitBox()
+	livingObj.SetHitBox()
 	NextID++
 	return livingObj
 }
