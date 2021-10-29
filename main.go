@@ -10,8 +10,8 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/aeonExMachina/assets"
-	objects "github.com/quartermeat/aeonExMachina/gameObjects"
-	input "github.com/quartermeat/aeonExMachina/inputHandler"
+	"github.com/quartermeat/aeonExMachina/input"
+	"github.com/quartermeat/aeonExMachina/objects"
 	"golang.org/x/image/colornames"
 )
 

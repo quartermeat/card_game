@@ -6,7 +6,7 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/quartermeat/aeonExMachina/assets"
-	objects "github.com/quartermeat/aeonExMachina/gameObjects"
+	"github.com/quartermeat/aeonExMachina/objects"
 )
 
 //Commands is the map of commands to execute
@@ -42,10 +42,10 @@ func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 		{
 			*command.gameObjs = command.gameObjs.AppendLivingObject(command.objectAssets, command.position)
 		}
-	case *objects.GibletObject:
-		{
-			*command.gameObjs = command.gameObjs.AppendGibletObject(command.objectAssets, command.position)
-		}
+		// case *objects.GibletObject:
+		// 	{
+		// 		*command.gameObjs = command.gameObjs.AppendGibletObject(command.objectAssets, command.position)
+		// 	}
 	}
 
 	waitGroup.Done()
@@ -143,4 +143,4 @@ func MoveSelectedToPositionObject(objs *objects.GameObjects, fromPosition pixel.
 	}
 }
 
-//endregion
+//#endregion

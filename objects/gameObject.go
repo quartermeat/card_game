@@ -9,16 +9,6 @@ import (
 	"github.com/quartermeat/aeonExMachina/assets"
 )
 
-//ObjectState is used for states
-type ObjectState int
-
-const (
-	IDLE ObjectState = iota
-	MOVING
-	SELECTED_IDLE
-	SELECTED_MOVING
-)
-
 const (
 	maxGameObjects = 400
 	maxInitiative  = 10.0
@@ -26,9 +16,16 @@ const (
 	maxStamina     = 100.0
 )
 
+type IControlState interface {
+	EnterState()
+	Select(IGameObject)
+	Unselect(IGameObject)
+}
+
 //NextID is the next assignable object ID
 var NextID = 0
 
+//IGameObject is what every object should be able to do
 type IGameObject interface {
 	ObjectName() string
 	Sprite() *pixel.Sprite
@@ -37,8 +34,7 @@ type IGameObject interface {
 	SetHitBox()
 	GetHitBox() pixel.Rect
 	Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
-	ChangeState(newState ObjectState)
-	GetState() ObjectState
+	ChangeControlState(newState IControlState)
 	Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup)
 	MoveToPosition(position pixel.Vec)
 }
@@ -52,7 +48,7 @@ func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {
 	return gameObjs
 }
 
-func (gameObjs GameObjects) AppendGameObject(newObject IGameObject) GameObjects {
+func (gameObjs GameObjects) appendGameObject(newObject IGameObject) GameObjects {
 	if len(gameObjs) >= maxGameObjects {
 		return gameObjs
 	}
@@ -61,14 +57,14 @@ func (gameObjs GameObjects) AppendGameObject(newObject IGameObject) GameObjects 
 }
 
 func (gameObjs GameObjects) AppendLivingObject(objectAssets assets.ObjectAssets, position pixel.Vec) GameObjects {
-	newLivingObject := createNewLivingObject(objectAssets, position)
-	return gameObjs.AppendGameObject(&newLivingObject)
+	newLivingObject := CreateNewLivingObject(objectAssets, position)
+	return gameObjs.appendGameObject(&newLivingObject)
 }
 
-func (gameObjs GameObjects) AppendGibletObject(objectAssets assets.ObjectAssets, position pixel.Vec) GameObjects {
-	newGibletObject := createNewGibletObject(objectAssets, position)
-	return gameObjs.AppendGameObject(&newGibletObject)
-}
+// func (gameObjs GameObjects) AppendGibletObject(objectAssets assets.ObjectAssets, position pixel.Vec) GameObjects {
+// 	newGibletObject := createNewGibletObject(objectAssets, position)
+// 	return gameObjs.appendGameObject(&newGibletObject)
+// }
 
 func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGroup) {
 	for _, currentObj := range gameObjs {

@@ -7,7 +7,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/aeonExMachina/assets"
-	objects "github.com/quartermeat/aeonExMachina/gameObjects"
+	"github.com/quartermeat/aeonExMachina/objects"
 )
 
 type InputHandler struct {
