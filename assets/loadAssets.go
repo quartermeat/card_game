@@ -18,7 +18,19 @@ type ObjectAssets struct {
 	AnimKeys []string
 }
 
-func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameWidth float64) error {
+func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
+	frames := make([][]pixel.Rect, 0)
+	for y := 0.0; y+frameSize <= sheet.Bounds().Max.Y; y += frameSize {
+		temp := make([]pixel.Rect, 0)
+		for x := 0.0; x+frameSize <= sheet.Bounds().Max.X; x += frameSize {
+			temp = append(temp, pixel.R(x, y, x+frameSize, y+frameSize))
+		}
+		frames = append(frames, temp)
+	}
+	return frames
+}
+
+func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSize float64) error {
 	var (
 		err      error
 		sheet    pixel.Picture
@@ -46,11 +58,7 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameWid
 	sheet = pixel.PictureDataFromImage(sheetImg)
 
 	// create a slice of frames inside the spritesheet
-	//todo fix loading of frames (hard coded for specific things right now)
-	var frames []pixel.Rect
-	for x := 0.0; x+frameWidth <= sheet.Bounds().Max.X; x += frameWidth {
-		frames = append(frames, pixel.R(x, frameWidth, x+frameWidth, frameWidth*2))
-	}
+	frames := getFrames(sheet, frameSize)
 
 	descFile, err := os.Open(descPath)
 	if err != nil {
@@ -73,10 +81,11 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameWid
 		}
 
 		name := anim[0]
-		start, _ := strconv.Atoi(anim[1])
-		end, _ := strconv.Atoi(anim[2])
+		row, _ := strconv.Atoi(anim[1])
+		start, _ := strconv.Atoi(anim[2])
+		end, _ := strconv.Atoi(anim[3])
 
-		anims[name] = frames[start : end+1]
+		anims[name] = frames[row][start : end+1]
 		animKeys = append(animKeys, name)
 	}
 

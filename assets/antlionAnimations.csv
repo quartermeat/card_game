@@ -1,0 +1,16 @@
+idle_225,0,0,3
+moving_225,0,3,9
+idle_down,1,0,3
+moving_down,1,3,9
+idle_315,2,0,3
+moving_315,2,3,9
+idle_right,3,0,3
+moving_right,3,3,9
+idle_45,4,0,3
+moving_45,4,3,9
+idle_up,5,0,3
+moving_up,5,3,9
+idle_135,6,0,3
+moving_135,6,3,9
+idle_left,7,0,3
+moving_left,7,3,9

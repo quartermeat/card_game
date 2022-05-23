@@ -79,7 +79,24 @@ func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitG
 	case IDLE:
 		{
 			//update idle animation
-			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle"][interval%len(livingObj.assets.Anims["idle"])])
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_right"][interval%len(livingObj.assets.Anims["idle_right"])])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_45"][interval%len(livingObj.assets.Anims["idle_45"])])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_up"][interval%len(livingObj.assets.Anims["idle_up"])])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_135"][interval%len(livingObj.assets.Anims["idle_135"])])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_left"][interval%len(livingObj.assets.Anims["idle_left"])])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_225"][interval%len(livingObj.assets.Anims["idle_225"])])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_down"][interval%len(livingObj.assets.Anims["idle_down"])])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_315"][interval%len(livingObj.assets.Anims["idle_315"])])
+			}
 
 			livingObj.attributes.stamina += livingObj.counter
 
@@ -91,7 +108,25 @@ func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitG
 	case MOVING:
 		{
 			//update moving animation
-			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving"][interval%len(livingObj.assets.Anims["moving"])])
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_right"][interval%len(livingObj.assets.Anims["moving_right"])])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_45"][interval%len(livingObj.assets.Anims["moving_45"])])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_up"][interval%len(livingObj.assets.Anims["moving_up"])])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_135"][interval%len(livingObj.assets.Anims["moving_135"])])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_left"][interval%len(livingObj.assets.Anims["moving_left"])])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_225"][interval%len(livingObj.assets.Anims["moving_225"])])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_down"][interval%len(livingObj.assets.Anims["moving_down"])])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["moving_315"][interval%len(livingObj.assets.Anims["moving_315"])])
+			}
+
 			//invert x axis
 			livingObj.vel.X = livingObj.attributes.speed * math.Cos(livingObj.dir)
 			livingObj.vel.Y = livingObj.attributes.speed * math.Sin(livingObj.dir)
@@ -101,36 +136,36 @@ func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitG
 			livingObj.attributes.stamina -= livingObj.counter
 
 			//handle holding a giblet
-			if livingObj.giblet != nil {
-				//update giblet's position
-				livingObj.giblet.matrix = livingObj.matrix.Moved(livingObj.vel.Scaled(dt))
-				livingObj.giblet.position = livingObj.matrix.Project(livingObj.vel.Scaled(dt))
-				livingObj.attributes.stamina -= float64(livingObj.giblet.attributes.value)
-			}
+			// if livingObj.giblet != nil {
+			// 	//update giblet's position
+			// 	livingObj.giblet.matrix = livingObj.matrix.Moved(livingObj.vel.Scaled(dt))
+			// 	livingObj.giblet.position = livingObj.matrix.Project(livingObj.vel.Scaled(dt))
+			// 	livingObj.attributes.stamina -= float64(livingObj.giblet.attributes.value)
+			// }
 
-			//collision detection
-			for _, otherObj := range gameObjects {
-				if livingObj.hitBox.Intersects(otherObj.GetHitBox()) && otherObj.GetID() != livingObj.GetID() {
-					//handle collisions with other objects here
-					switch otherOject := otherObj.(type) {
-					case *GibletObject:
-						{
-							//FIXME: this needs to be updated
-							livingObj.giblet = otherOject
-							// if livingObj.giblet.host != nil && livingObj.giblet.host != livingObj {
-							// 	//take giblet from other host
-							// 	livingObj.giblet.host.giblet = nil
-							// }
-							livingObj.giblet.ChangeState(MOVING)
-							livingObj.giblet.host = livingObj
-						}
-					default:
-						{
+			// //collision detection
+			// for _, otherObj := range gameObjects {
+			// 	if livingObj.hitBox.Intersects(otherObj.GetHitBox()) && otherObj.GetID() != livingObj.GetID() {
+			// 		//handle collisions with other objects here
+			// 		switch otherOject := otherObj.(type) {
+			// 		case *GibletObject:
+			// 			{
+			// 				//FIXME: this needs to be updated
+			// 				livingObj.giblet = otherOject
+			// 				// if livingObj.giblet.host != nil && livingObj.giblet.host != livingObj {
+			// 				// 	//take giblet from other host
+			// 				// 	livingObj.giblet.host.giblet = nil
+			// 				// }
+			// 				livingObj.giblet.ChangeState(MOVING)
+			// 				livingObj.giblet.host = livingObj
+			// 			}
+			// 		default:
+			// 			{
 
-						}
-					}
-				}
-			}
+			// 			}
+			// 		}
+			// 	}
+			// }
 
 			if livingObj.position == livingObj.destination {
 				livingObj.motives.destinationReached = true
@@ -143,12 +178,26 @@ func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitG
 	case SELECTED_IDLE:
 		{
 			//make idle
-			livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle"][interval%len(livingObj.assets.Anims["idle"])])
+			//update idle animation
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_right"][interval%len(livingObj.assets.Anims["idle_right"])])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_45"][interval%len(livingObj.assets.Anims["idle_45"])])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_up"][interval%len(livingObj.assets.Anims["idle_up"])])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_135"][interval%len(livingObj.assets.Anims["idle_135"])])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_left"][interval%len(livingObj.assets.Anims["idle_left"])])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_225"][interval%len(livingObj.assets.Anims["idle_225"])])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_down"][interval%len(livingObj.assets.Anims["idle_down"])])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite.Set(livingObj.assets.Sheet, livingObj.assets.Anims["idle_315"][interval%len(livingObj.assets.Anims["idle_315"])])
+			}
 			livingObj.attributes.stamina += livingObj.counter
-		}
-	case SELECTED_MOVING:
-		{
-			//change state to moving
 		}
 	}
 
@@ -156,12 +205,34 @@ func (livingObj *LivingObject) Update(dt float64, gameObjects GameObjects, waitG
 }
 
 func (livingObj *LivingObject) ChangeState(newState ObjectState) {
+	// if livingObj.state != newState {
+	// 	livingObj.lastState = livingObj.state
+	// 	livingObj.state = newState
+	// }
 	livingObj.state = newState
 	livingObj.counter = 0
 	switch newState {
 	case IDLE:
 		{
 			livingObj.matrix = pixel.IM.Moved(livingObj.position)
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_right"][0])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_45"][0])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_up"][0])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_135"][0])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_left"][0])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_225"][0])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_down"][0])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_315"][0])
+			}
 		}
 	case MOVING:
 		{
@@ -169,11 +240,47 @@ func (livingObj *LivingObject) ChangeState(newState ObjectState) {
 				randFloat := float64(rand.Intn(360))
 				livingObj.dir = randFloat * (math.Pi / 180)
 			}
-			livingObj.matrix = livingObj.matrix.Rotated(livingObj.position, livingObj.dir)
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_right"][0])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_45"][0])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_up"][0])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_135"][0])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_left"][0])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_225"][0])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_down"][0])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["moving_315"][0])
+			}
+
 		}
 	case SELECTED_IDLE:
 		{
 			livingObj.matrix = pixel.IM.Moved(livingObj.position)
+			angle := livingObj.dir * (180 / math.Pi)
+			if angle >= 337.5 || angle < 22.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_right"][0])
+			} else if angle >= 22.5 && angle < 67.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_45"][0])
+			} else if angle >= 67.5 && angle < 112.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_up"][0])
+			} else if angle >= 112.5 && angle < 157.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_135"][0])
+			} else if angle >= 157.5 && angle < 202.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_left"][0])
+			} else if angle >= 202.5 && angle < 247.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_225"][0])
+			} else if angle >= 247.5 && angle < 292.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_down"][0])
+			} else if angle >= 292.5 && angle < 337.5 {
+				livingObj.sprite = pixel.NewSprite(livingObj.assets.Sheet, livingObj.assets.Anims["idle_315"][0])
+			}
 		}
 	case SELECTED_MOVING:
 		{
@@ -203,6 +310,9 @@ func (livingObj *LivingObject) Draw(win *pixelgl.Window, drawHitBox bool, waitGr
 func (livingObj *LivingObject) MoveToPosition(position pixel.Vec) {
 	livingObj.destination = position
 	livingObj.dir = livingObj.position.To(livingObj.destination).Angle()
+	if livingObj.dir < 0 {
+		livingObj.dir = livingObj.dir + (2 * math.Pi)
+	}
 	livingObj.ChangeState(SELECTED_MOVING)
 }
 
@@ -212,9 +322,9 @@ func GetShallowLivingObject(objectAssets assets.ObjectAssets) *LivingObject {
 	return &LivingObject{
 		id:       -1,
 		assets:   objectAssets,
-		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle"][0]),
+		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle_down"][0]),
 		rate:     1.0 / 2,
-		dir:      0.0,
+		dir:      270,
 		position: pixel.V(0, 0),
 		vel:      pixel.V(0, 0),
 		giblet:   nil,

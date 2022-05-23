@@ -88,7 +88,7 @@ func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IG
 	foundObject := true
 	noIndex := -1
 
-	if gameObjs == nil || len(gameObjs) == 0 {
+	if len(gameObjs) == 0 {
 		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exist")
 	}
 	for index, object := range gameObjs {

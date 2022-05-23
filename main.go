@@ -19,7 +19,7 @@ func run() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Aeon Ex Machina",
-		Bounds: pixel.R(0, 0, 1280, 960),
+		Bounds: pixel.R(0, 0, 1680, 1050),
 		VSync:  false,
 	}
 
@@ -47,11 +47,11 @@ func run() {
 	)
 
 	//load assets
-	err = livingObjectAssets.SetAssets("assets/spriteSheet.png", "assets/pinkAnimations.csv", 32)
+	err = livingObjectAssets.SetAssets("assets/antlion_spriteSheet.png", "assets/antlionAnimations.csv", 64)
 	if err != nil {
 		panic(err)
 	}
-	err = gibletObjectAssets.SetAssets("assets/spriteSheet.png", "assets/gibletAnimations.csv", 16)
+	err = gibletObjectAssets.SetAssets("assets/antlion_spriteSheet.png", "assets/antlionAnimations.csv", 64)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +91,7 @@ func run() {
 		gameObjs.UpdateAllObjects(dt, &waitGroup)
 		waitGroup.Wait()
 
-		win.Clear(colornames.Black)
+		win.Clear(colornames.Burlywood)
 		//draw game objects
 		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
