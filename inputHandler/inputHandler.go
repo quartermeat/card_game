@@ -35,7 +35,7 @@ func (input *InputHandler) HandleInput(
 	drawHitBox *bool,
 ) {
 	if !input.initialized {
-		input.InitializeObjectToPlace(objects.GetShallowGibletObject(gibletAssets))
+		input.InitializeObjectToPlace(objects.GetShallowLivingObject(livingAssets))
 	}
 
 	//select giblet

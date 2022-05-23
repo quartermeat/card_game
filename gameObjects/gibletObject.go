@@ -69,12 +69,12 @@ func (gibletObj *GibletObject) Update(dt float64, gameObjects GameObjects, waitG
 	case IDLE: //lying on ground
 		{
 			//update idle animation
-			gibletObj.sprite.Set(gibletObj.assets.Sheet, gibletObj.assets.Anims["idle"][interval%len(gibletObj.assets.Anims["idle"])])
+			gibletObj.sprite.Set(gibletObj.assets.Sheet, gibletObj.assets.Anims["idle_right"][interval%len(gibletObj.assets.Anims["idle_right"])])
 		}
 	case MOVING: //held
 		{
 			//update moving animation
-			gibletObj.sprite.Set(gibletObj.assets.Sheet, gibletObj.assets.Anims["idle"][interval%len(gibletObj.assets.Anims["idle"])])
+			gibletObj.sprite.Set(gibletObj.assets.Sheet, gibletObj.assets.Anims["moving_right"][interval%len(gibletObj.assets.Anims["moving_right"])])
 		}
 	}
 
@@ -124,7 +124,7 @@ func GetShallowGibletObject(objectAssets assets.ObjectAssets) *GibletObject {
 	return &GibletObject{
 		id:       -1,
 		assets:   objectAssets,
-		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle"][0]),
+		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle_right"][0]),
 		rate:     1.0 / 2,
 		dir:      0,
 		position: pixel.V(0, 0),
