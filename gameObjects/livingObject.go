@@ -59,8 +59,9 @@ func (livingObj *LivingObject) GetID() int {
 }
 
 func (livingObj *LivingObject) SetHitBox() {
-	width := livingObj.sprite.Frame().Max.X - livingObj.sprite.Frame().Min.X
-	height := livingObj.sprite.Frame().Max.Y - livingObj.sprite.Frame().Min.Y
+	scalingFactor := 0.75
+	width := (livingObj.sprite.Frame().Max.X - livingObj.sprite.Frame().Min.X) * scalingFactor
+	height := (livingObj.sprite.Frame().Max.Y - livingObj.sprite.Frame().Min.Y)
 	topRight := pixel.V(livingObj.position.X-(width/2), livingObj.position.Y-(height/2))
 	bottomLeft := pixel.V(livingObj.position.X+(width/2), livingObj.position.Y+(width/2))
 	livingObj.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
@@ -324,7 +325,7 @@ func GetShallowLivingObject(objectAssets assets.ObjectAssets) *LivingObject {
 		assets:   objectAssets,
 		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims["idle_down"][0]),
 		rate:     1.0 / 2,
-		dir:      270,
+		dir:      270 * (math.Pi / 180),
 		position: pixel.V(0, 0),
 		vel:      pixel.V(0, 0),
 		giblet:   nil,
@@ -346,7 +347,7 @@ func createNewLivingObject(objectAssets assets.ObjectAssets, position pixel.Vec)
 		assets:   objectAssets,
 		sprite:   pixel.NewSprite(objectAssets.Sheet, objectAssets.Anims[randomAnimationKey][randomAnimationFrame]),
 		rate:     1.0 / 10,
-		dir:      0.0,
+		dir:      270 * (math.Pi / 180),
 		giblet:   nil,
 		position: position,
 		vel:      pixel.V(0, 0),
