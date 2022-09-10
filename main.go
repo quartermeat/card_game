@@ -9,10 +9,12 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"golang.org/x/image/colornames"
+
 	"github.com/quartermeat/aeonExMachina/assets"
+	"github.com/quartermeat/aeonExMachina/errormgmt"
 	"github.com/quartermeat/aeonExMachina/input"
 	"github.com/quartermeat/aeonExMachina/objects"
-	"golang.org/x/image/colornames"
 )
 
 func run() {
@@ -43,14 +45,22 @@ func run() {
 		drawHitBox   = false
 		inputHandler input.InputHandler
 		objectAssets assets.ObjectAssets
+		errors       errormgmt.Errors
+		sysErrors    []error
 	)
 
-	//load assets
+	//panic level errors
+	sysErrors = make([]error, 0)
 
-	objectAssets, err = objectAssets.AddAssets(assets.CursorAnimations, "assets/mouseHand.png", "assets/mouseAnimations.csv", assets.MouseIconPixelSize)
-	objectAssets, err = objectAssets.AddAssets(assets.TestCard, "assets/test_card.png", "assets/testCardAnimations.csv", assets.CardImageSize)
-	if err != nil {
-		panic(err)
+	//load assets
+	objectAssets, err1 := objectAssets.AddAssets(assets.CursorAnimations, "assets/mouseHand.png", "assets/mouseAnimations.csv", assets.MouseIconPixelSize)
+	objectAssets, err2 := objectAssets.AddAssets(assets.TestCard, "assets/test_card.png", "assets/testCardAnimations.csv", assets.CardImageSize)
+	sysErrors = append(sysErrors, err1)
+	sysErrors = append(sysErrors, err2)
+	for _, sysError := range sysErrors {
+		if sysError != nil {
+			panic(sysError)
+		}
 	}
 
 	//seed rng
@@ -65,7 +75,7 @@ func run() {
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
-		inputHandler.HandleInput(
+		errors = inputHandler.HandleInput(
 			win,
 			&cam,
 			gameCommands,
@@ -108,9 +118,15 @@ func run() {
 		frames++
 		select {
 		case <-second:
-			win.SetTitle(fmt.Sprintf("%s | FPS: %d | CELLS: %d", cfg.Title, frames, len(gameObjs)))
+			win.SetTitle(fmt.Sprintf("%s | FPS: %d | GameObjects: %d", cfg.Title, frames, len(gameObjs)))
 			frames = 0
 		default:
+		}
+
+		//output errors every loop
+		//TODO: set output to a debug window
+		for i, error := range errors {
+			fmt.Printf("error %d: %s", i, error.Error())
 		}
 	}
 }

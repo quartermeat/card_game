@@ -5,9 +5,11 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/quartermeat/aeonExMachina/assets"
-	"github.com/quartermeat/aeonExMachina/objects"
 	"golang.org/x/exp/slices"
+
+	"github.com/quartermeat/aeonExMachina/assets"
+	"github.com/quartermeat/aeonExMachina/errormgmt"
+	"github.com/quartermeat/aeonExMachina/objects"
 )
 
 type InputHandler struct {
@@ -39,25 +41,24 @@ func (input *InputHandler) HandleInput(
 	camZoomSpeed float64,
 	camPos *pixel.Vec,
 	drawHitBox *bool,
-) {
+) (errors errormgmt.Errors) {
+	//do initialization of input handler
 	if !input.initialized {
+
+		//set cursor
 		var idx int = 0
 		idx = slices.IndexFunc(objectAssets, func(c assets.ObjectAsset) bool { return c.Description == assets.CursorAnimations })
 		if idx != -1 {
 			input.CursorAssets = objectAssets[idx]
 			input.SetCursor(false)
+		} else {
+			indexError := errormgmt.AemError{
+				Message: "{c.Description} is not in assests",
+			}
+			errors = append(errors, indexError)
 		}
+
 	}
-
-	//select giblet
-	// if win.JustPressed(pixelgl.Key0) {
-	// 	// input.ObjectToPlace = objects.GetShallowGibletObject(gibletAssets)
-	// }
-
-	//select living object
-	// if win.JustPressed(pixelgl.Key1) {
-	// 	// input.ObjectToPlace = objects.GetShallowLivingObject(livingAssets)
-	// }
 
 	if win.JustReleased(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
 		input.SetCursor(false)
@@ -65,29 +66,8 @@ func (input *InputHandler) HandleInput(
 
 	//place the selected object
 	if win.Pressed(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
-		// mouse := cam.Unproject(win.MousePosition())
-		// gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, input.ObjectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, input.ObjectToPlace, mouse)
 		input.SetCursor(true)
 	}
-
-	//move selected object to position
-	// if win.JustPressed(pixelgl.MouseButtonRight) {
-	// 	// mouse := cam.Unproject(win.MousePosition())
-	// 	// gameCommands[fmt.Sprintf("MoveSelectedToPosition: x:%f, y:%f", mouse.X, mouse.Y)] = MoveSelectedToPositionObject(gameObjs, mouse)
-	// }
-
-	//handle ctrl functions
-	// if win.Pressed(pixelgl.KeyLeftControl) {
-	// 	// win.SetCursorVisible(true)
-	// 	// if win.JustPressed(pixelgl.MouseButtonRight) {
-	// 	// 	mouse := cam.Unproject(win.MousePosition())
-	// 	// 	gameCommands[fmt.Sprintf("RemoveObjectAtPosition x:%f, y:%f", mouse.X, mouse.Y)] = RemoveObjectAtPosition(gameObjs, mouse)
-	// 	// }
-	// 	// if win.JustPressed(pixelgl.MouseButtonLeft) { //ctrl + left click
-	// 	// 	mouse := cam.Unproject(win.MousePosition())
-	// 	// 	gameCommands[fmt.Sprintf("SelectObjectAtPosition x:%f, y:%f", mouse.X, mouse.Y)] = SelectObjectAtPosition(gameObjs, mouse)
-	// 	// }
-	// }
 
 	//toggle global hit box draw for debugging
 	if win.JustPressed(pixelgl.KeyH) {
@@ -111,12 +91,5 @@ func (input *InputHandler) HandleInput(
 	//zoom camera
 	*camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
-	// //used for framerate test
-	// if win.Pressed(pixelgl.MouseButtonLeft) {
-	// 	if win.Pressed(pixelgl.KeyLeftShift) {
-	// 		mouse := cam.Unproject(win.MousePosition())
-	// 		gameCommands[fmt.Sprintf("AddObject: %s", input.ObjectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, input.ObjectToPlace, mouse)
-	// 	}
-	// }
-
+	return errors
 }
