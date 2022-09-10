@@ -6,7 +6,7 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/quartermeat/aeonExMachina/assets"
+	"github.com/quartermeat/card_game/assets"
 )
 
 const (

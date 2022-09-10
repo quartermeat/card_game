@@ -1,4 +1,4 @@
-package main
+package console
 
 import (
 	"bufio"
@@ -6,6 +6,10 @@ import (
 	"net"
 	"strings"
 )
+
+func StartClient() {
+	
+}
 
 //StartServer starts the control server
 func StartServer() {

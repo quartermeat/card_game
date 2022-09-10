@@ -7,9 +7,9 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/exp/slices"
 
-	"github.com/quartermeat/aeonExMachina/assets"
-	"github.com/quartermeat/aeonExMachina/errormgmt"
-	"github.com/quartermeat/aeonExMachina/objects"
+	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/errormgmt"
+	"github.com/quartermeat/card_game/objects"
 )
 
 type InputHandler struct {

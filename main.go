@@ -11,16 +11,17 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
-	"github.com/quartermeat/aeonExMachina/assets"
-	"github.com/quartermeat/aeonExMachina/errormgmt"
-	"github.com/quartermeat/aeonExMachina/input"
-	"github.com/quartermeat/aeonExMachina/objects"
+	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/console"
+	"github.com/quartermeat/card_game/errormgmt"
+	"github.com/quartermeat/card_game/input"
+	"github.com/quartermeat/card_game/objects"
 )
 
 func run() {
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "Aeon Ex Machina",
+		Title:  "Card Game",
 		Bounds: pixel.R(0, 0, 1290, 1080),
 		VSync:  false,
 	}
@@ -31,7 +32,7 @@ func run() {
 	}
 
 	// start command server
-	go StartServer()
+	go console.StartServer()
 
 	var (
 		camPos       = pixel.ZV
@@ -132,5 +133,6 @@ func run() {
 }
 
 func main() {
+	// fmt.Printf("hello go 1.19")
 	pixelgl.Run(run)
 }

@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/faiface/pixel"
-	"github.com/quartermeat/aeonExMachina/assets"
-	"github.com/quartermeat/aeonExMachina/objects"
+	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/objects"
 )
 
 //Commands is the map of commands to execute
