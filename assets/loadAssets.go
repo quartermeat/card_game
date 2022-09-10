@@ -11,12 +11,28 @@ import (
 	"github.com/pkg/errors"
 )
 
+// type ObjectAsset struct {
+// 	Sheet    pixel.Picture
+// 	Anims    map[string][]pixel.Rect
+// 	AnimKeys []string
+// }
+
+const MouseIconPixelSize float64 = 16
+const CardImageSize float64 = 368
+const (
+	CursorAnimations string = "hand"
+	TestCard         string = "test_card"
+)
+
 //ObjectAssets holds images for objects
-type ObjectAssets struct {
-	Sheet    pixel.Picture
-	Anims    map[string][]pixel.Rect
-	AnimKeys []string
+type ObjectAsset struct {
+	Description string
+	Sheet       pixel.Picture
+	Anims       map[string][]pixel.Rect
+	AnimKeys    []string
 }
+
+type ObjectAssets []ObjectAsset
 
 func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	frames := make([][]pixel.Rect, 0)
@@ -30,7 +46,7 @@ func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	return frames
 }
 
-func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSize float64) error {
+func (objectAssets ObjectAssets) AddAssets(sheetDesc string, sheetPath, descPath string, frameSize float64) (ObjectAssets, error) {
 	var (
 		err      error
 		sheet    pixel.Picture
@@ -48,12 +64,12 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSiz
 	// open and load the spritesheet
 	sheetFile, err := os.Open(sheetPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer sheetFile.Close()
 	sheetImg, _, err := image.Decode(sheetFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	sheet = pixel.PictureDataFromImage(sheetImg)
 
@@ -62,7 +78,7 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSiz
 
 	descFile, err := os.Open(descPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer descFile.Close()
 
@@ -71,13 +87,15 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSiz
 
 	// load the animation information, name and interval inside the spritesheet
 	desc := csv.NewReader(descFile)
+	desc.Comma = ','
+	desc.Comment = '#'
 	for {
 		anim, err := desc.Read()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		name := anim[0]
@@ -86,11 +104,17 @@ func (objectAssets *ObjectAssets) SetAssets(sheetPath, descPath string, frameSiz
 		end, _ := strconv.Atoi(anim[3])
 
 		anims[name] = frames[row][start : end+1]
-		animKeys = append(animKeys, name)
-	}
 
-	objectAssets.AnimKeys = animKeys
-	objectAssets.Sheet = sheet
-	objectAssets.Anims = anims
-	return nil
+		animKeys = append(animKeys, name)
+
+	}
+	newAsset := new(ObjectAsset)
+	newAsset.Description = sheetDesc
+	newAsset.AnimKeys = animKeys
+	newAsset.Sheet = sheet
+	newAsset.Anims = anims
+
+	objectAssets = append(objectAssets, *newAsset)
+
+	return objectAssets, err
 }

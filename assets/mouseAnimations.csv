@@ -1,0 +1,4 @@
+# NO SPACES: spaces cause the numerical values to be read incorrectly
+# column defs:
+#   animation name, row(starting from bottom), first frame index from left, last frame index from the left 
+hand,0,0,1

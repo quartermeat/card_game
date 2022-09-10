@@ -10,8 +10,8 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/aeonExMachina/assets"
-	objects "github.com/quartermeat/aeonExMachina/gameObjects"
-	input "github.com/quartermeat/aeonExMachina/inputHandler"
+	"github.com/quartermeat/aeonExMachina/input"
+	"github.com/quartermeat/aeonExMachina/objects"
 	"golang.org/x/image/colornames"
 )
 
@@ -19,7 +19,7 @@ func run() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Aeon Ex Machina",
-		Bounds: pixel.R(0, 0, 1680, 1050),
+		Bounds: pixel.R(0, 0, 1290, 1080),
 		VSync:  false,
 	}
 
@@ -32,26 +32,23 @@ func run() {
 	go StartServer()
 
 	var (
-		camPos             = pixel.ZV
-		camSpeed           = 500.0
-		camZoom            = 1.0
-		camZoomSpeed       = 1.2
-		gameObjs           objects.GameObjects
-		gameCommands       = make(input.Commands)
-		frames             = 0
-		second             = time.Tick(time.Second)
-		drawHitBox         = false
-		inputHandler       input.InputHandler
-		livingObjectAssets assets.ObjectAssets
-		gibletObjectAssets assets.ObjectAssets
+		camPos       = pixel.ZV
+		camSpeed     = 500.0
+		camZoom      = 1.0
+		camZoomSpeed = 1.2
+		gameObjs     objects.GameObjects
+		gameCommands = make(input.Commands)
+		frames       = 0
+		second       = time.Tick(time.Second)
+		drawHitBox   = false
+		inputHandler input.InputHandler
+		objectAssets assets.ObjectAssets
 	)
 
 	//load assets
-	err = livingObjectAssets.SetAssets("assets/antlion_spriteSheet.png", "assets/antlionAnimations.csv", 64)
-	if err != nil {
-		panic(err)
-	}
-	err = gibletObjectAssets.SetAssets("assets/antlion_spriteSheet.png", "assets/antlionAnimations.csv", 64)
+
+	objectAssets, err = objectAssets.AddAssets(assets.CursorAnimations, "assets/mouseHand.png", "assets/mouseAnimations.csv", assets.MouseIconPixelSize)
+	objectAssets, err = objectAssets.AddAssets(assets.TestCard, "assets/test_card.png", "assets/testCardAnimations.csv", assets.CardImageSize)
 	if err != nil {
 		panic(err)
 	}
@@ -73,8 +70,7 @@ func run() {
 			&cam,
 			gameCommands,
 			&gameObjs,
-			gibletObjectAssets,
-			livingObjectAssets,
+			objectAssets,
 			dt,
 			camSpeed,
 			&camZoom,
@@ -91,7 +87,7 @@ func run() {
 		gameObjs.UpdateAllObjects(dt, &waitGroup)
 		waitGroup.Wait()
 
-		win.Clear(colornames.Burlywood)
+		win.Clear(colornames.Black)
 		//draw game objects
 		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
@@ -100,7 +96,8 @@ func run() {
 		if win.MouseInsideWindow() {
 			if !win.Pressed(pixelgl.KeyLeftControl) {
 				win.SetCursorVisible(false)
-				inputHandler.ObjectToPlace.Sprite().Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
+				//setup and object to place
+				inputHandler.Cursor.Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
 			}
 		} else {
 			win.SetCursorVisible(true)
