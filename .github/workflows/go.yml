@@ -48,7 +48,9 @@ jobs:
     #  run: cmake --build build-shared --parallel
 
     - name: Build
-      run: go build -v ./...
+      run: |
+        go get
+        go build -v ./...
 
     - name: Test
       run: go test -v ./...
