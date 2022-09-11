@@ -8,6 +8,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/errormgmt"
 	"github.com/quartermeat/card_game/objects"
 )
@@ -41,23 +42,42 @@ func (input *InputHandler) HandleInput(
 	camZoomSpeed float64,
 	camPos *pixel.Vec,
 	drawHitBox *bool,
+	readConsole <-chan console.ConsoleCommand,
 ) (errors errormgmt.Errors) {
+	var (
+		cursorToggle bool
+	)
+
 	//do initialization of input handler
 	if !input.initialized {
-
 		//set cursor
+		cursorToggle = false
 		var idx int = 0
 		idx = slices.IndexFunc(objectAssets, func(c assets.ObjectAsset) bool { return c.Description == assets.CursorAnimations })
 		if idx != -1 {
 			input.CursorAssets = objectAssets[idx]
-			input.SetCursor(false)
+			input.SetCursor(cursorToggle)
 		} else {
 			indexError := errormgmt.AemError{
 				Message: "{c.Description} is not in assests",
 			}
 			errors = append(errors, indexError)
 		}
+	}
 
+	//recieve command from console
+	select {
+	case consoleCommand := <-readConsole:
+		{
+			if consoleCommand.Command == console.Poke {
+				cursorToggle = !cursorToggle
+				input.SetCursor(cursorToggle)
+			}
+		}
+	default:
+		{
+			//don't do anything
+		}
 	}
 
 	if win.JustReleased(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {

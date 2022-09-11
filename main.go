@@ -31,24 +31,29 @@ func run() {
 		panic(err)
 	}
 
-	// start command server
-	go console.StartServer()
-
 	var (
-		camPos       = pixel.ZV
-		camSpeed     = 500.0
-		camZoom      = 1.0
-		camZoomSpeed = 1.2
-		gameObjs     objects.GameObjects
-		gameCommands = make(input.Commands)
-		frames       = 0
-		second       = time.Tick(time.Second)
-		drawHitBox   = false
-		inputHandler input.InputHandler
-		objectAssets assets.ObjectAssets
-		errors       errormgmt.Errors
-		sysErrors    []error
+		camPos             = pixel.ZV
+		camSpeed           = 500.0
+		camZoom            = 1.0
+		camZoomSpeed       = 1.2
+		gameObjs           objects.GameObjects
+		gameCommands       = make(input.Commands)
+		frames             = 0
+		second             = time.Tick(time.Second)
+		drawHitBox         = false
+		inputHandler       input.InputHandler
+		objectAssets       assets.ObjectAssets
+		errors             errormgmt.Errors
+		sysErrors          []error
+		consoleToInputChan chan console.ConsoleCommand
 	)
+
+	consoleToInputChan = make(chan console.ConsoleCommand, 1)
+	defer close(consoleToInputChan)
+
+	// start command server
+	go console.StartServer(consoleToInputChan)
+	go console.RunConsole()
 
 	//panic level errors
 	sysErrors = make([]error, 0)
@@ -88,6 +93,7 @@ func run() {
 			camZoomSpeed,
 			&camPos,
 			&drawHitBox,
+			consoleToInputChan,
 		)
 
 		var waitGroup sync.WaitGroup
@@ -125,7 +131,6 @@ func run() {
 		}
 
 		//output errors every loop
-		//TODO: set output to a debug window
 		for i, error := range errors {
 			fmt.Printf("error %d: %s", i, error.Error())
 		}

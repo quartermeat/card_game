@@ -7,12 +7,18 @@ import (
 	"strings"
 )
 
-func StartClient() {
-	
+const (
+	Poke string = "poke"
+)
+
+type ConsoleCommand struct {
+	Command string
 }
 
-//StartServer starts the control server
-func StartServer() {
+// StartServer starts the control server
+func StartServer(writeInputHandler chan<- ConsoleCommand) {
+	inputHandlerCommand := ConsoleCommand{}
+
 	PORT := ":" + "1337"
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
@@ -35,17 +41,27 @@ func StartServer() {
 		}
 		command := strings.TrimSpace(string(netData))
 
-		fmt.Print("-> ", command, "\n")
-
 		var response string
 		switch command {
-		case "exit":
+		case "test":
 			{
-				fmt.Println("Exiting TCP server!")
-				response = fmt.Sprintln("exit", command)
+				response = fmt.Sprintln("executing on server")
 				connection.Write([]byte(response))
-				connection.Close()
-				return
+			}
+		case Poke:
+			{
+				response = fmt.Sprintln(Poke)
+				inputHandlerCommand.Command = Poke
+				select {
+				case writeInputHandler <- inputHandlerCommand:
+					{
+						connection.Write([]byte(response))
+					}
+				default:
+					{
+						return
+					}
+				}
 			}
 		default:
 			{
