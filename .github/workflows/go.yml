@@ -29,6 +29,7 @@ jobs:
         
     - name: X11 (Linux, Clang)
       run: |
+          sudo apt-get remove -y --purge man-db
           sudo apt update
           sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
             - name: Configure static library
