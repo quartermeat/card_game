@@ -36,15 +36,15 @@ jobs:
           sudo apt-get install libxinerama-dev
           sudo apt-get install libxrandr-dev
           sudo apt-get install libxext-dev
-            - name: Configure static library
-              run: cmake -S . -B build-static
-            - name: Build static library
-              run: cmake --build build-static --parallel
+    - name: Configure static library
+      run: cmake -S . -B build-static
+    - name: Build static library
+      run: cmake --build build-static --parallel
 
-            - name: Configure shared library
-              run: cmake -S . -B build-shared -D BUILD_SHARED_LIBS=ON
-            - name: Build shared library
-              run: cmake --build build-shared --parallel
+    - name: Configure shared library
+      run: cmake -S . -B build-shared -D BUILD_SHARED_LIBS=ON
+    - name: Build shared library
+      run: cmake --build build-shared --parallel
 
     - name: Build
       run: go build -v ./...
