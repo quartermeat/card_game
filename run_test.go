@@ -1,5 +1,3 @@
-//go:build TEST
-
 package main
 
 import (
