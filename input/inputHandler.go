@@ -17,6 +17,8 @@ type InputHandler struct {
 	initialized  bool
 	Cursor       *pixel.Sprite
 	CursorAssets assets.ObjectAsset
+	win          *pixelgl.Window
+	cam          *pixel.Matrix
 }
 
 func (input *InputHandler) SetCursor(pressed bool) {
@@ -44,6 +46,8 @@ func (input *InputHandler) HandleInput(
 	drawHitBox *bool,
 	readConsole <-chan console.ConsoleCommand,
 ) (errors errormgmt.Errors) {
+	input.win = win
+	input.cam = cam
 	var (
 		cursorToggle bool
 	)
@@ -73,11 +77,28 @@ func (input *InputHandler) HandleInput(
 				cursorToggle = !cursorToggle
 				input.SetCursor(cursorToggle)
 			}
+			if consoleCommand.Command == console.Stop {
+				stopCommand := errormgmt.AemError{
+					Message: console.Stop,
+				}
+				errors = append(errors, stopCommand)
+				return
+			}
 		}
 	default:
 		{
 			//don't do anything
 		}
+	}
+
+	if win.MouseInsideWindow() {
+		if !win.Pressed(pixelgl.KeyLeftControl) {
+			win.SetCursorVisible(false)
+			//setup and object to place
+			input.Cursor.Draw(win, pixel.IM.Moved(cam.Unproject(win.MousePosition())))
+		}
+	} else {
+		win.SetCursorVisible(true)
 	}
 
 	if win.JustReleased(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {

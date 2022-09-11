@@ -8,10 +8,18 @@ import (
 	"strings"
 )
 
-func RunConsole() {
+func connect(address string) net.Conn {
+	c, err := net.Dial("tcp", address)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return c
+}
 
+func RunConsole() {
 	fmt.Printf("<-----AEM Console----->\n")
-	connection := Connect("127.0.0.1:1337")
+	connection := connect("127.0.0.1:1337")
 
 	fmt.Print(">>")
 	for {
@@ -24,15 +32,16 @@ func RunConsole() {
 		// fmt.Print(message)
 
 		switch strings.TrimSpace(string(message)) {
-		case "exit":
+		case Stop:
 			{
 				fmt.Println("TCP client exiting...")
 				connection.Close()
+				return
 			}
 		case "connect":
 			{
 				fmt.Println("connecting..")
-				connection = Connect("127.0.0.1:1337")
+				connection = connect("127.0.0.1:1337")
 			}
 		default:
 			{
@@ -42,11 +51,30 @@ func RunConsole() {
 	}
 }
 
-func Connect(address string) net.Conn {
-	c, err := net.Dial("tcp", address)
-	if err != nil {
-		fmt.Println(err)
-		return nil
+// for integration tests
+func AutoRunConsole(command string) {
+	connection := connect("127.0.0.1:1337")
+
+	for {
+
+		fmt.Fprintf(connection, command+"\n")
+
+		message, _ := bufio.NewReader(connection).ReadString('\n')
+
+		switch strings.TrimSpace(string(message)) {
+		case Stop:
+			{
+				connection.Close()
+				return
+			}
+		case "connect":
+			{
+				connection = connect("127.0.0.1:1337")
+			}
+		default:
+			{
+				return
+			}
+		}
 	}
-	return c
 }

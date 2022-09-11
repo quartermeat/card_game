@@ -8,7 +8,9 @@ import (
 )
 
 const (
+	Test string = "test"
 	Poke string = "poke"
+	Stop string = "stop"
 )
 
 type ConsoleCommand struct {
@@ -43,7 +45,7 @@ func StartServer(writeInputHandler chan<- ConsoleCommand) {
 
 		var response string
 		switch command {
-		case "test":
+		case Test:
 			{
 				response = fmt.Sprintln("executing on server")
 				connection.Write([]byte(response))
@@ -52,6 +54,21 @@ func StartServer(writeInputHandler chan<- ConsoleCommand) {
 			{
 				response = fmt.Sprintln(Poke)
 				inputHandlerCommand.Command = Poke
+				select {
+				case writeInputHandler <- inputHandlerCommand:
+					{
+						connection.Write([]byte(response))
+					}
+				default:
+					{
+						// don't do anything
+					}
+				}
+			}
+		case Stop:
+			{
+				response = fmt.Sprintln(Stop)
+				inputHandlerCommand.Command = Stop
 				select {
 				case writeInputHandler <- inputHandlerCommand:
 					{
