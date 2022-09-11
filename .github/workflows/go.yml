@@ -34,7 +34,8 @@ jobs:
           sudo apt-get install libxcursor-dev
           sudo apt-get install libxi-dev
           sudo apt-get install libxinerama-dev
-          sudo apt install libxrandr-dev libxext-dev
+          sudo apt-get install libxrandr-dev
+          sudo apt-get install libxext-dev
             - name: Configure static library
               run: cmake -S . -B build-static
             - name: Build static library
