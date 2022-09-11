@@ -37,6 +37,8 @@ jobs:
           sudo apt-get install libxrandr-dev
           sudo apt-get install libxext-dev
           sudo apt-get install mesa-common-dev
+          sudo apt-get install libgl1-mesa-dev 
+          sudo apt-get install xorg-dev
     #- name: Configure static library
     #  run: cmake -S . -B build-static
     #- name: Build static library
