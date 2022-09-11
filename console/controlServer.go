@@ -13,19 +13,24 @@ const (
 	Stop string = "stop"
 )
 
-type ConsoleCommand struct {
+type ConsoleTxCommand struct {
 	Command            string
-	consoleToInputChan chan *ConsoleCommand
+	consoleToInputChan chan<- IConsoleTxCommand
 }
 
-type IConsoleCommand interface {
-	SendCommand()
+type IConsoleTxCommand interface {
+	SendCommand(commandId string, connection net.Conn)
+	GetCommand() string
 }
 
-func (command *ConsoleCommand) SendCommand(commandId string, connection net.Conn) {
-	inputHandlerCommand := ConsoleCommand{Command: commandId}
+func (command ConsoleTxCommand) GetCommand() string {
+	return command.Command
+}
+
+func (command ConsoleTxCommand) SendCommand(commandId string, connection net.Conn) {
+	inputHandlerCommand := ConsoleTxCommand{Command: commandId}
 	select {
-	case command.consoleToInputChan <- &inputHandlerCommand:
+	case command.consoleToInputChan <- inputHandlerCommand:
 		{
 			response := fmt.Sprintln(commandId)
 			connection.Write([]byte(response))
@@ -38,8 +43,8 @@ func (command *ConsoleCommand) SendCommand(commandId string, connection net.Conn
 }
 
 // StartServer starts the control server
-func StartServer(writeInputHandler chan<- ConsoleCommand) {
-	inputHandlerCommand := ConsoleCommand{}
+func StartServer(writeInputHandler chan<- IConsoleTxCommand) {
+	inputHandlerCommand := ConsoleTxCommand{consoleToInputChan: writeInputHandler}
 
 	PORT := ":" + "1337"
 	listener, err := net.Listen("tcp", PORT)
@@ -72,33 +77,11 @@ func StartServer(writeInputHandler chan<- ConsoleCommand) {
 			}
 		case Poke:
 			{
-				response = fmt.Sprintln(Poke)
-				inputHandlerCommand.Command = Poke
-				select {
-				case writeInputHandler <- inputHandlerCommand:
-					{
-						connection.Write([]byte(response))
-					}
-				default:
-					{
-						// don't do anything
-					}
-				}
+				inputHandlerCommand.SendCommand(Poke, connection)
 			}
 		case Stop:
 			{
-				response = fmt.Sprintln(Stop)
-				inputHandlerCommand.Command = Stop
-				select {
-				case writeInputHandler <- inputHandlerCommand:
-					{
-						connection.Write([]byte(response))
-					}
-				default:
-					{
-						// don't do anything
-					}
-				}
+				inputHandlerCommand.SendCommand(Stop, connection)
 			}
 		default:
 			{

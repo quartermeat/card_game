@@ -19,9 +19,10 @@ type InputHandler struct {
 	CursorAssets assets.ObjectAsset
 	win          *pixelgl.Window
 	cam          *pixel.Matrix
+	consoleInput <-chan console.IConsoleTxCommand
 }
 
-func (input *InputHandler) SetCursor(pressed bool) {
+func (input *InputHandler) setCursor(pressed bool) {
 
 	if !pressed {
 		input.Cursor = pixel.NewSprite(input.CursorAssets.Sheet, input.CursorAssets.Anims[assets.CursorAnimations][0])
@@ -30,6 +31,30 @@ func (input *InputHandler) SetCursor(pressed bool) {
 	}
 
 	input.initialized = true
+}
+
+func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors) errormgmt.Errors {
+	select {
+	case consoleCommand := <-input.consoleInput:
+		{
+			if consoleCommand.GetCommand() == console.Poke {
+				someFlag = !someFlag
+				input.setCursor(someFlag)
+			}
+			if consoleCommand.GetCommand() == console.Stop {
+				stopCommand := errormgmt.AemError{
+					Message: console.Stop,
+				}
+				errors = append(errors, stopCommand)
+				return errors
+			}
+		}
+	default:
+		{
+			//don't do anything
+		}
+	}
+	return errors
 }
 
 func (input *InputHandler) HandleInput(
@@ -44,23 +69,26 @@ func (input *InputHandler) HandleInput(
 	camZoomSpeed float64,
 	camPos *pixel.Vec,
 	drawHitBox *bool,
-	readConsole <-chan console.ConsoleCommand,
+	readConsole <-chan console.IConsoleTxCommand,
 ) (errors errormgmt.Errors) {
-	input.win = win
-	input.cam = cam
+	//defaults
 	var (
 		cursorToggle bool
 	)
 
 	//do initialization of input handler
 	if !input.initialized {
+		//set window and cam
+		input.win = win
+		input.cam = cam
+
 		//set cursor
 		cursorToggle = false
 		var idx int = 0
 		idx = slices.IndexFunc(objectAssets, func(c assets.ObjectAsset) bool { return c.Description == assets.CursorAnimations })
 		if idx != -1 {
 			input.CursorAssets = objectAssets[idx]
-			input.SetCursor(cursorToggle)
+			input.setCursor(cursorToggle)
 		} else {
 			indexError := errormgmt.AemError{
 				Message: "{c.Description} is not in assests",
@@ -69,27 +97,8 @@ func (input *InputHandler) HandleInput(
 		}
 	}
 
-	//recieve command from console
-	select {
-	case consoleCommand := <-readConsole:
-		{
-			if consoleCommand.Command == console.Poke {
-				cursorToggle = !cursorToggle
-				input.SetCursor(cursorToggle)
-			}
-			if consoleCommand.Command == console.Stop {
-				stopCommand := errormgmt.AemError{
-					Message: console.Stop,
-				}
-				errors = append(errors, stopCommand)
-				return
-			}
-		}
-	default:
-		{
-			//don't do anything
-		}
-	}
+	input.consoleInput = readConsole
+	errors = input.handleConsole(cursorToggle, errors)
 
 	if win.MouseInsideWindow() {
 		if !win.Pressed(pixelgl.KeyLeftControl) {
@@ -102,12 +111,12 @@ func (input *InputHandler) HandleInput(
 	}
 
 	if win.JustReleased(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
-		input.SetCursor(false)
+		input.setCursor(false)
 	}
 
 	//place the selected object
 	if win.Pressed(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
-		input.SetCursor(true)
+		input.setCursor(true)
 	}
 
 	//toggle global hit box draw for debugging
