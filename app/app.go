@@ -39,7 +39,7 @@ func App() {
 		gameObjs           objects.GameObjects
 		gameCommands       = make(input.Commands)
 		frames             = 0
-		second             = time.Tick(time.Second)
+		second             = time.NewTicker(time.Second)
 		drawHitBox         = false
 		inputHandler       input.InputHandler
 		objectAssets       assets.ObjectAssets
@@ -127,7 +127,7 @@ func App() {
 
 		frames++
 		select {
-		case <-second:
+		case <-second.C:
 			win.SetTitle(fmt.Sprintf("%s | FPS: %d | GameObjects: %d", cfg.Title, frames, len(gameObjs)))
 			frames = 0
 		default:
