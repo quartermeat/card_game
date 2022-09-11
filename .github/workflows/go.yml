@@ -1,0 +1,58 @@
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CFLAGS: -Werror
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+        
+    - name: Set up GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: latest
+        platform: x64
+        
+    - name: X11 (Linux, Clang)
+      run: |
+          sudo apt-get remove -y --purge man-db
+          sudo apt-get update
+          sudo apt-get install libxcursor-dev
+          sudo apt-get install libxi-dev
+          sudo apt-get install libxinerama-dev
+          sudo apt-get install libxrandr-dev
+          sudo apt-get install libxext-dev
+          sudo apt-get install mesa-common-dev
+          sudo apt-get install libgl1-mesa-dev 
+          sudo apt-get install xorg-dev
+    #- name: Configure static library
+    #  run: cmake -S . -B build-static
+    #- name: Build static library
+    #  run: cmake --build build-static --parallel
+
+    #- name: Configure shared library
+    #  run: cmake -S . -B build-shared -D BUILD_SHARED_LIBS=ON
+    #- name: Build shared library
+    #  run: cmake --build build-shared --parallel
+
+    - name: Build
+      run: |
+        go get
+        go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
