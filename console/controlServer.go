@@ -14,7 +14,27 @@ const (
 )
 
 type ConsoleCommand struct {
-	Command string
+	Command            string
+	consoleToInputChan chan *ConsoleCommand
+}
+
+type IConsoleCommand interface {
+	SendCommand()
+}
+
+func (command *ConsoleCommand) SendCommand(commandId string, connection net.Conn) {
+	inputHandlerCommand := ConsoleCommand{Command: commandId}
+	select {
+	case command.consoleToInputChan <- &inputHandlerCommand:
+		{
+			response := fmt.Sprintln(commandId)
+			connection.Write([]byte(response))
+		}
+	default:
+		{
+			// don't do anything
+		}
+	}
 }
 
 // StartServer starts the control server

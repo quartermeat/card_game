@@ -1,6 +1,6 @@
 //go:build !TEST
 // +build !TEST
 
-package main
+package app
 
 var Test = false

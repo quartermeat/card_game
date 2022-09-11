@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ import (
 	"github.com/quartermeat/card_game/objects"
 )
 
-func Run() {
+func App() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Card Game",
