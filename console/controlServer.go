@@ -59,7 +59,7 @@ func StartServer(writeInputHandler chan<- ConsoleCommand) {
 					}
 				default:
 					{
-						return
+						// don't do anything
 					}
 				}
 			}
