@@ -30,8 +30,9 @@ jobs:
     - name: X11 (Linux, Clang)
       run: |
           sudo apt-get remove -y --purge man-db
-          sudo apt update
-          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+          sudo apt-get update
+          sudo apt-get install libxcursor-dev
+          sudo apt install libxrandr-dev libxinerama-dev libxi-dev libxext-dev
             - name: Configure static library
               run: cmake -S . -B build-static
             - name: Build static library
