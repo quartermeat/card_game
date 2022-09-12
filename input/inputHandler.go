@@ -59,7 +59,7 @@ func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors)
 }
 
 // HandleInput is a super method ran from main
-// atm:
+// atm: handles input from the keyboard, mouse and console
 func (input *InputHandler) HandleInput(
 	win *pixelgl.Window,
 	cam *pixel.Matrix,
