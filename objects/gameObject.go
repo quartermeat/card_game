@@ -1,3 +1,5 @@
+// Package 'object' provides the interface for a slice of game objects.
+// This is the slice of all initialized objects that can be controlled and displayed on screen
 package objects
 
 import (
@@ -9,20 +11,23 @@ import (
 	"github.com/quartermeat/card_game/assets"
 )
 
+// MAX GAME OBJECTS
 const (
 	maxGameObjects = 400
 )
 
+// IControlState is the early stages of an FSM that is used to set
+// states for game objects
 type IControlState interface {
 	EnterState()
 	Select(IGameObject)
 	Unselect(IGameObject)
 }
 
-//NextID is the next assignable object ID
+// NextID is the generator of a new game object ID
 var NextID = 0
 
-//IGameObject is what every object should be able to do
+// IGameObject holds the capabilities of an object in the game that can be displayed and controlled
 type IGameObject interface {
 	ObjectName() string
 	Sprite() *pixel.Sprite
@@ -36,9 +41,10 @@ type IGameObject interface {
 	MoveToPosition(position pixel.Vec)
 }
 
-//GameObjects is a slice of all the gameObjects
+// GameObjects is a slice of all the gameObjects
 type GameObjects []IGameObject
 
+// FastRemoveIndex removes a gameObject from the GameObjects slice by it's index
 func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {
 	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.
 	gameObjs = gameObjs[:len(gameObjs)-1]       // Truncate slice.
@@ -53,6 +59,7 @@ func (gameObjs GameObjects) appendGameObject(newObject IGameObject) GameObjects 
 	return gameObjs
 }
 
+// UpdateAllObjects runs all game objects Update method within it's own go routine
 func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGroup) {
 	for _, currentObj := range gameObjs {
 		waitGroup.Add(1)
@@ -60,6 +67,7 @@ func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGro
 	}
 }
 
+// DrawAllObjects runs all game objects Draw method within it's own go routine
 func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	for _, obj := range gameObjs {
 		waitGroup.Add(1)
@@ -67,6 +75,8 @@ func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool,
 	}
 }
 
+// GetSelectedGameObjAtPosition intersects a mouse click with any game objects hitbox
+// TODO: maybe optimize for only objects on screen
 func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IGameObject, int, bool, error) {
 	foundObject := true
 	noIndex := -1

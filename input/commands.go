@@ -1,3 +1,4 @@
+// Package 'input' is the interface available to make changes to game objects
 package input
 
 import (
@@ -9,15 +10,15 @@ import (
 	"github.com/quartermeat/card_game/objects"
 )
 
-//Commands is the map of commands to execute
+// Commands is the map of commands to execute
 type Commands map[string]ICommand
 
-//ICommand interface is used to execute game commands
+// ICommand interface is used to execute game commands
 type ICommand interface {
 	execute(*sync.WaitGroup)
 }
 
-//ExecuteCommands executes the queued list of commands
+// ExecuteCommands executes the queued list of commands
 func (commands Commands) ExecuteCommands(waitGroup *sync.WaitGroup) {
 	for key, value := range commands {
 		fmt.Printf("executing: %s\n", key)
@@ -26,8 +27,6 @@ func (commands Commands) ExecuteCommands(waitGroup *sync.WaitGroup) {
 		delete(commands, key)
 	}
 }
-
-//#region ADD OBJECT COMMAND
 
 type addObjectAtPositionCommand struct {
 	gameObjs      *objects.GameObjects
@@ -51,7 +50,7 @@ func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 	waitGroup.Done()
 }
 
-//AddObjectAtPosition allows for the addition of a game object
+// AddObjectAtPosition allows for the addition of a game object
 func AddObjectAtPosition(objs *objects.GameObjects, newObject objects.IGameObject, newPosition pixel.Vec) ICommand {
 	return &addObjectAtPositionCommand{
 		gameObjs:      objs,
@@ -60,10 +59,6 @@ func AddObjectAtPosition(objs *objects.GameObjects, newObject objects.IGameObjec
 		objectAssets:  newObject.GetAssets(),
 	}
 }
-
-//#endregion
-
-//#region REMOVE OBJECT COMMAND
 
 type removeObjectAtPositionCommand struct {
 	gameObjs *objects.GameObjects
@@ -82,7 +77,7 @@ func (command *removeObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	waitGroup.Done()
 }
 
-//RemoveObjectAtPosition allows for the removal of a game Object based on Vec location
+// RemoveObjectAtPosition allows for the removal of a game Object based on Vec location
 func RemoveObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &removeObjectAtPositionCommand{
 		gameObjs: objs,
@@ -90,9 +85,6 @@ func RemoveObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) I
 	}
 }
 
-//#endregion
-
-//#region SELECT OBJECT COMMAND
 type selectObjectAtPositionCommand struct {
 	gameObjs *objects.GameObjects
 	position pixel.Vec
@@ -110,7 +102,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	waitGroup.Done()
 }
 
-//SelectObjectAtPosition allows for changing the state of a game object based on Vec location to selected
+// SelectObjectAtPosition allows for changing the state of a game object based on Vec location to selected
 func SelectObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &selectObjectAtPositionCommand{
 		gameObjs: objs,
@@ -118,9 +110,6 @@ func SelectObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) I
 	}
 }
 
-//#endregion
-
-//#region MOVE SELECTED OBJECT COMMAND TO POSITION
 type moveSelectedObjectToPositionCommand struct {
 	gameObjs *objects.GameObjects
 	position pixel.Vec
@@ -135,12 +124,10 @@ func (command *moveSelectedObjectToPositionCommand) execute(waitGroup *sync.Wait
 	waitGroup.Done()
 }
 
-//MoveSelectedObject allows for directing selected objects to move to a position
+// MoveSelectedObject allows for directing selected objects to move to a position
 func MoveSelectedToPositionObject(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &moveSelectedObjectToPositionCommand{
 		gameObjs: objs,
 		position: fromPosition,
 	}
 }
-
-//#endregion

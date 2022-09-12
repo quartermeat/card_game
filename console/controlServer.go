@@ -7,27 +7,39 @@ import (
 	"strings"
 )
 
+// COMMAND IDs
 const (
 	Test string = "test"
 	Poke string = "poke"
 	Stop string = "stop"
 )
 
-type ConsoleCommand struct {
-	Command            string
-	consoleToInputChan chan *ConsoleCommand
+// ConsoleTxTopic is the structure to hold a write
+// channel and commandId to get info to other go routines
+type ConsoleTxTopic struct {
+	TopicId            string
+	consoleToInputChan chan<- IConsoleTxTopic
 }
 
-type IConsoleCommand interface {
-	SendCommand()
+// IConsoleTxTopic interface allows reading topic Id and async send the topic
+type IConsoleTxTopic interface {
+	SendTopic(topicId string, connection net.Conn)
+	GetTopicId() string
 }
 
-func (command *ConsoleCommand) SendCommand(commandId string, connection net.Conn) {
-	inputHandlerCommand := ConsoleCommand{Command: commandId}
+// GetTopicId returns the command Id string
+func (command ConsoleTxTopic) GetTopicId() string {
+	return command.TopicId
+}
+
+// SendCommand takes a command id, and a connection
+// it will asynchronously send a topic
+func (command ConsoleTxTopic) SendTopic(topicId string, connection net.Conn) {
+	inputHandlerCommand := ConsoleTxTopic{TopicId: topicId}
 	select {
-	case command.consoleToInputChan <- &inputHandlerCommand:
+	case command.consoleToInputChan <- inputHandlerCommand:
 		{
-			response := fmt.Sprintln(commandId)
+			response := fmt.Sprintln(topicId)
 			connection.Write([]byte(response))
 		}
 	default:
@@ -37,9 +49,10 @@ func (command *ConsoleCommand) SendCommand(commandId string, connection net.Conn
 	}
 }
 
-// StartServer starts the control server
-func StartServer(writeInputHandler chan<- ConsoleCommand) {
-	inputHandlerCommand := ConsoleCommand{}
+// StartServer starts a tcp server
+func StartServer(writeInputHandler chan<- IConsoleTxTopic) {
+	//register the sender
+	inputHandlerCommand := ConsoleTxTopic{consoleToInputChan: writeInputHandler}
 
 	PORT := ":" + "1337"
 	listener, err := net.Listen("tcp", PORT)
@@ -72,33 +85,11 @@ func StartServer(writeInputHandler chan<- ConsoleCommand) {
 			}
 		case Poke:
 			{
-				response = fmt.Sprintln(Poke)
-				inputHandlerCommand.Command = Poke
-				select {
-				case writeInputHandler <- inputHandlerCommand:
-					{
-						connection.Write([]byte(response))
-					}
-				default:
-					{
-						// don't do anything
-					}
-				}
+				inputHandlerCommand.SendTopic(Poke, connection)
 			}
 		case Stop:
 			{
-				response = fmt.Sprintln(Stop)
-				inputHandlerCommand.Command = Stop
-				select {
-				case writeInputHandler <- inputHandlerCommand:
-					{
-						connection.Write([]byte(response))
-					}
-				default:
-					{
-						// don't do anything
-					}
-				}
+				inputHandlerCommand.SendTopic(Stop, connection)
 			}
 		default:
 			{

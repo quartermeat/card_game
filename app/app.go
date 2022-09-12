@@ -39,16 +39,16 @@ func App() {
 		gameObjs           objects.GameObjects
 		gameCommands       = make(input.Commands)
 		frames             = 0
-		second             = time.Tick(time.Second)
+		second             = time.NewTicker(time.Second)
 		drawHitBox         = false
 		inputHandler       input.InputHandler
 		objectAssets       assets.ObjectAssets
 		errors             errormgmt.Errors
 		sysErrors          []error
-		consoleToInputChan chan console.ConsoleCommand
+		consoleToInputChan chan console.IConsoleTxTopic
 	)
 
-	consoleToInputChan = make(chan console.ConsoleCommand, 1)
+	consoleToInputChan = make(chan console.IConsoleTxTopic, 1)
 	defer close(consoleToInputChan)
 
 	// start command server
@@ -127,7 +127,7 @@ func App() {
 
 		frames++
 		select {
-		case <-second:
+		case <-second.C:
 			win.SetTitle(fmt.Sprintf("%s | FPS: %d | GameObjects: %d", cfg.Title, frames, len(gameObjs)))
 			frames = 0
 		default:
