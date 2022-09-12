@@ -1,3 +1,5 @@
+// Package 'console' provides a TCP server, a TCP client console to interact with the server,
+// and the interface to send messaging to the input handler
 package console
 
 import (
@@ -17,6 +19,9 @@ func connect(address string) net.Conn {
 	return c
 }
 
+// RunConsole starts the tcp listener and handles user input from the console
+// TODO: need to redirect all fmt.Print throughout to the Errors -> may have to reformat
+// nomenclature on Errors to DebugLog
 func RunConsole() {
 	fmt.Printf("<-----AEM Console----->\n")
 	connection := connect("127.0.0.1:1337")
@@ -51,13 +56,14 @@ func RunConsole() {
 	}
 }
 
-// for integration tests
-func AutoRunConsole(command string) {
+// AutoRunConsole is a stripped down console, not really ment for user input,
+// but to send topics
+func AutoRunConsole(topicId string) {
 	connection := connect("127.0.0.1:1337")
 
 	for {
 
-		fmt.Fprintf(connection, command+"\n")
+		fmt.Fprintf(connection, topicId+"\n")
 
 		message, _ := bufio.NewReader(connection).ReadString('\n')
 

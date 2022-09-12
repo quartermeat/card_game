@@ -13,13 +13,14 @@ import (
 	"github.com/quartermeat/card_game/objects"
 )
 
+// InputHandler is a monolithic struct to handle user interactions with the app
 type InputHandler struct {
 	initialized  bool
 	Cursor       *pixel.Sprite
 	CursorAssets assets.ObjectAsset
 	win          *pixelgl.Window
 	cam          *pixel.Matrix
-	consoleInput <-chan console.IConsoleTxCommand
+	consoleInput <-chan console.IConsoleTxTopic
 }
 
 func (input *InputHandler) setCursor(pressed bool) {
@@ -37,11 +38,11 @@ func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors)
 	select {
 	case consoleCommand := <-input.consoleInput:
 		{
-			if consoleCommand.GetCommand() == console.Poke {
+			if consoleCommand.GetTopicId() == console.Poke {
 				someFlag = !someFlag
 				input.setCursor(someFlag)
 			}
-			if consoleCommand.GetCommand() == console.Stop {
+			if consoleCommand.GetTopicId() == console.Stop {
 				stopCommand := errormgmt.AemError{
 					Message: console.Stop,
 				}
@@ -57,6 +58,8 @@ func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors)
 	return errors
 }
 
+// HandleInput is a super method ran from main
+// atm:
 func (input *InputHandler) HandleInput(
 	win *pixelgl.Window,
 	cam *pixel.Matrix,
@@ -69,7 +72,7 @@ func (input *InputHandler) HandleInput(
 	camZoomSpeed float64,
 	camPos *pixel.Vec,
 	drawHitBox *bool,
-	readConsole <-chan console.IConsoleTxCommand,
+	readConsole <-chan console.IConsoleTxTopic,
 ) (errors errormgmt.Errors) {
 	//defaults
 	var (
