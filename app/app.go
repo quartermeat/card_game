@@ -1,3 +1,4 @@
+// Package 'app' is the main game function and main loop
 package app
 
 import (
@@ -13,11 +14,12 @@ import (
 
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
-	"github.com/quartermeat/card_game/errormgmt"
+	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/input"
 	"github.com/quartermeat/card_game/objects"
 )
 
+// App holds the main game loop
 func App() {
 
 	cfg := pixelgl.WindowConfig{
@@ -43,7 +45,7 @@ func App() {
 		drawHitBox         = false
 		inputHandler       input.InputHandler
 		objectAssets       assets.ObjectAssets
-		errors             errormgmt.Errors
+		debugLog           debuglog.Entries
 		sysErrors          []error
 		consoleToInputChan chan console.IConsoleTxTopic
 	)
@@ -83,7 +85,7 @@ func App() {
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
-		errors = inputHandler.HandleInput(
+		debugLog = inputHandler.HandleInput(
 			win,
 			&cam,
 			gameCommands,
@@ -134,10 +136,10 @@ func App() {
 		}
 
 		//output errors every loop
-		for i, error := range errors {
-			fmt.Printf("error %d: %s", i, error.Error())
+		for _, entry := range debugLog {
+			fmt.Printf("debugLog: %s", entry.GetMessage())
 			//gracefully handle the stop command
-			if error.Error() == console.Stop {
+			if entry.GetMessage() == console.Stop {
 				win.Destroy()
 			}
 		}

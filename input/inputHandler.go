@@ -9,7 +9,7 @@ import (
 
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
-	"github.com/quartermeat/card_game/errormgmt"
+	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/objects"
 )
 
@@ -34,7 +34,7 @@ func (input *InputHandler) setCursor(pressed bool) {
 	input.initialized = true
 }
 
-func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors) errormgmt.Errors {
+func (input *InputHandler) handleConsole(someFlag bool, debugLog debuglog.Entries) debuglog.Entries {
 	select {
 	case consoleCommand := <-input.consoleInput:
 		{
@@ -43,11 +43,11 @@ func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors)
 				input.setCursor(someFlag)
 			}
 			if consoleCommand.GetTopicId() == console.Stop {
-				stopCommand := errormgmt.AemError{
+				stopCommand := debuglog.Entry{
 					Message: console.Stop,
 				}
-				errors = append(errors, stopCommand)
-				return errors
+				debugLog = append(debugLog, stopCommand)
+				return debugLog
 			}
 		}
 	default:
@@ -55,7 +55,7 @@ func (input *InputHandler) handleConsole(someFlag bool, errors errormgmt.Errors)
 			//don't do anything
 		}
 	}
-	return errors
+	return debugLog
 }
 
 // HandleInput is a super method ran from main
@@ -73,7 +73,7 @@ func (input *InputHandler) HandleInput(
 	camPos *pixel.Vec,
 	drawHitBox *bool,
 	readConsole <-chan console.IConsoleTxTopic,
-) (errors errormgmt.Errors) {
+) (debugLog debuglog.Entries) {
 	//defaults
 	var (
 		cursorToggle bool
@@ -93,15 +93,15 @@ func (input *InputHandler) HandleInput(
 			input.CursorAssets = objectAssets[idx]
 			input.setCursor(cursorToggle)
 		} else {
-			indexError := errormgmt.AemError{
+			indexError := debuglog.Entry{
 				Message: "{c.Description} is not in assests",
 			}
-			errors = append(errors, indexError)
+			debugLog = append(debugLog, indexError)
 		}
 	}
 
 	input.consoleInput = readConsole
-	errors = input.handleConsole(cursorToggle, errors)
+	debugLog = input.handleConsole(cursorToggle, debugLog)
 
 	if win.MouseInsideWindow() {
 		if !win.Pressed(pixelgl.KeyLeftControl) {
@@ -144,5 +144,5 @@ func (input *InputHandler) HandleInput(
 	//zoom camera
 	*camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
-	return errors
+	return debugLog
 }
