@@ -1,3 +1,4 @@
+// Package 'assets' is used to load sprite animations
 package assets
 
 import (
@@ -11,20 +12,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// type ObjectAsset struct {
-// 	Sheet    pixel.Picture
-// 	Anims    map[string][]pixel.Rect
-// 	AnimKeys []string
-// }
-
+// Size of the mouse image
 const MouseIconPixelSize float64 = 16
+
+// Size of the card image
 const CardImageSize float64 = 368
+
+// Animation Ids
 const (
 	CursorAnimations string = "hand"
 	TestCard         string = "test_card"
 )
 
-//ObjectAssets holds images for objects
+// ObjectAssets holds images for objects
 type ObjectAsset struct {
 	Description string
 	Sheet       pixel.Picture

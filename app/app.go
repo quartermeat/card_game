@@ -63,8 +63,8 @@ func App() {
 	sysErrors = make([]error, 0)
 
 	//load assets
-	objectAssets, err1 := objectAssets.AddAssets(assets.CursorAnimations, "assets/mouseHand.png", "assets/mouseAnimations.csv", assets.MouseIconPixelSize)
-	objectAssets, err2 := objectAssets.AddAssets(assets.TestCard, "assets/test_card.png", "assets/testCardAnimations.csv", assets.CardImageSize)
+	objectAssets, err1 := objectAssets.AddAssets(assets.CursorAnimations, "assets/cursor/cursorHand.png", "assets/cursor/cursorAnimations.csv", assets.MouseIconPixelSize)
+	objectAssets, err2 := objectAssets.AddAssets(assets.TestCard, "assets/test_card/test_card.png", "assets/test_card/testCardAnimations.csv", assets.CardImageSize)
 	sysErrors = append(sysErrors, err1)
 	sysErrors = append(sysErrors, err2)
 	for _, sysError := range sysErrors {
@@ -135,11 +135,11 @@ func App() {
 		default:
 		}
 
-		//output errors every loop
 		for _, entry := range debugLog {
 			fmt.Printf("debugLog: %s", entry.GetMessage())
-			//gracefully handle the stop command
 			if entry.GetMessage() == console.Stop {
+				//give time for graphics stuff finish
+				time.Sleep(2 * time.Second)
 				win.Destroy()
 			}
 		}
