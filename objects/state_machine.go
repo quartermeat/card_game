@@ -25,7 +25,11 @@ type StateType string
 type EventType string
 
 // EventContext represents the context to be passed to the action implementation.
-type EventContext interface{}
+// I imagine this could grow with the number of types of objects
+type EventContext interface {
+	FlipUp()
+	FlipDown()
+}
 
 // Action represents the action to be executed in a given state.
 type Action interface {

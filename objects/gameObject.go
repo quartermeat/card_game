@@ -26,6 +26,7 @@ type IGameObject interface {
 	Sprite() *pixel.Sprite
 	GetAssets() assets.ObjectAsset
 	GetID() int
+	GetType() interface{} // this needs to be generic enough to pass
 	SetHitBox()
 	GetHitBox() pixel.Rect
 	Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
@@ -70,6 +71,7 @@ func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool,
 
 // GetSelectedGameObjAtPosition intersects a mouse click with any game objects hitbox
 // TODO: maybe optimize for only objects on screen
+// TODO: change to debugLog instead of error
 func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IGameObject, int, bool, error) {
 	foundObject := true
 	noIndex := -1
@@ -82,5 +84,6 @@ func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IG
 			return object, index, foundObject, nil
 		}
 	}
+
 	return gameObjs[0], noIndex, !foundObject, nil
 }

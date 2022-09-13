@@ -11,6 +11,7 @@ type FlipDownAction struct{}
 
 // Execute Flip down action
 func (a *FlipDownAction) Execute(eventCtx objects.EventContext) objects.EventType {
+
 	fmt.Println("Flip down action")
 	return objects.NoOp
 }

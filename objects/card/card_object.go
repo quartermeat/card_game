@@ -34,13 +34,17 @@ type Card struct {
 	matrix       pixel.Matrix
 }
 
+func (card *Card) GetType() interface{} {
+	return card
+}
+
 // ObjectName is the string identifier for the object
 func (card *Card) ObjectName() string {
 	return "Card"
 }
 
 func (card *Card) Sprite() *pixel.Sprite {
-	panic("not implemented") // TODO: Implement
+	return card.sprite
 }
 
 func (card *Card) GetAssets() assets.ObjectAsset {
@@ -48,7 +52,7 @@ func (card *Card) GetAssets() assets.ObjectAsset {
 }
 
 func (card *Card) GetID() int {
-	panic("not implemented") // TODO: Implement
+	return card.id
 }
 
 // SetHitBox sets the hit box for card
