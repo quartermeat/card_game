@@ -1,6 +1,7 @@
 package input
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/faiface/pixel"
@@ -11,6 +12,7 @@ import (
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/objects/card"
 )
 
 // InputHandler is a monolithic struct to handle user interactions with the app
@@ -117,9 +119,25 @@ func (input *InputHandler) HandleInput(
 		input.setCursor(false)
 	}
 
+	//handle ctrl functions
+	if win.Pressed(pixelgl.KeyLeftControl) {
+		input.setCursor(true)
+		win.SetCursorVisible(true)
+		if win.JustPressed(pixelgl.MouseButtonLeft) { //ctrl + left click
+			mouse := cam.Unproject(win.MousePosition())
+			gameCommands[fmt.Sprintf("SelectObjectAtPosition x:%f, y:%f", mouse.X, mouse.Y)] = SelectObjectAtPosition(gameObjs, mouse)
+		}
+	}
+
 	//place the selected object
 	if win.Pressed(pixelgl.MouseButtonLeft) && !win.Pressed(pixelgl.KeyLeftControl) {
 		input.setCursor(true)
+	}
+
+	if win.JustPressed(pixelgl.Key0) {
+		mouse := cam.Unproject(win.MousePosition())
+		objectToPlace := card.NewCardObject(objectAssets[1], mouse)
+		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
 	}
 
 	//toggle global hit box draw for debugging

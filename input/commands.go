@@ -8,6 +8,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/objects/card"
 )
 
 // Commands is the map of commands to execute
@@ -32,20 +33,16 @@ type addObjectAtPositionCommand struct {
 	gameObjs      *objects.GameObjects
 	objectToPlace objects.IGameObject
 	position      pixel.Vec
-	objectAssets  assets.ObjectAssets
+	objectAssets  assets.ObjectAsset
 }
 
 func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
-	// switch command.objectToPlace.(type) {
-	// case *objects.LivingObject:
-	// 	{
-	// 		*command.gameObjs = command.gameObjs.AppendLivingObject(command.objectAssets, command.position)
-	// 	}
-	// case *objects.GibletObject:
-	// 	{
-	// 		*command.gameObjs = command.gameObjs.AppendGibletObject(command.objectAssets, command.position)
-	// 	}
-	// }
+	switch command.objectToPlace.(type) {
+	case *card.Card:
+		{
+			*command.gameObjs = command.gameObjs.AppendGameObject(command.objectToPlace)
+		}
+	}
 
 	waitGroup.Done()
 }
@@ -91,13 +88,24 @@ type selectObjectAtPositionCommand struct {
 }
 
 func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
-	// selectedObj, _, hit, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// if hit {
-	// 	selectedObj.ChangeState(objects.SELECTED_IDLE)
-	// }
+	selectedObject, _, _, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
+	if err != nil {
+		panic(err)
+	}
+
+	switch selectedObject.(type) {
+	case *card.Card:
+		{
+			err := selectedObject.GetFSM().SendEvent(card.FlipUp, nil)
+			if err != nil {
+				fmt.Println("couldn't flip the card down")
+				err = selectedObject.GetFSM().SendEvent(card.FlipDown, nil)
+				if err != nil {
+					fmt.Println("couldn't flip the card up")
+				}
+			}
+		}
+	}
 
 	waitGroup.Done()
 }

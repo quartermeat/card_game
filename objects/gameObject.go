@@ -16,27 +16,19 @@ const (
 	maxGameObjects = 400
 )
 
-// IControlState is the early stages of an FSM that is used to set
-// states for game objects
-type IControlState interface {
-	EnterState()
-	Select(IGameObject)
-	Unselect(IGameObject)
-}
-
 // NextID is the generator of a new game object ID
 var NextID = 0
 
 // IGameObject holds the capabilities of an object in the game that can be displayed and controlled
 type IGameObject interface {
 	ObjectName() string
+	GetFSM() *StateMachine
 	Sprite() *pixel.Sprite
-	GetAssets() assets.ObjectAssets
+	GetAssets() assets.ObjectAsset
 	GetID() int
 	SetHitBox()
 	GetHitBox() pixel.Rect
 	Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
-	ChangeControlState(newState IControlState)
 	Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup)
 	MoveToPosition(position pixel.Vec)
 }
@@ -51,7 +43,8 @@ func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {
 	return gameObjs
 }
 
-func (gameObjs GameObjects) appendGameObject(newObject IGameObject) GameObjects {
+// AppendGameObject appends a new object to the game objects slice
+func (gameObjs GameObjects) AppendGameObject(newObject IGameObject) GameObjects {
 	if len(gameObjs) >= maxGameObjects {
 		return gameObjs
 	}
