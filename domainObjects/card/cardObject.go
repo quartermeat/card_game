@@ -21,21 +21,18 @@ const (
 )
 
 type Card struct {
-	stateMachine *objects.StateMachine
-	id           int
-	assets       assets.ObjectAsset
-	sprite       *pixel.Sprite
-	rate         float64
-	counter      float64
-	dir          float64
-	vel          pixel.Vec
-	hitBox       pixel.Rect
-	position     pixel.Vec
-	matrix       pixel.Matrix
-}
-
-func (card *Card) GetType() interface{} {
-	return card
+	stateMachine   *objects.StateMachine
+	id             int
+	assets         assets.ObjectAsset
+	sprite         *pixel.Sprite
+	rate           float64
+	counter        float64
+	dir            float64
+	vel            pixel.Vec
+	hitBox         pixel.Rect
+	position       pixel.Vec
+	matrix         pixel.Matrix
+	commandsToCard chan objects.EventContext
 }
 
 // ObjectName is the string identifier for the object

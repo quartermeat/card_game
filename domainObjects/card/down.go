@@ -10,7 +10,7 @@ import (
 type FlipUpAction struct{}
 
 // Execute Flip Up action
-func (a *FlipUpAction) Execute(eventCtx objects.EventContext) objects.EventType {
+func (a *FlipUpAction) Execute(object objects.IEventContext) objects.EventType {
 	fmt.Println("Flip up action")
 	return objects.NoOp
 }

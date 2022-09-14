@@ -11,8 +11,8 @@ import (
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
+	"github.com/quartermeat/card_game/domainObjects/card"
 	"github.com/quartermeat/card_game/objects"
-	"github.com/quartermeat/card_game/objects/card"
 )
 
 // InputHandler is a monolithic struct to handle user interactions with the app
@@ -22,7 +22,7 @@ type InputHandler struct {
 	CursorAssets assets.ObjectAsset
 	win          *pixelgl.Window
 	cam          *pixel.Matrix
-	consoleInput <-chan console.IConsoleTxTopic
+	consoleInput <-chan console.ITxTopic
 }
 
 func (input *InputHandler) setCursor(pressed bool) {
@@ -74,7 +74,7 @@ func (input *InputHandler) HandleInput(
 	camZoomSpeed float64,
 	camPos *pixel.Vec,
 	drawHitBox *bool,
-	readConsole <-chan console.IConsoleTxTopic,
+	readConsole <-chan console.ITxTopic,
 ) (debugLog debuglog.Entries) {
 	//defaults
 	var (

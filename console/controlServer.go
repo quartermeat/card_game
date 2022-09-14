@@ -14,33 +14,36 @@ const (
 	Stop string = "stop"
 )
 
-// ConsoleTxTopic is the structure to hold a write
+// TxTopic is the structure to hold a write
 // channel and commandId to get info to other go routines
-type ConsoleTxTopic struct {
+type TxTopic struct {
 	TopicId            string
-	consoleToInputChan chan<- IConsoleTxTopic
+	consoleToInputChan chan<- ITxTopic
 }
 
-// IConsoleTxTopic interface allows reading topic Id and async send the topic
-type IConsoleTxTopic interface {
+// ITxTopic interface allows reading topic Id and async send the topic
+type ITxTopic interface {
 	SendTopic(topicId string, connection net.Conn)
 	GetTopicId() string
 }
 
 // GetTopicId returns the command Id string
-func (command ConsoleTxTopic) GetTopicId() string {
+func (command TxTopic) GetTopicId() string {
 	return command.TopicId
 }
 
 // SendCommand takes a command id, and a connection
 // it will asynchronously send a topic
-func (command ConsoleTxTopic) SendTopic(topicId string, connection net.Conn) {
-	inputHandlerCommand := ConsoleTxTopic{TopicId: topicId}
+func (command TxTopic) SendTopic(topicId string, connection net.Conn) {
+	inputHandlerCommand := TxTopic{TopicId: topicId}
 	select {
 	case command.consoleToInputChan <- inputHandlerCommand:
 		{
 			response := fmt.Sprintln(topicId)
-			connection.Write([]byte(response))
+			if connection != nil {
+				connection.Write([]byte(response))
+			}
+
 		}
 	default:
 		{
@@ -50,9 +53,9 @@ func (command ConsoleTxTopic) SendTopic(topicId string, connection net.Conn) {
 }
 
 // StartServer starts a tcp server
-func StartServer(writeInputHandler chan<- IConsoleTxTopic) {
+func StartServer(writeInputHandler chan<- ITxTopic) {
 	//register the sender
-	inputHandlerCommand := ConsoleTxTopic{consoleToInputChan: writeInputHandler}
+	inputHandlerCommand := TxTopic{consoleToInputChan: writeInputHandler}
 
 	PORT := ":" + "1337"
 	listener, err := net.Listen("tcp", PORT)

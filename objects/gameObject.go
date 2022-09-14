@@ -26,7 +26,6 @@ type IGameObject interface {
 	Sprite() *pixel.Sprite
 	GetAssets() assets.ObjectAsset
 	GetID() int
-	GetType() interface{} // this needs to be generic enough to pass
 	SetHitBox()
 	GetHitBox() pixel.Rect
 	Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)
@@ -87,3 +86,9 @@ func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IG
 
 	return gameObjs[0], noIndex, !foundObject, nil
 }
+
+// business defined logic///////////////////////////////////////////////////
+// Get Card returns the card from the game object slice based on the index
+// func (gameObjs GameObjects) GetCard(idx int) (card.ICard, error) {
+
+// }

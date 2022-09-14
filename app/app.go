@@ -47,10 +47,10 @@ func App() {
 		objectAssets       assets.ObjectAssets
 		debugLog           debuglog.Entries
 		sysErrors          []error
-		consoleToInputChan chan console.IConsoleTxTopic
+		consoleToInputChan chan console.ITxTopic
 	)
 
-	consoleToInputChan = make(chan console.IConsoleTxTopic, 1)
+	consoleToInputChan = make(chan console.ITxTopic, 1)
 	defer close(consoleToInputChan)
 
 	// start command server

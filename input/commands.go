@@ -7,8 +7,8 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/domainObjects/card"
 	"github.com/quartermeat/card_game/objects"
-	"github.com/quartermeat/card_game/objects/card"
 )
 
 // Commands is the map of commands to execute
@@ -38,7 +38,7 @@ type addObjectAtPositionCommand struct {
 
 func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 	switch command.objectToPlace.(type) {
-	case *card.Card:
+	case card.ICard:
 		{
 			*command.gameObjs = command.gameObjs.AppendGameObject(command.objectToPlace)
 		}

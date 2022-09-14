@@ -6,6 +6,32 @@ import (
 	"sync"
 )
 
+type EventContext struct {
+	commandsToObjectChan chan EventContext
+}
+
+func (ctx EventContext) GetChan() chan EventContext {
+	return ctx.commandsToObjectChan
+}
+
+// SendCtx takes a IEventContext, and
+// it will asynchronously send it
+func (ctx EventContext) SendCtx(object EventContext) {
+	objectChannel := EventContext{
+		commandsToObjectChan: object.GetChan(),
+	}
+	select {
+	case object.GetChan() <- objectChannel:
+		{
+			//don't do anything
+		}
+	default:
+		{
+			// don't do anything
+		}
+	}
+}
+
 // ErrEventRejected is the error returned when the state machine cannot process
 // an event in the state that it is in.
 var ErrEventRejected = errors.New("event rejected")
@@ -26,14 +52,14 @@ type EventType string
 
 // EventContext represents the context to be passed to the action implementation.
 // I imagine this could grow with the number of types of objects
-type EventContext interface {
-	FlipUp()
-	FlipDown()
+type IEventContext interface {
+	SendCtx(object EventContext)
+	GetChan() chan EventContext
 }
 
 // Action represents the action to be executed in a given state.
 type Action interface {
-	Execute(eventCtx EventContext) EventType
+	Execute(eventCtx IEventContext) EventType
 }
 
 // Events represents a mapping of events and states.
@@ -77,7 +103,7 @@ func (s *StateMachine) getNextState(event EventType) (StateType, error) {
 }
 
 // SendEvent sends an event to the state machine.
-func (s *StateMachine) SendEvent(event EventType, eventCtx EventContext) error {
+func (s *StateMachine) SendEvent(event EventType, eventCtx IEventContext) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
