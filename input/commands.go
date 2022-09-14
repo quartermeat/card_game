@@ -7,8 +7,8 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/quartermeat/card_game/assets"
-	"github.com/quartermeat/card_game/domainObjects/card"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/objects/domainObjects/card"
 )
 
 // Commands is the map of commands to execute
@@ -94,7 +94,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	}
 
 	switch selectedObject.(type) {
-	case *card.Card:
+	case card.ICard:
 		{
 			err := selectedObject.GetFSM().SendEvent(card.FlipUp, nil)
 			if err != nil {

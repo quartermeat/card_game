@@ -86,9 +86,3 @@ func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IG
 
 	return gameObjs[0], noIndex, !foundObject, nil
 }
-
-// business defined logic///////////////////////////////////////////////////
-// Get Card returns the card from the game object slice based on the index
-// func (gameObjs GameObjects) GetCard(idx int) (card.ICard, error) {
-
-// }

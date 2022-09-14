@@ -11,8 +11,8 @@ import (
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
-	"github.com/quartermeat/card_game/domainObjects/card"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/objects/domainObjects/card"
 )
 
 // InputHandler is a monolithic struct to handle user interactions with the app
