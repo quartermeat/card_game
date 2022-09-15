@@ -10,8 +10,8 @@ import (
 type FlipDownAction struct{}
 
 // Execute Flip down action
-func (a *FlipDownAction) Execute(object objects.IEventContext) objects.EventType {
-
+func (a *FlipDownAction) Execute(gameObj objects.IGameObject) objects.EventType {
+	gameObj.Sprite().Set(gameObj.GetAssets().Sheet, gameObj.GetAssets().Anims["down"][0])
 	fmt.Println("Flip down action")
 	return objects.NoOp
 }

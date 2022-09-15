@@ -96,10 +96,10 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	switch selectedObject.(type) {
 	case card.ICard:
 		{
-			err := selectedObject.GetFSM().SendEvent(card.FlipUp, nil)
+			err := selectedObject.GetFSM().SendEvent(card.FlipUp, selectedObject)
 			if err != nil {
 				fmt.Println("couldn't flip the card down")
-				err = selectedObject.GetFSM().SendEvent(card.FlipDown, nil)
+				err = selectedObject.GetFSM().SendEvent(card.FlipDown, selectedObject)
 				if err != nil {
 					fmt.Println("couldn't flip the card up")
 				}

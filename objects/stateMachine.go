@@ -59,7 +59,7 @@ type IEventContext interface {
 
 // Action represents the action to be executed in a given state.
 type Action interface {
-	Execute(eventCtx IEventContext) EventType
+	Execute(gameObj IGameObject) EventType
 }
 
 // Events represents a mapping of events and states.
@@ -103,7 +103,7 @@ func (s *StateMachine) getNextState(event EventType) (StateType, error) {
 }
 
 // SendEvent sends an event to the state machine.
-func (s *StateMachine) SendEvent(event EventType, eventCtx IEventContext) error {
+func (s *StateMachine) SendEvent(event EventType, obj IGameObject) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -126,7 +126,7 @@ func (s *StateMachine) SendEvent(event EventType, eventCtx IEventContext) error 
 
 		// Execute the next state's action and loop over again if the event returned
 		// is not a no-op.
-		nextEvent := state.Action.Execute(eventCtx)
+		nextEvent := state.Action.Execute(obj)
 		if nextEvent == NoOp {
 			return nil
 		}
