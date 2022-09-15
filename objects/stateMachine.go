@@ -6,31 +6,37 @@ import (
 	"sync"
 )
 
-type EventContext struct {
-	commandsToObjectChan chan EventContext
-}
+// IEventContext is libal to change to something else
+// type IEventContext interface {
+// 	SendCtx(object EventContext)
+// 	GetChan() chan EventContext
+// }
 
-func (ctx EventContext) GetChan() chan EventContext {
-	return ctx.commandsToObjectChan
-}
+// type EventContext struct {
+// 	commandsToObjectChan chan EventContext
+// }
 
-// SendCtx takes a IEventContext, and
-// it will asynchronously send it
-func (ctx EventContext) SendCtx(object EventContext) {
-	objectChannel := EventContext{
-		commandsToObjectChan: object.GetChan(),
-	}
-	select {
-	case object.GetChan() <- objectChannel:
-		{
-			//don't do anything
-		}
-	default:
-		{
-			// don't do anything
-		}
-	}
-}
+// func (ctx EventContext) GetChan() chan EventContext {
+// 	return ctx.commandsToObjectChan
+// }
+
+// // SendCtx takes a IEventContext, and
+// // it will asynchronously send it
+// func (ctx EventContext) SendCtx(object EventContext) {
+// 	objectChannel := EventContext{
+// 		commandsToObjectChan: object.GetChan(),
+// 	}
+// 	select {
+// 	case object.GetChan() <- objectChannel:
+// 		{
+// 			//don't do anything
+// 		}
+// 	default:
+// 		{
+// 			// don't do anything
+// 		}
+// 	}
+// }
 
 // ErrEventRejected is the error returned when the state machine cannot process
 // an event in the state that it is in.
@@ -49,13 +55,6 @@ type StateType string
 
 // EventType represents an extensible event type in the state machine.
 type EventType string
-
-// EventContext represents the context to be passed to the action implementation.
-// I imagine this could grow with the number of types of objects
-type IEventContext interface {
-	SendCtx(object EventContext)
-	GetChan() chan EventContext
-}
 
 // Action represents the action to be executed in a given state.
 type Action interface {
@@ -115,10 +114,7 @@ func (s *StateMachine) SendEvent(event EventType, obj IGameObject) error {
 		}
 
 		// Identify the state definition for the next state.
-		state, ok := s.States[nextState]
-		if !ok || state.Action == nil {
-			// configuration error
-		}
+		state := s.States[nextState]
 
 		// Transition over to the next state.
 		s.Previous = s.Current
