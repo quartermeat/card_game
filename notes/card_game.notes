@@ -28,3 +28,33 @@ TODO:
 Activity Log:
 added card and fsm
 
+[2022-09-17]
+Notes:
+//new card
+26, 71 - upper left
+250, 71 - upper right
+250, 395 - lower right
+26, 395 - lower left
+
+26 vertical gap
+26 horiz gap
+
+//old card
+card height = 898
+card width = 529
+
+//new cards
+card width = 224
+card height = 324
+
+Ideas:
+problem:
+these are images, not sprite sheets
+so need to load images from multiple files,
+then setup animation frames: from...
+
+TODO:
+
+Activity Log:
+
+

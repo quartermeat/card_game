@@ -12,27 +12,43 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Size of the mouse image
-const MouseIconPixelSize float64 = 16
-
-// Size of the card image
-const CardImageSize float64 = 368
-
-// Animation Ids
-const (
-	CursorAnimations string = "hand"
-	TestCard         string = "test_card"
-)
-
-// ObjectAssets holds images for objects
-type ObjectAsset struct {
+// ObjectAnimationAsset holds animations for objects
+type ObjectAnimationAsset struct {
 	Description string
 	Sheet       pixel.Picture
 	Anims       map[string][]pixel.Rect
 	AnimKeys    []string
 }
 
-type ObjectAssets []ObjectAsset
+func (animation ObjectAnimationAsset) GetDescription() string {
+	return animation.Description
+}
+
+func (animation ObjectAnimationAsset) GetSheet() pixel.Picture {
+	return animation.Sheet
+}
+
+func (animation ObjectAnimationAsset) GetImages() map[string]pixel.Rect {
+	panic("not implemented") // TODO: Implement
+}
+
+func (animation ObjectAnimationAsset) GetAnims() map[string][]pixel.Rect {
+	return animation.Anims
+}
+
+func (animation ObjectAnimationAsset) GetKeys() []string {
+	return animation.AnimKeys
+}
+
+type IObjectAsset interface {
+	GetDescription() string
+	GetSheet() pixel.Picture
+	GetImages() map[string]pixel.Rect
+	GetAnims() map[string][]pixel.Rect
+	GetKeys() []string
+}
+
+type ObjectAssets []IObjectAsset
 
 func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	frames := make([][]pixel.Rect, 0)
@@ -46,7 +62,16 @@ func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	return frames
 }
 
-func (objectAssets ObjectAssets) AddAssets(sheetDesc string, sheetPath, descPath string, frameSize float64) (ObjectAssets, error) {
+func (objectAssets ObjectAssets) IsDescriptionAvailable(desc string) bool {
+	for _, assets := range objectAssets {
+		if desc == assets.GetDescription() {
+			return true
+		}
+	}
+	return false
+}
+
+func (objectAssets ObjectAssets) AddAnimationAssets(sheetDesc string, sheetPath, descPath string, frameSize float64) (ObjectAssets, error) {
 	var (
 		err      error
 		sheet    pixel.Picture
@@ -108,7 +133,7 @@ func (objectAssets ObjectAssets) AddAssets(sheetDesc string, sheetPath, descPath
 		animKeys = append(animKeys, name)
 
 	}
-	newAsset := new(ObjectAsset)
+	newAsset := new(ObjectAnimationAsset)
 	newAsset.Description = sheetDesc
 	newAsset.AnimKeys = animKeys
 	newAsset.Sheet = sheet

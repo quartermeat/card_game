@@ -23,8 +23,8 @@ import (
 func App() {
 
 	cfg := pixelgl.WindowConfig{
-		Title:  "Card Game",
-		Bounds: pixel.R(0, 0, 1290, 1080),
+		Title:  APP_TITLE,
+		Bounds: WINDOW_SIZE,
 		VSync:  false,
 	}
 
@@ -63,15 +63,16 @@ func App() {
 	sysErrors = make([]error, 0)
 
 	//load assets
-	objectAssets, err1 := objectAssets.AddAssets(assets.CursorAnimations, "assets/cursor/cursorHand.png", "assets/cursor/cursorAnimations.csv", assets.MouseIconPixelSize)
-	objectAssets, err2 := objectAssets.AddAssets(assets.TestCard, "assets/test_card/test_card.png", "assets/test_card/testCardAnimations.csv", assets.CardImageSize)
-	sysErrors = append(sysErrors, err1)
-	sysErrors = append(sysErrors, err2)
-	for _, sysError := range sysErrors {
-		if sysError != nil {
-			panic(sysError)
-		}
-	}
+	objectAssets = loadAssets(sysErrors)
+	// objectAssets, err1 := objectAssets.AddAnimationAssets(assets.CursorAnimations, "assets/cursor/cursorHand.png", "assets/cursor/cursorAnimations.csv", assets.MouseIconPixelSize)
+	// objectAssets, err2 := objectAssets.AddImageAssets(assets.TestCard, "assets/zombieCards/10xActions3.png", "assets/zombieCards/actions3.csv")
+	// sysErrors = append(sysErrors, err1)
+	// sysErrors = append(sysErrors, err2)
+	// for _, sysError := range sysErrors {
+	// 	if sysError != nil {
+	// 		panic(sysError)
+	// 	}
+	// }
 
 	//seed rng
 	rand.Seed(time.Now().UnixNano())

@@ -24,7 +24,7 @@ type IGameObject interface {
 	ObjectName() string
 	GetFSM() *StateMachine
 	Sprite() *pixel.Sprite
-	GetAssets() assets.ObjectAsset
+	GetAssets() assets.IObjectAsset
 	GetID() int
 	SetHitBox()
 	GetHitBox() pixel.Rect

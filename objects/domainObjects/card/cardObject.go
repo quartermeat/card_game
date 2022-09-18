@@ -23,7 +23,7 @@ const (
 type Card struct {
 	stateMachine *objects.StateMachine
 	id           int
-	assets       assets.ObjectAsset
+	assets       assets.ObjectImageAsset
 	sprite       *pixel.Sprite
 	rate         float64
 	counter      float64
@@ -43,7 +43,7 @@ func (card *Card) Sprite() *pixel.Sprite {
 	return card.sprite
 }
 
-func (card *Card) GetAssets() assets.ObjectAsset {
+func (card *Card) GetAssets() assets.IObjectAsset {
 	return card.assets
 }
 
@@ -52,7 +52,7 @@ func (card *Card) GetID() int {
 }
 
 // SetHitBox sets the hit box for card
-// put this in a more efficient location because it won't change per object
+// TODO: put this in a more efficient location because it won't change per object
 func (card *Card) SetHitBox() {
 	width := card.sprite.Frame().Max.X - card.sprite.Frame().Min.X
 	height := card.sprite.Frame().Max.Y - card.sprite.Frame().Min.Y
@@ -118,15 +118,14 @@ func newCardFSM() *objects.StateMachine {
 }
 
 // NewCardObject creates a new card game object
-func NewCardObject(objectAsset assets.ObjectAsset, position pixel.Vec) Card {
-	downAnimationKey := objectAsset.AnimKeys[0]
-	downAnimationFrame := 0
+func NewCardObject(objectAsset assets.IObjectAsset, position pixel.Vec) Card {
+	objAsset := objectAsset.(assets.ObjectImageAsset)
 
 	newCard := Card{
 		id:           objects.NextID,
 		stateMachine: newCardFSM(),
-		assets:       objectAsset,
-		sprite:       pixel.NewSprite(objectAsset.Sheet, objectAsset.Anims[downAnimationKey][downAnimationFrame]),
+		assets:       objectAsset.(assets.ObjectImageAsset),
+		sprite:       pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()["sacrifice"]),
 		rate:         1.0,
 		dir:          0.0,
 		position:     position,

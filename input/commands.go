@@ -33,7 +33,7 @@ type addObjectAtPositionCommand struct {
 	gameObjs      *objects.GameObjects
 	objectToPlace objects.IGameObject
 	position      pixel.Vec
-	objectAssets  assets.ObjectAsset
+	objectAssets  assets.IObjectAsset
 }
 
 func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
@@ -98,11 +98,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 		{
 			err := selectedObject.GetFSM().SendEvent(card.FlipUp, selectedObject)
 			if err != nil {
-				fmt.Println("couldn't flip the card down")
 				err = selectedObject.GetFSM().SendEvent(card.FlipDown, selectedObject)
-				if err != nil {
-					fmt.Println("couldn't flip the card up")
-				}
 			}
 		}
 	}

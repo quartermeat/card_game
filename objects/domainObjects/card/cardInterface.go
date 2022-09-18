@@ -6,9 +6,9 @@ type ICard interface {
 }
 
 func (card *Card) FlipUp() {
-	card.sprite.Set(card.assets.Sheet, card.assets.Anims["up"][0])
+	card.sprite.Set(card.assets.Sheet, card.assets.GetImages()["sacrifice"])
 }
 
 func (card *Card) FlipDown() {
-	card.sprite.Set(card.assets.Sheet, card.assets.Anims["down"][0])
+	card.sprite.Set(card.assets.Sheet, card.assets.GetImages()["shotgun"])
 }

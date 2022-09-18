@@ -11,7 +11,7 @@ type FlipDownAction struct{}
 
 // Execute Flip down action
 func (a *FlipDownAction) Execute(gameObj objects.IGameObject) objects.EventType {
-	gameObj.Sprite().Set(gameObj.GetAssets().Sheet, gameObj.GetAssets().Anims["down"][0])
+	gameObj.Sprite().Set(gameObj.GetAssets().GetSheet(), gameObj.GetAssets().GetImages()["zombie_swarm"])
 	fmt.Println("Flip down action")
 	return objects.NoOp
 }

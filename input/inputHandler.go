@@ -19,7 +19,7 @@ import (
 type InputHandler struct {
 	initialized  bool
 	Cursor       *pixel.Sprite
-	CursorAssets assets.ObjectAsset
+	CursorAssets assets.ObjectAnimationAsset
 	win          *pixelgl.Window
 	cam          *pixel.Matrix
 	consoleInput <-chan console.ITxTopic
@@ -28,9 +28,9 @@ type InputHandler struct {
 func (input *InputHandler) setCursor(pressed bool) {
 
 	if !pressed {
-		input.Cursor = pixel.NewSprite(input.CursorAssets.Sheet, input.CursorAssets.Anims[assets.CursorAnimations][0])
+		input.Cursor = pixel.NewSprite(input.CursorAssets.Sheet, input.CursorAssets.Anims[input.CursorAssets.Description][0])
 	} else {
-		input.Cursor = pixel.NewSprite(input.CursorAssets.Sheet, input.CursorAssets.Anims[assets.CursorAnimations][1])
+		input.Cursor = pixel.NewSprite(input.CursorAssets.Sheet, input.CursorAssets.Anims[input.CursorAssets.Description][1])
 	}
 
 	input.initialized = true
@@ -90,14 +90,17 @@ func (input *InputHandler) HandleInput(
 		//set cursor
 		cursorToggle = false
 		var idx int = 0
-		idx = slices.IndexFunc(objectAssets, func(c assets.ObjectAsset) bool { return c.Description == assets.CursorAnimations })
+		idx = slices.IndexFunc(objectAssets, func(c assets.IObjectAsset) bool {
+			return objectAssets.IsDescriptionAvailable(CursorDesription)
+		})
 		if idx != -1 {
-			input.CursorAssets = objectAssets[idx]
+			input.CursorAssets = objectAssets[idx].(assets.ObjectAnimationAsset)
 			input.setCursor(cursorToggle)
 		} else {
 			indexError := debuglog.Entry{
-				Message: "{c.Description} is not in assests",
+				Message: fmt.Sprintf("%s is not in assests", input.CursorAssets.Description),
 			}
+			fmt.Printf("%s is not in assests", input.CursorAssets.Description)
 			debugLog = append(debugLog, indexError)
 		}
 	}
