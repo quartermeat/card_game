@@ -64,15 +64,6 @@ func App() {
 
 	//load assets
 	objectAssets = loadAssets(sysErrors)
-	// objectAssets, err1 := objectAssets.AddAnimationAssets(assets.CursorAnimations, "assets/cursor/cursorHand.png", "assets/cursor/cursorAnimations.csv", assets.MouseIconPixelSize)
-	// objectAssets, err2 := objectAssets.AddImageAssets(assets.TestCard, "assets/zombieCards/10xActions3.png", "assets/zombieCards/actions3.csv")
-	// sysErrors = append(sysErrors, err1)
-	// sysErrors = append(sysErrors, err2)
-	// for _, sysError := range sysErrors {
-	// 	if sysError != nil {
-	// 		panic(sysError)
-	// 	}
-	// }
 
 	//seed rng
 	rand.Seed(time.Now().UnixNano())

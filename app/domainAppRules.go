@@ -5,6 +5,7 @@ import (
 	"github.com/quartermeat/card_game/assets"
 )
 
+// domain specific constants
 const (
 	APP_TITLE              string  = "Card Game"
 	window_height          float64 = 1080
@@ -24,6 +25,7 @@ const (
 	ACTIONS_3_META                 = "assets/images/zombieCards/actions3.csv"
 )
 
+// WINDOW_SIZE is the size of the window to be created by pixel gl
 var WINDOW_SIZE pixel.Rect = pixel.R(0, 0, window_width, window_height)
 
 // top left card in image
