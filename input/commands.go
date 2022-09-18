@@ -98,7 +98,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 		{
 			err := selectedObject.GetFSM().SendEvent(card.FlipUp, selectedObject)
 			if err != nil {
-				err = selectedObject.GetFSM().SendEvent(card.FlipDown, selectedObject)
+				_ = selectedObject.GetFSM().SendEvent(card.FlipDown, selectedObject)
 			}
 		}
 	}

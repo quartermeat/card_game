@@ -1,11 +1,11 @@
 # NO SPACES: spaces cause the numerical values to be read incorrectly
 # column defs:
 #   card name, row(zero starts at bottom, column(zero starts at left)
-sacrifice,0,0
-scavenger,0,1
-shotgun,0,2
-sidekick,0,3
-stick_together,1,0
-zombie_swarm,1,1
-tactics,1,2
-weapons_cache,1,3
+sacrifice,1,0
+scavenger,1,1
+shotgun,1,2
+sidekick,1,3
+stick_together,0,0
+zombie_swarm,0,1
+tactics,0,2
+weapons_cache,0,3

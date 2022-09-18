@@ -1,6 +1,6 @@
 # NO SPACES: spaces cause the numerical values to be read incorrectly
 # column defs:
 #   card name, row(zero starts at bottom, column(zero starts at left)
-trash,0,0
-slug,0,2
-card_back,1,0
+trash,1,0
+slug,1,2
+card_back,0,0

@@ -57,4 +57,19 @@ TODO:
 
 Activity Log:
 
+[2022-09-18]
+Notes:
+problem:
+When creating the object, it needs a card_back image, and should be created with card back image
+you can only have 1 image sheet available to each object, 
+gimp image fix:
+    every image sheet would have card_back on it
+better fix:
+    need to create a func for objectAssets to return an image based on string, but find and load the correct sheet based on the image name
+
+Ideas:
+TODO:
+Activity Log:
+
+
 

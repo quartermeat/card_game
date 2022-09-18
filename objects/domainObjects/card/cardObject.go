@@ -125,7 +125,7 @@ func NewCardObject(objectAsset assets.IObjectAsset, position pixel.Vec) Card {
 		id:           objects.NextID,
 		stateMachine: newCardFSM(),
 		assets:       objectAsset.(assets.ObjectImageAsset),
-		sprite:       pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()["sacrifice"]),
+		sprite:       pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()[CARD_BACK]),
 		rate:         1.0,
 		dir:          0.0,
 		position:     position,
