@@ -1,0 +1,7 @@
+Attempt to make a reskinned version of Dominion
+
+Also building up my 2D game framework 
+
+idea and art taken from:
+https://boardgamegeek.com/filepage/37598/zombie-retheme-dominion-pdf-format
+
