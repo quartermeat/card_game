@@ -40,9 +40,8 @@ type ICard interface {
 }
 
 func (card *Card) FlipUp() {
-	card.sprite.Set(card.assets.Sheet, card.assets.GetImages()[TRASH])
 }
 
 func (card *Card) FlipDown() {
-	card.sprite.Set(card.assets.Sheet, card.assets.GetImages()[CARD_BACK])
+
 }
