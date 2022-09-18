@@ -3,6 +3,7 @@ package assets
 
 import (
 	"encoding/csv"
+	"fmt"
 	"image"
 	"io"
 	"os"
@@ -20,36 +21,6 @@ type ObjectAnimationAsset struct {
 	AnimKeys    []string
 }
 
-func (animation ObjectAnimationAsset) GetDescription() string {
-	return animation.Description
-}
-
-func (animation ObjectAnimationAsset) GetSheet() pixel.Picture {
-	return animation.Sheet
-}
-
-func (animation ObjectAnimationAsset) GetImages() map[string]pixel.Rect {
-	panic("not implemented") // TODO: Implement
-}
-
-func (animation ObjectAnimationAsset) GetAnims() map[string][]pixel.Rect {
-	return animation.Anims
-}
-
-func (animation ObjectAnimationAsset) GetKeys() []string {
-	return animation.AnimKeys
-}
-
-type IObjectAsset interface {
-	GetDescription() string
-	GetSheet() pixel.Picture
-	GetImages() map[string]pixel.Rect
-	GetAnims() map[string][]pixel.Rect
-	GetKeys() []string
-}
-
-type ObjectAssets []IObjectAsset
-
 func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	frames := make([][]pixel.Rect, 0)
 	for y := 0.0; y+frameSize <= sheet.Bounds().Max.Y; y += frameSize {
@@ -62,13 +33,25 @@ func getFrames(sheet pixel.Picture, frameSize float64) [][]pixel.Rect {
 	return frames
 }
 
-func (objectAssets ObjectAssets) IsDescriptionAvailable(desc string) bool {
-	for _, assets := range objectAssets {
-		if desc == assets.GetDescription() {
-			return true
-		}
-	}
-	return false
+func (animation ObjectAnimationAsset) GetDescription() string {
+	return animation.Description
+}
+
+func (animation ObjectAnimationAsset) GetSheet() pixel.Picture {
+	return animation.Sheet
+}
+
+func (animation ObjectAnimationAsset) GetImages() map[string]pixel.Rect {
+	fmt.Printf("GetImages() is not implemented for ObjectAnimationAsset:%s", animation.Description)
+	return nil
+}
+
+func (animation ObjectAnimationAsset) GetAnims() map[string][]pixel.Rect {
+	return animation.Anims
+}
+
+func (animation ObjectAnimationAsset) GetKeys() []string {
+	return animation.AnimKeys
 }
 
 func (objectAssets ObjectAssets) AddAnimationAssets(sheetDesc string, sheetPath, descPath string, frameSize float64) (ObjectAssets, error) {

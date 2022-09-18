@@ -139,8 +139,7 @@ func (input *InputHandler) HandleInput(
 
 	if win.JustPressed(pixelgl.Key0) {
 		mouse := cam.Unproject(win.MousePosition())
-		//TODO: need a cleaner way to reference image sheets
-		objectToPlace := card.NewCardObject(objectAssets[5], mouse)
+		objectToPlace := card.NewCardObject(objectAssets.GetImage(card.CARD_BACK), mouse)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
 	}
 
