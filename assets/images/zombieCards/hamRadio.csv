@@ -1,0 +1,4 @@
+# NO SPACES: spaces cause the numerical values to be read incorrectly
+# column defs:
+#   card name, row(zero starts at bottom, column(zero starts at left)
+ham_radio,0,0

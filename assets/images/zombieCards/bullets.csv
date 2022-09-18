@@ -1,0 +1,9 @@
+# NO SPACES: spaces cause the numerical values to be read incorrectly
+# column defs:
+#   card name, row(zero starts at bottom, column(zero starts at left)
+bullet,0,0
+scavenger,0,1
+shotgun,0,2
+sidekick,0,3
+infection,1,0
+shells,1,2

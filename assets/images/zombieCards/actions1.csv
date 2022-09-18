@@ -1,0 +1,11 @@
+# NO SPACES: spaces cause the numerical values to be read incorrectly
+# column defs:
+#   card name, row(zero starts at bottom, column(zero starts at left)
+1_in_the_chamber,0,0
+ammo_box,0,1
+barricade,0,2
+courage,0,3
+cunning,1,0
+decoy,1,1
+hide,1,2
+higher_ground,1,3
