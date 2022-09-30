@@ -6,13 +6,12 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"golang.org/x/exp/slices"
-
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/objects"
 	"github.com/quartermeat/card_game/objects/domainObjects/card"
+	"golang.org/x/exp/slices"
 )
 
 // InputHandler is a monolithic struct to handle user interactions with the app

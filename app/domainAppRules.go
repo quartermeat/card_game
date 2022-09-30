@@ -8,8 +8,8 @@ import (
 // domain specific constants
 const (
 	APP_TITLE     string  = "Card Game"
-	window_height float64 = 1080
-	window_width  float64 = 1290
+	window_height float64 = 768
+	window_width  float64 = 1366
 	// coordinates of the top left image
 	MinXCoord float64 = 26
 	MinYCoord float64 = 71

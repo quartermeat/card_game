@@ -34,14 +34,5 @@ const (
 	CARD_BACK         = "card_back"
 )
 
-type ICard interface {
-	FlipUp()
-	FlipDown()
-}
-
-func (card *Card) FlipUp() {
-}
-
-func (card *Card) FlipDown() {
-
-}
+// this may need to be hooked into
+type ICard interface{}

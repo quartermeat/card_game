@@ -17,6 +17,7 @@ import (
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/input"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/ui"
 )
 
 // App holds the main game loop
@@ -48,6 +49,7 @@ func App() {
 		debugLog           debuglog.Entries
 		sysErrors          []error
 		consoleToInputChan chan console.ITxTopic
+		gui                ui.GUI
 	)
 
 	consoleToInputChan = make(chan console.ITxTopic, 1)
@@ -58,6 +60,9 @@ func App() {
 	if Test {
 		go console.RunConsole()
 	}
+
+	//setup gui
+	gui.InitGUI()
 
 	//panic level errors
 	sysErrors = make([]error, 0)
@@ -95,6 +100,7 @@ func App() {
 		var waitGroup sync.WaitGroup
 
 		//handle game updates
+		gui.UpdateGUI(gameCommands)
 		gameCommands.ExecuteCommands(&waitGroup)
 		waitGroup.Wait()
 		gameObjs.UpdateAllObjects(dt, &waitGroup)
@@ -104,6 +110,8 @@ func App() {
 		//draw game objects
 		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
+
+		gui.DrawGUI(win)
 
 		//draw cursor based on selected object
 		//must be done outside of inputHandler to be the last thing drawn

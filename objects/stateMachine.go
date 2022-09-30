@@ -6,38 +6,6 @@ import (
 	"sync"
 )
 
-// IEventContext is libal to change to something else
-// type IEventContext interface {
-// 	SendCtx(object EventContext)
-// 	GetChan() chan EventContext
-// }
-
-// type EventContext struct {
-// 	commandsToObjectChan chan EventContext
-// }
-
-// func (ctx EventContext) GetChan() chan EventContext {
-// 	return ctx.commandsToObjectChan
-// }
-
-// // SendCtx takes a IEventContext, and
-// // it will asynchronously send it
-// func (ctx EventContext) SendCtx(object EventContext) {
-// 	objectChannel := EventContext{
-// 		commandsToObjectChan: object.GetChan(),
-// 	}
-// 	select {
-// 	case object.GetChan() <- objectChannel:
-// 		{
-// 			//don't do anything
-// 		}
-// 	default:
-// 		{
-// 			// don't do anything
-// 		}
-// 	}
-// }
-
 // ErrEventRejected is the error returned when the state machine cannot process
 // an event in the state that it is in.
 var ErrEventRejected = errors.New("event rejected")
