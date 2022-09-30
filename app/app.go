@@ -111,7 +111,7 @@ func App() {
 		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
 		waitGroup.Wait()
 
-		gui.DrawGUI(win)
+		gui.DrawGUI(win, &cam)
 
 		//draw cursor based on selected object
 		//must be done outside of inputHandler to be the last thing drawn

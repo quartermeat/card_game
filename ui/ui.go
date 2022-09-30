@@ -59,7 +59,7 @@ func (gui *GUI) InitGUI() {
 
 	gui.face, _ = gui.loadTTF(TRUETYPE_FONT_PATH, 52)
 	gui.atlas = text.NewAtlas(gui.face, text.ASCII)
-	gui.txt = text.New(pixel.V(500, 500), gui.atlas)
+	gui.txt = text.New(pixel.V(0, 0), gui.atlas)
 	gui.doUpdate = true
 	gui.txt.Color = colornames.Green
 	gui.lines = []string{}
@@ -78,13 +78,13 @@ func (gui *GUI) UpdateGUI(cmds input.Commands) {
 	}
 
 	for idx, line := range gui.lines {
-		gui.txt.Dot.X -= gui.txt.BoundsOf(line).W() / 2
 		fmt.Fprintln(gui.txt, line)
 		gui.lines = remove(gui.lines, idx)
 	}
 }
 
 // DrawGUI draws the gui on the specified window
-func (gui *GUI) DrawGUI(win *pixelgl.Window) {
-	gui.txt.Draw(win, pixel.IM.Moved(win.Bounds().Center().Sub(gui.txt.Bounds().Center())))
+func (gui *GUI) DrawGUI(win *pixelgl.Window, cam *pixel.Matrix) {
+
+	gui.txt.Draw(win, pixel.IM.Moved(cam.Unproject(win.Bounds().Min).Sub(gui.txt.Bounds().Min)))
 }
