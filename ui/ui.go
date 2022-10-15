@@ -57,7 +57,7 @@ func (gui *GUI) loadTTF(path string, size float64) (font.Face, error) {
 
 func (gui *GUI) InitGUI() {
 
-	gui.face, _ = gui.loadTTF(TRUETYPE_FONT_PATH, 52)
+	gui.face, _ = gui.loadTTF(TRUETYPE_FONT_PATH, 22)
 	gui.atlas = text.NewAtlas(gui.face, text.ASCII)
 	gui.txt = text.New(pixel.V(0, 0), gui.atlas)
 	gui.doUpdate = true
@@ -73,6 +73,8 @@ func remove(slice []string, s int) []string {
 // UpdateGUI does gui updates based on game commands
 func (gui *GUI) UpdateGUI(cmds input.Commands) {
 
+	gui.face.Metrics()
+
 	for key, _ := range cmds {
 		gui.lines = append(gui.lines, fmt.Sprintf("executing: %s", key))
 	}
@@ -85,6 +87,5 @@ func (gui *GUI) UpdateGUI(cmds input.Commands) {
 
 // DrawGUI draws the gui on the specified window
 func (gui *GUI) DrawGUI(win *pixelgl.Window, cam *pixel.Matrix) {
-
 	gui.txt.Draw(win, pixel.IM.Moved(cam.Unproject(win.Bounds().Min).Sub(gui.txt.Bounds().Min)))
 }

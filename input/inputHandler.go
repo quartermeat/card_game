@@ -2,7 +2,6 @@ package input
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -22,6 +21,7 @@ type InputHandler struct {
 	win          *pixelgl.Window
 	cam          *pixel.Matrix
 	consoleInput <-chan console.ITxTopic
+	oldCamZoom   float64
 }
 
 func (input *InputHandler) setCursor(pressed bool) {
@@ -85,6 +85,7 @@ func (input *InputHandler) HandleInput(
 		//set window and cam
 		input.win = win
 		input.cam = cam
+		*camZoom = 0.578704
 
 		//set cursor
 		cursorToggle = false
@@ -161,8 +162,15 @@ func (input *InputHandler) HandleInput(
 		camPos.Y += camSpeed * dt
 	}
 
-	//zoom camera
-	*camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
+	// allow zoom on mouse scroll
+	// newZoomFactor := math.Pow(camZoomSpeed, win.MouseScroll().Y)
+	// //zoom camera
+	// if newZoomFactor != input.oldCamZoom {
+	// 	fmt.Printf("Old Cam zoom: %f\n", *camZoom)
+	// 	*camZoom *= newZoomFactor
+	// 	input.oldCamZoom = newZoomFactor
+	// 	fmt.Printf("New Cam zoom: %f\n", *camZoom)
+	// }
 
 	return debugLog
 }

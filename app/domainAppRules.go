@@ -20,8 +20,8 @@ const (
 	VerticalGap   float64 = 26
 	//cursor
 	CURSOR_ANIMATIONS_DESC = "hand"
-	CURSOR_SPRITE_SHEET    = "assets/animations/cursor/cursorHand.png"
-	CURSOR_ICON_SIZE       = 16
+	CURSOR_SPRITE_SHEET    = "assets/animations/cursor/cursorHandBig.png"
+	CURSOR_ICON_SIZE       = 32
 	CURSOR_META            = "assets/animations/cursor/cursorAnimations.csv"
 	// actions3
 	HAM_RADIO_DESC  = "ham_radio"
