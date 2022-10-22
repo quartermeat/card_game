@@ -25,6 +25,6 @@ func Run() {
 
 func doWork(testStruct *TestStruct) {
 	test := testStruct.GetNewFloat()
-	fmt.Println("test:%f", test)
+	fmt.Printf("test:%f\n", test)
 
 }
