@@ -58,3 +58,22 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+      
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+
+      # ...add steps to create a GitHub release...
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        with:
+          name: my-artifact.zip
+          asset_path: path/to/downloaded/artifact
+          url: ${{ steps.create_release.outputs.upload_url }}
