@@ -40,6 +40,7 @@ jobs:
           sudo apt-get install libgl1-mesa-dev 
           sudo apt-get install xorg-dev
           sudo apt-get install tcl tcl-dev
+          sudo apt-get install tk tk-dev
     #- name: Configure static library
     #  run: cmake -S . -B build-static
     #- name: Build static library
