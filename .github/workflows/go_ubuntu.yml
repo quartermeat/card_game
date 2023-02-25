@@ -54,7 +54,7 @@ jobs:
     - name: Build
       run: |
         go get
-        go build -v ./...
+        go build -v 
 
     - name: Test
       run: go test -v ./...
