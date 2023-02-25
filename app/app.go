@@ -20,7 +20,13 @@ import (
 	"github.com/quartermeat/card_game/ui"
 )
 
-// App holds the main game loop
+// App() is the main game function and main loop for a card game.
+// It sets up the window configuration, initializes the GUI, loads assets,
+// seeds the random number generator, and starts a command server.
+// It then enters a loop that handles delta time, handles input, updates game objects,
+// draws game objects, draws the GUI, and draws a cursor based on selected object.
+// At the end of each loop it also updates the window title with FPS and number of game objects.
+// Finally it checks for any debug log entries with a message of 'console.Stop' and closes the window if found.
 func App() {
 
 	cfg := pixelgl.WindowConfig{

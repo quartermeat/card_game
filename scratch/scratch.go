@@ -1,30 +1,40 @@
 package scratch
 
-import "fmt"
+import (
+	"fmt"
 
-type TestStruct struct {
-	someFloat float64
-	someInt   int
-	someUint8 byte
+	"github.com/visualfc/atk/tk"
+)
+
+type Window struct {
+	*tk.Window
 }
 
-type ITestStruct interface {
-	GetNewFloat() float64
-}
+func NewWindow() *Window {
+	mw := &Window{tk.RootWindow()}
+	lbl := tk.NewLabel(mw, "Hello ATK")
+	frm := tk.NewFrame(mw)
+	btn := tk.NewButton(frm, "Quit")
 
-func (testStruct *TestStruct) GetNewFloat() float64 {
-	testStruct.someFloat += 3.14
-	return testStruct.someFloat
+	btn.OnCommand(func() {
+		tk.Quit()
+	})
+	frm.Attach(btn.Id())
+	frm.SetBorderWidth(5)
+	frm.SetWidth(300)
+	frm.SetHeight(300)
+	fmt.Printf("Form Widget Width %d", frm.Width())
+	tk.NewVPackLayout(mw).AddWidgets(lbl, tk.NewLayoutSpacer(mw, 0, true), frm)
+
+	mw.ResizeN(600, 500)
+	return mw
 }
 
 func Run() {
-	//do stuff
-	var testStruct TestStruct
-	doWork(&testStruct)
-}
-
-func doWork(testStruct *TestStruct) {
-	test := testStruct.GetNewFloat()
-	fmt.Printf("test:%f\n", test)
-
+	tk.MainLoop(func() {
+		mw := NewWindow()
+		mw.SetTitle("ATK Sample")
+		mw.Center(nil)
+		mw.ShowNormal()
+	})
 }

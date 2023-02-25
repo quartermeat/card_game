@@ -9,5 +9,5 @@ import (
 
 func main() {
 	pixelgl.Run(app.App)
-	// scratch.Run()
+	//scratch.Run()
 }
