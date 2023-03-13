@@ -6,6 +6,10 @@ type ObservableState struct {
 	// TODO: need to define the observables state here
 }
 
+type IObservable interface {
+	GetObservable() *Observable
+}
+
 // Observable is the object that observers can observe and listen to for changes
 type Observable struct {
 	ObservableState ObservableState // The state of the observable object

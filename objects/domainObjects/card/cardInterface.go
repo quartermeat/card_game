@@ -34,5 +34,5 @@ const (
 	CARD_BACK         = "card_back"
 )
 
-// this may need to be hooked into
+// this only works as a label of object type
 type ICard interface{}

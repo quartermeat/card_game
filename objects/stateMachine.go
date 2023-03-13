@@ -29,6 +29,9 @@ type Action interface {
 	Execute(gameObj IGameObject) EventType
 }
 
+// States represents a mapping of states and their implementations.
+type States map[StateType]State
+
 // Events represents a mapping of events and states.
 type Events map[EventType]StateType
 
@@ -37,9 +40,6 @@ type State struct {
 	Action Action
 	Events Events
 }
-
-// States represents a mapping of states and their implementations.
-type States map[StateType]State
 
 // StateMachine represents the state machine.
 type StateMachine struct {
@@ -76,6 +76,7 @@ func (s *StateMachine) SendEvent(event EventType, obj IGameObject) error {
 
 	for {
 		// Determine the next state for the event given the machine's current state.
+
 		nextState, err := s.getNextState(event)
 		if err != nil {
 			return ErrEventRejected

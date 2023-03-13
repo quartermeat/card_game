@@ -9,6 +9,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/observable"
 )
 
 // States and Events
@@ -32,6 +33,7 @@ type Card struct {
 	hitBox       pixel.Rect
 	position     pixel.Vec
 	matrix       pixel.Matrix
+	observable   *observable.Observable
 }
 
 // ObjectName is the string identifier for the object
@@ -70,6 +72,10 @@ func (card *Card) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 	// interval := int(math.Floor(card.counter / card.rate))
 	//dummy object, with no updates atm
 	waitGroup.Done()
+}
+
+func (card *Card) GetObservable() *observable.Observable {
+	return card.observable
 }
 
 func (card *Card) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
