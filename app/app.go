@@ -17,6 +17,7 @@ import (
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/input"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/observable"
 	"github.com/quartermeat/card_game/ui"
 )
 
@@ -41,7 +42,7 @@ func AppRun() {
 	}
 
 	var (
-		thisApp            = ipc.App
+		appState           = observable.ObservableState{}
 		camPos             = pixel.ZV
 		camSpeed           = 500.0
 		camZoom            = 1.0
@@ -115,7 +116,7 @@ func AppRun() {
 
 		win.Clear(colornames.Black)
 		//draw game objects
-		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup, &thisApp)
+		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup, &appState)
 		waitGroup.Wait()
 
 		gui.DrawGUI(win, &cam)
