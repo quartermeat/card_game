@@ -17,6 +17,7 @@ import (
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/input"
 	"github.com/quartermeat/card_game/objects"
+	"github.com/quartermeat/card_game/observable"
 	"github.com/quartermeat/card_game/ui"
 )
 
@@ -27,7 +28,7 @@ import (
 // draws game objects, draws the GUI, and draws a cursor based on selected object.
 // At the end of each loop it also updates the window title with FPS and number of game objects.
 // Finally it checks for any debug log entries with a message of 'console.Stop' and closes the window if found.
-func App() {
+func AppRun() {
 
 	cfg := pixelgl.WindowConfig{
 		Title:  APP_TITLE,
@@ -41,6 +42,7 @@ func App() {
 	}
 
 	var (
+		appState           = observable.ObservableState{}
 		camPos             = pixel.ZV
 		camSpeed           = 500.0
 		camZoom            = 1.0
@@ -114,7 +116,7 @@ func App() {
 
 		win.Clear(colornames.Black)
 		//draw game objects
-		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup)
+		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup, &appState)
 		waitGroup.Wait()
 
 		gui.DrawGUI(win, &cam)

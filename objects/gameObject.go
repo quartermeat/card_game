@@ -1,5 +1,5 @@
-// Package 'object' provides the interface for a slice of game objects.
-// This is the slice of all initialized objects that can be controlled and displayed on screen
+// Package objects provides an interface and implementation for a slice of game objects.
+// This is the slice of all initialized objects that can be controlled and displayed on the screen.
 package objects
 
 import (
@@ -9,17 +9,21 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/observable"
 )
 
-// MAX GAME OBJECTS
-const (
-	maxGameObjects = 400
-)
+// maxGameObjects is the maximum number of game objects that can be stored.
+const maxGameObjects = 400
 
-// NextID is the generator of a new game object ID
+// NextID is the generator of a new game object ID.
 var NextID = 0
 
-// IGameObject holds the capabilities of an object in the game that can be displayed and controlled
+type IObservableGameObject interface {
+	IGameObject
+	observable.Observable
+}
+
+// IGameObject defines the interface for an object in the game that can be displayed and controlled.
 type IGameObject interface {
 	ObjectName() string
 	GetFSM() *StateMachine
@@ -33,17 +37,17 @@ type IGameObject interface {
 	MoveToPosition(position pixel.Vec)
 }
 
-// GameObjects is a slice of all the gameObjects
+// GameObjects is a slice of all game objects.
 type GameObjects []IGameObject
 
-// FastRemoveIndex removes a gameObject from the GameObjects slice by it's index
+// FastRemoveIndex removes a game object from the GameObjects slice by its index.
 func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {
 	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.
 	gameObjs = gameObjs[:len(gameObjs)-1]       // Truncate slice.
 	return gameObjs
 }
 
-// AppendGameObject appends a new object to the game objects slice
+// AppendGameObject appends a new object to the game objects slice.
 func (gameObjs GameObjects) AppendGameObject(newObject IGameObject) GameObjects {
 	if len(gameObjs) >= maxGameObjects {
 		return gameObjs
@@ -52,7 +56,7 @@ func (gameObjs GameObjects) AppendGameObject(newObject IGameObject) GameObjects 
 	return gameObjs
 }
 
-// UpdateAllObjects runs all game objects Update method within it's own go routine
+// UpdateAllObjects runs the Update method for all game objects in their own goroutine.
 func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGroup) {
 	for _, currentObj := range gameObjs {
 		waitGroup.Add(1)
@@ -60,23 +64,23 @@ func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGro
 	}
 }
 
-// DrawAllObjects runs all game objects Draw method within it's own go routine
-func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+// DrawAllObjects runs the Draw method for all game objects in their own goroutine.
+func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup, app *observable.ObservableState) {
 	for _, obj := range gameObjs {
 		waitGroup.Add(1)
 		go obj.Draw(win, drawHitBox, waitGroup)
 	}
 }
 
-// GetSelectedGameObjAtPosition intersects a mouse click with any game objects hitbox
-// TODO: maybe optimize for only objects on screen
-// TODO: change to debugLog instead of error
+// GetSelectedGameObjAtPosition checks if a mouse click intersects with a game object's hitbox.
+// It returns the intersected game object, its index, and whether an object was found.
+// TODO: Optimize for only objects on screen. Consider changing errors to debugLog instead.
 func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IGameObject, int, bool, error) {
 	foundObject := true
 	noIndex := -1
 
 	if len(gameObjs) == 0 {
-		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exist")
+		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exists")
 	}
 	for index, object := range gameObjs {
 		if object.GetHitBox().Contains(position) {

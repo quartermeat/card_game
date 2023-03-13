@@ -77,4 +77,12 @@ Ideas:
 TODO:
 Activity Log:
 
+[2023-03-12]
+Notes:
+update to func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup, app *App) {
+    breaks all interface to GameObjects
+Ideas:
+TODO:
+Activity Log:
+
 

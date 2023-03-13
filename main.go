@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	pixelgl.Run(app.App)
+	pixelgl.Run(app.AppRun)
 	//scratch.Run()
 }
