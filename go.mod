@@ -1,11 +1,12 @@
 module github.com/quartermeat/card_game
 
-go 1.19
+go 1.20
 
 require (
 	github.com/faiface/pixel v0.10.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/pkg/errors v0.9.1
+	github.com/visualfc/atk v1.2.2
 	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
 	golang.org/x/image v0.3.0
 )
@@ -16,5 +17,5 @@ require (
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/go-gl/mathgl v1.0.0 // indirect
-	github.com/visualfc/atk v1.2.2 // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 )

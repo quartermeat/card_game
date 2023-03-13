@@ -9,6 +9,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/ipc"
 )
 
 // MAX GAME OBJECTS
@@ -61,7 +62,7 @@ func (gameObjs GameObjects) UpdateAllObjects(dt float64, waitGroup *sync.WaitGro
 }
 
 // DrawAllObjects runs all game objects Draw method within it's own go routine
-func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup, app *ipc.App) {
 	for _, obj := range gameObjs {
 		waitGroup.Add(1)
 		go obj.Draw(win, drawHitBox, waitGroup)
