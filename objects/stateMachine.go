@@ -43,6 +43,7 @@ type State struct {
 
 // StateMachine represents the state machine.
 type StateMachine struct {
+
 	// Previous represents the previous state.
 	Previous StateType
 

@@ -8,12 +8,24 @@ type ObservableState struct {
 
 type IObservable interface {
 	GetObservable() *Observable
+	Attach(observer IObserver)
+	Detach(observer IObserver)
+	NotifyObservers()
+	SetObservableState(AppState ObservableState)
 }
 
 // Observable is the object that observers can observe and listen to for changes
 type Observable struct {
 	ObservableState ObservableState // The state of the observable object
 	Subscribers     []IObserver     // The list of observers that are subscribed to the observable
+}
+
+func NewObservable() *Observable {
+	newObservable := Observable{
+		ObservableState: ObservableState{},
+		Subscribers:     make([]IObserver, 0),
+	}
+	return &newObservable
 }
 
 // IObserver is the interface for all observers that listen for changes to the observable object

@@ -35,4 +35,5 @@ const (
 )
 
 // this only works as a label of object type
-type ICard interface{}
+type ICard interface {
+}

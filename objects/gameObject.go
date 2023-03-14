@@ -18,11 +18,6 @@ const maxGameObjects = 400
 // NextID is the generator of a new game object ID.
 var NextID = 0
 
-type IObservableGameObject interface {
-	IGameObject
-	observable.Observable
-}
-
 // IGameObject defines the interface for an object in the game that can be displayed and controlled.
 type IGameObject interface {
 	ObjectName() string
