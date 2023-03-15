@@ -51,8 +51,9 @@ func AppRun() {
 		// Draw the wooden background
 		scaleX := win.Bounds().W() / woodenTexture.Bounds().W()
 		scaleY := win.Bounds().H() / woodenTexture.Bounds().H()
-		mat := pixel.IM.Scaled(pixel.ZV, scaleX).ScaledXY(pixel.ZV, pixel.V(scaleX, scaleY))
-		woodenSprite.Draw(win, mat)
+		mat := pixel.IM.Scaled(pixel.ZV, 1).ScaledXY(pixel.ZV, pixel.V(scaleX, scaleY))
+		woodenSprite.Draw(win, mat.Moved(win.Bounds().Center()))
+
 		// Add your drawing code here.
 
 		win.Update()
