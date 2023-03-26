@@ -2,6 +2,7 @@ package input
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -9,7 +10,7 @@ import (
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
 	"github.com/quartermeat/card_game/objects"
-	"github.com/quartermeat/card_game/objects/domainObjects/card"
+	"github.com/quartermeat/card_game/objects/venderModel/card"
 	"golang.org/x/exp/slices"
 )
 
@@ -163,14 +164,14 @@ func (input *InputHandler) HandleInput(
 	}
 
 	// allow zoom on mouse scroll
-	// newZoomFactor := math.Pow(camZoomSpeed, win.MouseScroll().Y)
-	// //zoom camera
-	// if newZoomFactor != input.oldCamZoom {
-	// 	fmt.Printf("Old Cam zoom: %f\n", *camZoom)
-	// 	*camZoom *= newZoomFactor
-	// 	input.oldCamZoom = newZoomFactor
-	// 	fmt.Printf("New Cam zoom: %f\n", *camZoom)
-	// }
+	newZoomFactor := math.Pow(camZoomSpeed, win.MouseScroll().Y)
+	//zoom camera
+	if newZoomFactor != input.oldCamZoom {
+		fmt.Printf("Old Cam zoom: %f\n", *camZoom)
+		*camZoom *= newZoomFactor
+		input.oldCamZoom = newZoomFactor
+		fmt.Printf("New Cam zoom: %f\n", *camZoom)
+	}
 
 	return debugLog
 }

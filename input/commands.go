@@ -8,7 +8,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
-	"github.com/quartermeat/card_game/objects/domainObjects/card"
+	"github.com/quartermeat/card_game/objects/venderModel/card"
 )
 
 // Commands is the map of commands to execute

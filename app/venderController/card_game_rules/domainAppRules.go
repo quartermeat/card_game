@@ -1,4 +1,4 @@
-package rules
+package card_game_rules
 
 import (
 	"github.com/faiface/pixel"

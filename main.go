@@ -9,5 +9,5 @@ import (
 
 func main() {
 	pixelgl.Run(app.AppRun)
-	//scratch.Run()
+	//scratch.RunDalle()
 }

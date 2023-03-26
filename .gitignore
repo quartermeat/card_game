@@ -30,3 +30,5 @@
 # vendor/
 /.vscode
 /assets/projects/VintagePlayingCards.zip
+.env
+

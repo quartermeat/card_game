@@ -30,7 +30,7 @@ func NewWindow() *Window {
 	return mw
 }
 
-func Run() {
+func RunTklExample() {
 	tk.MainLoop(func() {
 		mw := NewWindow()
 		mw.SetTitle("ATK Sample")
