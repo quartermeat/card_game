@@ -12,25 +12,48 @@ import (
 	"github.com/Andrew-peng/go-dalle2/dalle2"
 	"github.com/joho/godotenv"
 	"github.com/lxn/walk"
-	. "github.com/lxn/walk/declarative"
+	decl "github.com/lxn/walk/declarative"
 )
+
+func openbrowser(url string) {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func RunDalleTest() {
 	var inputTextEdit *walk.TextEdit
 	var runButton *walk.PushButton
 
-	MainWindow{
+	windowSize := decl.Size{
+		Width:  400,
+		Height: 200,
+	}
+
+	decl.MainWindow{
 		Title:   "DALLE Image Editor",
-		MinSize: Size{400, 200},
-		Layout:  VBox{},
-		Children: []Widget{
-			Label{
+		MinSize: windowSize,
+		Layout:  decl.VBox{},
+		Children: []decl.Widget{
+			decl.Label{
 				Text: "Enter a new description:",
 			},
-			TextEdit{
+			decl.TextEdit{
 				AssignTo: &inputTextEdit,
 			},
-			PushButton{
+			decl.PushButton{
 				AssignTo: &runButton,
 				Text:     "Run",
 				OnClicked: func() {
@@ -86,24 +109,5 @@ func RunDalle(description string) {
 	}
 	for _, img := range resp.Data {
 		openbrowser(img.Url)
-		fmt.Println("%s", img.Url)
-	}
-}
-
-func openbrowser(url string) {
-	var err error
-
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
-	if err != nil {
-		log.Fatal(err)
 	}
 }
