@@ -1,4 +1,4 @@
-package scratch
+package data
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	. "github.com/lxn/walk/declarative"
 )
 
-func RunDalleTest() {
+func main() {
 	var inputTextEdit *walk.TextEdit
 	var runButton *walk.PushButton
 
@@ -48,7 +48,6 @@ func RunDalle(description string) {
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
-
 	apiKey := os.Getenv("DALLE_API_KEY")
 
 	// connect a client to dalle 2
@@ -71,12 +70,20 @@ func RunDalle(description string) {
 		os.Exit(1)
 	}
 
+	// resp, err := client.Create(
+	// 	context.Background(),
+	// 	"4 Frogs in 1800s with suits playing poker, smoking cigars, drinking whiskey, and laughing. The setting is a Old western saloon.",
+	// 	dalle2.WithNumImages(1),
+	// 	dalle2.WithSize(dalle2.LARGE),
+	// 	dalle2.WithFormat(dalle2.URL),
+	// )
+
 	resp, err := client.Edit(
 		context.Background(),
 		imageData,
 		maskData,
 		description,
-		dalle2.WithNumImages(1),
+		dalle2.WithNumImages(10),
 		dalle2.WithSize(dalle2.LARGE),
 		dalle2.WithFormat(dalle2.URL),
 	)
@@ -88,6 +95,7 @@ func RunDalle(description string) {
 		openbrowser(img.Url)
 		fmt.Println("%s", img.Url)
 	}
+
 }
 
 func openbrowser(url string) {

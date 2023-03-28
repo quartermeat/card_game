@@ -3,11 +3,10 @@ package main
 import (
 	_ "image/png"
 
-	"github.com/faiface/pixel/pixelgl"
-	"github.com/quartermeat/card_game/app"
+	"github.com/quartermeat/card_game/scratch"
 )
 
 func main() {
-	pixelgl.Run(app.AppRun)
-	//scratch.RunDalle()
+	//pixelgl.Run(app.AppRun)
+	scratch.RunDalleTest()
 }
