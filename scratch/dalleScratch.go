@@ -38,8 +38,8 @@ func RunDalleTest() {
 	var runButton *walk.PushButton
 
 	windowSize := decl.Size{
-		Width:  400,
-		Height: 200,
+		Width:  50,
+		Height: 50,
 	}
 
 	decl.MainWindow{
@@ -81,13 +81,13 @@ func RunDalle(description string) {
 	}
 
 	// read in an image
-	imagePath := "scratch/data/profile_pic_tiny_heads.png"
+	imagePath := "scratch/data/full_bodymaskCombo.png"
 	imageData, err := ioutil.ReadFile(imagePath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
 		os.Exit(1)
 	}
-	maskPath := "scratch/data/profile_pic_tiny_heads_mask.png"
+	maskPath := "scratch/data/full_bodymaskCombo.png"
 	maskData, err := ioutil.ReadFile(maskPath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
