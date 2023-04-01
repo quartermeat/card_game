@@ -36,10 +36,16 @@ func openbrowser(url string) {
 func RunDalleTest() {
 	var inputTextEdit *walk.TextEdit
 	var runButton *walk.PushButton
+	var openFileDialogButton *walk.PushButton
+	var imagePath, maskPath string
 
 	windowSize := decl.Size{
 		Width:  50,
 		Height: 50,
+	}
+
+	enableRunButton := func() {
+		runButton.SetEnabled(len(inputTextEdit.Text()) > 0 && len(imagePath) > 0 && len(maskPath) > 0)
 	}
 
 	decl.MainWindow{
@@ -51,21 +57,51 @@ func RunDalleTest() {
 				Text: "Enter a new description:",
 			},
 			decl.TextEdit{
-				AssignTo: &inputTextEdit,
+				AssignTo:      &inputTextEdit,
+				OnTextChanged: enableRunButton,
+			},
+			decl.PushButton{
+				AssignTo: &openFileDialogButton,
+				Text:     "Select Image and Mask",
+				OnClicked: func() {
+					imageFilter := "Image Files (*.png, *.jpg, *.jpeg)|*.png;*.jpg;*.jpeg"
+
+					dlg := new(walk.FileDialog)
+					dlg.Title = "Select Image"
+					dlg.Filter = imageFilter
+
+					if ok, err := dlg.ShowOpen(nil); err != nil {
+						log.Printf("Error opening image file: %v", err)
+					} else if !ok {
+						log.Println("Image selection canceled")
+					} else {
+						imagePath = dlg.FilePath
+					}
+
+					dlg.Title = "Select Mask"
+					if ok, err := dlg.ShowOpen(nil); err != nil {
+						log.Printf("Error opening mask file: %v", err)
+					} else if !ok {
+						log.Println("Mask selection canceled")
+					} else {
+						maskPath = dlg.FilePath
+					}
+				},
 			},
 			decl.PushButton{
 				AssignTo: &runButton,
 				Text:     "Run",
+				Enabled:  false,
 				OnClicked: func() {
 					description := inputTextEdit.Text()
-					RunDalle(description)
+					RunDalle(description, imagePath, maskPath)
 				},
 			},
 		},
 	}.Run()
 }
 
-func RunDalle(description string) {
+func RunDalle(description string, imagePath string, maskPath string) {
 	// get secrets
 	err := godotenv.Load()
 	if err != nil {
@@ -81,13 +117,11 @@ func RunDalle(description string) {
 	}
 
 	// read in an image
-	imagePath := "scratch/data/full_bodymaskCombo.png"
 	imageData, err := ioutil.ReadFile(imagePath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
 		os.Exit(1)
 	}
-	maskPath := "scratch/data/full_bodymaskCombo.png"
 	maskData, err := ioutil.ReadFile(maskPath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
