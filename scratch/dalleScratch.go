@@ -3,7 +3,6 @@ package scratch
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -13,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/lxn/walk"
 	decl "github.com/lxn/walk/declarative"
+	"golang.org/x/sys/windows"
 )
 
 func openbrowser(url string) {
@@ -34,24 +34,30 @@ func openbrowser(url string) {
 }
 
 func RunDalleTest() {
+
 	var inputTextEdit *walk.TextEdit
 	var runButton *walk.PushButton
 	var openFileDialogButton *walk.PushButton
 	var imagePath, maskPath string
 
 	windowSize := decl.Size{
-		Width:  50,
-		Height: 50,
+		Width:  400,
+		Height: 300,
 	}
 
 	enableRunButton := func() {
 		runButton.SetEnabled(len(inputTextEdit.Text()) > 0 && len(imagePath) > 0 && len(maskPath) > 0)
 	}
 
-	decl.MainWindow{
-		Title:   "DALLE Image Editor",
-		MinSize: windowSize,
-		Layout:  decl.VBox{},
+	fmt.Println("hello world")
+
+	var mainWindowPtr *walk.MainWindow
+
+	mainWindow := &decl.MainWindow{
+		AssignTo: &mainWindowPtr,
+		Title:    "DALLE Image Editor",
+		MinSize:  windowSize,
+		Layout:   decl.VBox{},
 		Children: []decl.Widget{
 			decl.Label{
 				Text: "Enter a new description:",
@@ -98,7 +104,17 @@ func RunDalleTest() {
 				},
 			},
 		},
-	}.Run()
+	}
+
+	if _, err := mainWindow.Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	user32 := windows.NewLazySystemDLL("user32.dll")
+	setForegroundWindow := user32.NewProc("SetForegroundWindow")
+	setForegroundWindow.Call(uintptr(mainWindowPtr.Handle()))
+
+	fmt.Println("done running")
 }
 
 func RunDalle(description string, imagePath string, maskPath string) {
@@ -117,12 +133,12 @@ func RunDalle(description string, imagePath string, maskPath string) {
 	}
 
 	// read in an image
-	imageData, err := ioutil.ReadFile(imagePath)
+	imageData, err := os.ReadFile(imagePath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
 		os.Exit(1)
 	}
-	maskData, err := ioutil.ReadFile(maskPath)
+	maskData, err := os.ReadFile(maskPath)
 	if err != nil {
 		fmt.Printf("Error reading image file: %v\n", err)
 		os.Exit(1)
