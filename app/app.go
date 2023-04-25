@@ -1,4 +1,17 @@
-// Package 'app' is the main game function and main loop
+// This Go code is the main package for a card game application, containing the `AppRun()` function that serves as the entry point and main loop of the game. Here's a summary of the key parts of the code:
+//  1. The `import` statement imports the required packages, including Pixel for 2D graphics, PixelGL for window and input handling, and various custom packages for game logic and assets.
+//  2. The `AppRun()` function initializes the game by setting up the window configuration, GUI, and assets, seeding the random number generator, and starting a command server.
+//  3. The function then enters a loop that runs until the window is closed. In each iteration, it performs the following tasks:
+//     a. Handles delta time for smooth frame updates and animations.
+//     b. Sets up the camera and applies transformations, such as zoom and pan.
+//     c. Processes user input through the `inputHandler.HandleInput()` method.
+//     d. Updates game objects and the GUI using a `sync.WaitGroup` to coordinate concurrency.
+//     e. Clears the window and draws a border and wooden background texture.
+//     f. Draws game objects, the GUI, and a custom cursor based on the selected object.
+//     g. Updates the window title with the current FPS and number of game objects.
+//     h. Checks for any debug log entries with a 'console.Stop' message and closes the window if found.
+//
+// Overall, this package manages the main game loop and coordinates the various aspects of the game, such as input handling, object updates, rendering, and window management.
 package app
 
 import (

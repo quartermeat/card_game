@@ -1,3 +1,13 @@
+// The provided Go code is part of a card game application, specifically a package that defines the rules and assets for the game. Let me break down the key parts of the code:
+//  1. The `import` statement imports required packages, including the `Pixel` library for 2D graphics and a custom `assets` package.
+//  2. The `const` block defines several constants related to the game's appearance, such as the window size, card dimensions, gaps between cards, and paths to various asset // files, such as images and metadata.
+//  3. `WINDOW_SIZE` is a `pixel.Rect` variable that defines the window size for the game using the `window_width` and `window_height` constants.
+//  4. `CardRect` is a `pixel.Rect` variable that defines the dimensions of a card using the `MinXCoord`, `MinYCoord`, `MaxXCoord`, and `MaxYCoord` constants.
+//  5. The `LoadAssets` function loads the game's assets, including images and animations, into an `assets.ObjectAssets` instance. It takes a `sysErrors` parameter, which is a slice of errors to keep track of any issues that occur during asset loading. The function returns an updated `assets.ObjectAssets` instance with the loaded assets.
+//     The function iterates through a series of asset descriptions and paths, calling the appropriate methods (`AddAnimationAssets` and `AddImageAssets`) to load each asset. If any errors occur during this process, they are appended to the `sysErrors` slice.
+//     At the end of the function, it checks the `sysErrors` slice for any errors. If any are present, the function panics and prints the error, halting the program. Otherwise, it returns the `objectAssets` instance with the loaded assets.
+//
+// This package is responsible for defining the game's appearance, managing assets, and providing an interface to load and access these assets during the game's runtime.
 package card_game_rules
 
 import (
