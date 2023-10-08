@@ -27,7 +27,6 @@ jobs:
         
     - name: Build
       run: |
-        go get
         go build -v 
 
     - name: Test
