@@ -4,9 +4,9 @@ package card
 import (
 	"sync"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/imdraw"
+	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
 	"github.com/quartermeat/card_game/observable"

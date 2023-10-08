@@ -307,7 +307,7 @@ here's main: package main
 import (
 	_ "image/png"
 
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/app"
 )
 
@@ -318,7 +318,7 @@ func main() {
 The code you shared is the main function of a Go program. Here's a brief explanation of what the code does:
 
 The package main statement at the beginning of the file indicates that this is a main package that can be executed as a standalone program.
-The import statements at the top of the file specify the external packages that the program uses. In this case, the program imports the "image/png" package, which provides support for PNG image files, and the "github.com/faiface/pixel/pixelgl" package, which is a 2D game library that uses OpenGL. The program also imports the "github.com/quartermeat/card_game/app" package, which contains the main application logic.
+The import statements at the top of the file specify the external packages that the program uses. In this case, the program imports the "image/png" package, which provides support for PNG image files, and the "github.com/gopxl/pixel/pixelgl" package, which is a 2D game library that uses OpenGL. The program also imports the "github.com/quartermeat/card_game/app" package, which contains the main application logic.
 The func main() function is the entry point of the program. When the program starts, the main() function is executed first.
 The pixelgl.Run(app.AppRun) statement starts the main loop of the game window using the AppRun function from the app package. The pixelgl.Run() function takes a function as an argument, which will be executed on every frame of the game loop.
 The // scratch.RunDalleTest() statement is commented out, which means it will not be executed. It appears to be a reference to a RunDalleTest() function in a scratch package, which is not shown in the code you shared.
@@ -338,8 +338,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"
@@ -615,9 +615,9 @@ Copy code
 package border
 
 import (
-    "github.com/faiface/pixel"
-    "github.com/faiface/pixel/imdraw"
-    "github.com/faiface/pixel/pixelgl"
+    "github.com/gopxl/pixel"
+    "github.com/gopxl/pixel/imdraw"
+    "github.com/gopxl/pixel/pixelgl"
     "golang.org/x/image/colornames"
 )
 
@@ -1017,7 +1017,7 @@ go
 Copy code
 package border
 
-import "github.com/faiface/pixel/pixelgl"
+import "github.com/gopxl/pixel/pixelgl"
 
 type Color struct {
     R, G, B, A float64
@@ -1088,8 +1088,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"
@@ -1631,7 +1631,7 @@ here's main: package main
 import (
 	_ "image/png"
 
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/app"
 )
 
@@ -1642,7 +1642,7 @@ func main() {
 The code you shared is the main function of a Go program. Here's a brief explanation of what the code does:
 
 The package main statement at the beginning of the file indicates that this is a main package that can be executed as a standalone program.
-The import statements at the top of the file specify the external packages that the program uses. In this case, the program imports the "image/png" package, which provides support for PNG image files, and the "github.com/faiface/pixel/pixelgl" package, which is a 2D game library that uses OpenGL. The program also imports the "github.com/quartermeat/card_game/app" package, which contains the main application logic.
+The import statements at the top of the file specify the external packages that the program uses. In this case, the program imports the "image/png" package, which provides support for PNG image files, and the "github.com/gopxl/pixel/pixelgl" package, which is a 2D game library that uses OpenGL. The program also imports the "github.com/quartermeat/card_game/app" package, which contains the main application logic.
 The func main() function is the entry point of the program. When the program starts, the main() function is executed first.
 The pixelgl.Run(app.AppRun) statement starts the main loop of the game window using the AppRun function from the app package. The pixelgl.Run() function takes a function as an argument, which will be executed on every frame of the game loop.
 The // scratch.RunDalleTest() statement is commented out, which means it will not be executed. It appears to be a reference to a RunDalleTest() function in a scratch package, which is not shown in the code you shared.
@@ -1662,8 +1662,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"
@@ -1939,9 +1939,9 @@ Copy code
 package border
 
 import (
-    "github.com/faiface/pixel"
-    "github.com/faiface/pixel/imdraw"
-    "github.com/faiface/pixel/pixelgl"
+    "github.com/gopxl/pixel"
+    "github.com/gopxl/pixel/imdraw"
+    "github.com/gopxl/pixel/pixelgl"
     "golang.org/x/image/colornames"
 )
 
@@ -2341,7 +2341,7 @@ go
 Copy code
 package border
 
-import "github.com/faiface/pixel/pixelgl"
+import "github.com/gopxl/pixel/pixelgl"
 
 type Color struct {
     R, G, B, A float64
@@ -2412,8 +2412,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"

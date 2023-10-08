@@ -11,7 +11,7 @@
 package card_game_rules
 
 import (
-	"github.com/faiface/pixel"
+	"github.com/gopxl/pixel"
 	"github.com/quartermeat/card_game/assets"
 )
 

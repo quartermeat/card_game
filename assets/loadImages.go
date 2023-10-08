@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/faiface/pixel"
+	"github.com/gopxl/pixel"
 	"github.com/pkg/errors"
 )
 

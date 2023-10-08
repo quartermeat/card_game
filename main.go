@@ -3,7 +3,7 @@ package main
 import (
 	_ "image/png"
 
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/app"
 )
 

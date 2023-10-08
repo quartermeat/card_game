@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"

@@ -4,7 +4,7 @@ import (
 	"image"
 	"os"
 
-	"github.com/faiface/pixel"
+	"github.com/gopxl/pixel"
 )
 
 // LoadPicture returns a pixel.Picture from a path

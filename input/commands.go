@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/faiface/pixel"
+	"github.com/gopxl/pixel"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
 	"github.com/quartermeat/card_game/objects/venderModel/card"

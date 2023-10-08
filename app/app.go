@@ -21,8 +21,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"

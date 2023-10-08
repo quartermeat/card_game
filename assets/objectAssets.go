@@ -1,7 +1,7 @@
 package assets
 
 import (
-	"github.com/faiface/pixel"
+	"github.com/gopxl/pixel"
 )
 
 type IObjectAsset interface {

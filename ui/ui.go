@@ -5,10 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
-	"github.com/faiface/pixel/text"
 	"github.com/golang/freetype/truetype"
+	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/pixelgl"
+	"github.com/gopxl/pixel/text"
 	"github.com/quartermeat/card_game/input"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
