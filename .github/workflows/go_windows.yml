@@ -23,7 +23,7 @@ jobs:
 
     - name: Install MinGW manually
       run: |
-          choco install mingw -y
+          choco install mingw-w64 -y
         
     - name: Build
       run: |
