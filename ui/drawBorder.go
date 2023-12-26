@@ -1,4 +1,4 @@
-package border
+package ui
 
 import (
 	"github.com/gopxl/pixel"

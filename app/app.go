@@ -25,6 +25,7 @@ import (
 	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
+	"./states"
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
@@ -33,7 +34,6 @@ import (
 	"github.com/quartermeat/card_game/objects"
 	"github.com/quartermeat/card_game/observable"
 	"github.com/quartermeat/card_game/ui"
-	"github.com/quartermeat/card_game/ui/border"
 )
 
 // AppRun() is the main game function and main loop for a card game.
@@ -45,13 +45,14 @@ import (
 // Finally it checks for any debug log entries with a message of 'console.Stop' and closes the window if found.
 func AppRun() {
 
+	StateManager := states.NewStateManager()
+		
 	//seed rng
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	cfg := pixelgl.WindowConfig{
 		Title:       card_game_rules.APP_TITLE,
 		Bounds:      card_game_rules.WINDOW_SIZE,
-		Undecorated: true,
 		VSync:       true,
 	}
 
@@ -105,7 +106,9 @@ func AppRun() {
 	objectAssets = card_game_rules.LoadAssets(sysErrors)
 
 	last := time.Now()
+	
 	for !win.Closed() {
+		StateManager.SetCurrentState(states.Init)
 		//handle delta
 		dt := time.Since(last).Seconds()
 		last = time.Now()

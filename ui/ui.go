@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/golang/freetype/truetype"
@@ -39,7 +39,7 @@ func (gui *GUI) loadTTF(path string, size float64) (font.Face, error) {
 	}
 	defer file.Close()
 
-	bytes, err := ioutil.ReadAll(file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
