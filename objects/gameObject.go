@@ -35,6 +35,12 @@ type IGameObject interface {
 // GameObjects is a slice of all game objects.
 type GameObjects []IGameObject
 
+func (gameObjs GameObjects) InitGameObjects(assets assets.ObjectAssets, waitGroup *sync.WaitGroup) bool {
+	// setup a deck of cards positioned on the wooden background
+	
+	return true
+}
+
 // FastRemoveIndex removes a game object from the GameObjects slice by its index.
 func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {
 	gameObjs[index] = gameObjs[len(gameObjs)-1] // Copy last element to index i.

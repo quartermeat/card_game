@@ -25,11 +25,11 @@ import (
 	"github.com/gopxl/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 
-	"./states"
 	"github.com/quartermeat/card_game/app/venderController/card_game_rules"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/console"
 	"github.com/quartermeat/card_game/debuglog"
+	"github.com/quartermeat/card_game/gamestates"
 	"github.com/quartermeat/card_game/input"
 	"github.com/quartermeat/card_game/objects"
 	"github.com/quartermeat/card_game/observable"
@@ -45,7 +45,7 @@ import (
 // Finally it checks for any debug log entries with a message of 'console.Stop' and closes the window if found.
 func AppRun() {
 
-	StateManager := states.NewStateManager()
+	StateManager := gamestates.NewStateManager()
 		
 	//seed rng
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -108,7 +108,7 @@ func AppRun() {
 	last := time.Now()
 	
 	for !win.Closed() {
-		StateManager.SetCurrentState(states.Init)
+		StateManager.SetCurrentState(gamestates.Init)
 		//handle delta
 		dt := time.Since(last).Seconds()
 		last = time.Now()
@@ -132,31 +132,28 @@ func AppRun() {
 		)
 
 		var waitGroup sync.WaitGroup
+
+		switch(StateManager.GetCurrentState()) {
+		case gamestates.Init:{
+			//setup game objects
+			if(gameObjs.InitGameObjects(objectAssets, &waitGroup)){
+				StateManager.SetCurrentState(gamestates.Ready)
+			}
+		}
+		default:{
+			//do nothing
+		}
+		}		
+
 		//handle game updates
 		gui.UpdateGUI(gameCommands)
 		gameCommands.ExecuteCommands(&waitGroup)
 		waitGroup.Wait()
 		gameObjs.UpdateAllObjects(dt, &waitGroup)
 		waitGroup.Wait()
-
-		borderColor := border.Color{
-			R: float64(colornames.White.R) / 255,
-			G: float64(colornames.White.G) / 255,
-			B: float64(colornames.White.B) / 255,
-			A: float64(colornames.White.A) / 255,
-		}
-
+		
 		win.Clear(colornames.Black)
-
-		// Convert borderColor to pixel.RGBA
-		borderColorRGBA := pixel.RGBA{
-			R: borderColor.R,
-			G: borderColor.G,
-			B: borderColor.B,
-			A: borderColor.A,
-		}
-
-		border.DrawBorder(win, pixel.R(100, 100, 500, 400), borderColorRGBA, 3)
+		
 		// Draw the wooden background
 		scaleX := win.Bounds().W() / woodenTexture.Bounds().W()
 		scaleY := win.Bounds().H() / woodenTexture.Bounds().H()

@@ -14,6 +14,7 @@ type IObjectAsset interface {
 
 type ObjectAssets []IObjectAsset
 
+// GetImage returns the image for the description
 func (objectAssets ObjectAssets) GetImage(desc string) IObjectAsset {
 	for _, objectAsset := range objectAssets {
 		if _, ok := objectAsset.GetImages()[desc]; ok {

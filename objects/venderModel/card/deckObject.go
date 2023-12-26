@@ -16,12 +16,20 @@ const (
 	DeckHeight = 100
 )
 
+// States and Events
+const (
+	Operational objects.StateType = "Operational"
+	Empty objects.StateType = "Empty"
+	Pull objects.EventType = "Pull"	
+)
+
 type Deck struct {
 	cards      []ICard
 	position   pixel.Vec
 	hitBox     pixel.Rect
 	matrix     pixel.Matrix
 	observable *observable.Observable
+	stateMachine *objects.StateMachine	
 }
 
 // ObjectName is the string identifier for the object
@@ -90,9 +98,32 @@ func (deck *Deck) GetObservable() *observable.Observable {
 	return deck.observable
 }
 
+func newDeckFSM() *objects.StateMachine {
+	return &objects.StateMachine{
+		States: objects.States{
+			objects.Default: objects.State{
+				Events: objects.Events{
+					Pull: Operational,
+				},
+			},
+			Operational: objects.State{ 
+				Action: &PullAction{},
+				Events: objects.Events{
+					Pull: Operational, 
+				},
+			},
+			Empty: objects.State{
+				Events: objects.Events{		
+				},
+			},
+		},
+	}
+}
+
 // NewDeck creates a new deck object containing a set number of card objects
-func NewDeck(numCards int) *Deck {
+func NewDeck(assets assets.ObjectAssets, numCards int) *Deck {
 	deck := &Deck{
+		stateMachine: newDeckFSM(),
 		cards:      make([]ICard, 0, numCards),
 		position:   pixel.V(0, 0),
 		matrix:     pixel.IM.Moved(pixel.V(0, 0)),
