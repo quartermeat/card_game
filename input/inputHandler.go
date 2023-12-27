@@ -142,7 +142,7 @@ func (input *InputHandler) HandleInput(
 
 	if win.JustPressed(pixelgl.Key0) {
 		mouse := cam.Unproject(win.MousePosition())
-		objectToPlace := card.NewCardObject(objectAssets, mouse, "zombies")
+		objectToPlace := card.NewDeck(objectAssets, 10, "zombies", mouse)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
 	}
 

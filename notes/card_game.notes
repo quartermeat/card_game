@@ -111,5 +111,9 @@ TODO:
 [√] figure out how to get each image out of assets
 - To get an image from the whole collection of assets: objectAssets.GetImage("<image name from csv file>")
 - to then get an image from one set of assets: objectAsset.GetImages["<image name from csv file>"]
-[x] each card created needs to have a front image and a back image
+[√] each card created needs to have a front image and a back image
+[x] create a deck of cards
+[ ] draw a deck of cards
+[ ] create a map or grid for decks
+[ ] 2 x 5 grid, called the store
 Activity Log:

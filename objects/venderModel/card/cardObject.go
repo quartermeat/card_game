@@ -24,7 +24,7 @@ type Card struct {
 	stateMachine *objects.StateMachine
 	currentState objects.StateType
 	id           int
-	assets       assets.ObjectImageAsset
+	asset        assets.ObjectImageAsset
 	front_sprite *pixel.Sprite
 	back_sprite	 *pixel.Sprite
 	rate         float64
@@ -47,7 +47,7 @@ func (card *Card) Sprite() *pixel.Sprite {
 }
 
 func (card *Card) GetAssets() assets.IObjectAsset {
-	return card.assets
+	return card.asset
 }
 
 func (card *Card) GetID() int {
@@ -141,7 +141,7 @@ func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_na
 		id:           objects.NextID,
 		currentState: Down,
 		stateMachine: newCardFSM(),
-		assets:       objectAsset.(assets.ObjectImageAsset),
+		asset:       objectAsset.(assets.ObjectImageAsset),
 		front_sprite: pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()[card_name]),
 		back_sprite:  pixel.NewSprite(backObjAsset.Sheet, backObjAsset.GetImages()[CARD_BACK]),
 		rate:         1.0,

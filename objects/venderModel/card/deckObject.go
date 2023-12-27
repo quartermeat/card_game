@@ -24,13 +24,15 @@ const (
 )
 
 type Deck struct {
-	cards      []ICard
-	position   pixel.Vec
-	hitBox     pixel.Rect
-	matrix     pixel.Matrix
-	observable *observable.Observable
+	cards      	 []ICard
+	position   	 pixel.Vec
+	hitBox     	 pixel.Rect
+	matrix     	 pixel.Matrix
+	observable 	 *observable.Observable
 	stateMachine *objects.StateMachine
-	image string		
+	currentState objects.StateType
+	id 			 int
+	counter      float64
 }
 
 // ObjectName is the string identifier for the object
@@ -38,24 +40,52 @@ func (deck *Deck) ObjectName() string {
 	return "Deck"
 }
 
+func (deck *Deck) GetFSM() *objects.StateMachine {
+	return deck.stateMachine
+}
+
+func (deck *Deck) Sprite() *pixel.Sprite {
+	return nil
+}
+
 func (deck *Deck) GetAssets() assets.IObjectAsset {
 	return nil
 }
 
 func (deck *Deck) GetID() int {
-	return 0
+	return deck.id
 }
 
 func (deck *Deck) Update(dt float64, gameObjects objects.GameObjects, waitGroup *sync.WaitGroup) {
-	// TODO: Implement
+	deck.counter += dt
+	// interval := int(math.Floor(card.counter / card.rate))
+	//dummy object, with no updates atm
 	waitGroup.Done()
 }
 
 func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	// Use deck.image to draw the deck
-	// draw the same image with each image offset a little to see the one below it, draw as many cards as there are in the deck
+	//dummy object, with no updates atm
 	waitGroup.Done()
 }
+
+// func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+	// card := deck.cards[0]
+	
+	// if(card.currentState == Down) {
+	// 	card.back_sprite.Draw(win, card.matrix)
+	// } else {
+	// 	card.front_sprite.Draw(win, card.matrix)
+	// }
+	
+	// if drawHitBox {
+	// 	imd := imdraw.New(nil)
+	// 	imd.Color = pixel.RGB(0, 255, 0)
+	// 	imd.Push(card.hitBox.Min, card.hitBox.Max)
+	// 	imd.Rectangle(1)
+	// 	imd.Draw(win)
+	// }
+// 	waitGroup.Done()
+// }
 
 func (deck *Deck) SetHitBox() {
 	width := DeckWidth
@@ -104,6 +134,7 @@ func newDeckFSM() *objects.StateMachine {
 	return &objects.StateMachine{
 		States: objects.States{
 			objects.Default: objects.State{
+				Action: &PullAction{},
 				Events: objects.Events{
 					Pull: Operational,
 				},
@@ -115,7 +146,7 @@ func newDeckFSM() *objects.StateMachine {
 				},
 			},
 			Empty: objects.State{
-				Events: objects.Events{		
+				Events: objects.Events{	
 				},
 			},
 		},
@@ -123,22 +154,25 @@ func newDeckFSM() *objects.StateMachine {
 }
 
 // NewDeck creates a new deck object containing a set number of card objects
-func NewDeck(assets assets.ObjectAssets, numCards int, imagePath string) *Deck {
+func NewDeck(assets assets.ObjectAssets, numCards int, card_type string, position pixel.Vec) *Deck {
 	deck := &Deck{
+		id:		 	objects.NextID,
 		stateMachine: newDeckFSM(),
+		currentState: objects.Default,
 		cards:      make([]ICard, 0, numCards),
-		position:   pixel.V(0, 0),
-		matrix:     pixel.IM.Moved(pixel.V(0, 0)),
+		position:   position,
+		matrix:     pixel.IM.Moved(position),
 		observable: observable.NewObservable(),
-		image: imagePath,
 	}
 
 	for i := 0; i < numCards; i++ {
-		card := NewCardObject(nil, pixel.V(0, 0), "")
+		
+		card := NewCardObject(assets, position, card_type)
 		deck.cards = append(deck.cards, &card)
 	}
 
 	deck.SetHitBox()
+	objects.NextID++
 
 	return deck
 }
