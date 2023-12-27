@@ -17,15 +17,16 @@ const (
 	Down objects.StateType = "Down"
 	Up   objects.StateType = "Up"
 
-	FlipDown objects.EventType = "FlipDown"
-	FlipUp   objects.EventType = "FlipUp"
+	Flip objects.EventType = "Flip"
 )
 
 type Card struct {
 	stateMachine *objects.StateMachine
+	currentState objects.StateType
 	id           int
 	assets       assets.ObjectImageAsset
-	sprite       *pixel.Sprite
+	front_sprite *pixel.Sprite
+	back_sprite	 *pixel.Sprite
 	rate         float64
 	counter      float64
 	dir          float64
@@ -42,7 +43,7 @@ func (card *Card) ObjectName() string {
 }
 
 func (card *Card) Sprite() *pixel.Sprite {
-	return card.sprite
+	return card.front_sprite
 }
 
 func (card *Card) GetAssets() assets.IObjectAsset {
@@ -56,8 +57,8 @@ func (card *Card) GetID() int {
 // SetHitBox sets the hit box for card
 // TODO: put this in a more efficient location because it won't change per object
 func (card *Card) SetHitBox() {
-	width := card.sprite.Frame().Max.X - card.sprite.Frame().Min.X
-	height := card.sprite.Frame().Max.Y - card.sprite.Frame().Min.Y
+	width := card.front_sprite.Frame().Max.X - card.front_sprite.Frame().Min.X
+	height := card.front_sprite.Frame().Max.Y - card.front_sprite.Frame().Min.Y
 	topRight := pixel.V(card.position.X-(width/2), card.position.Y-(height/2))
 	bottomLeft := pixel.V(card.position.X+(width/2), card.position.Y+(width/2))
 	card.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
@@ -79,8 +80,12 @@ func (card *Card) GetObservable() *observable.Observable {
 }
 
 func (card *Card) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	card.sprite.Draw(win, card.matrix)
-
+	if(card.currentState == Down) {
+		card.back_sprite.Draw(win, card.matrix)
+	} else {
+		card.front_sprite.Draw(win, card.matrix)
+	}
+	
 	if drawHitBox {
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
@@ -103,20 +108,21 @@ func newCardFSM() *objects.StateMachine {
 	return &objects.StateMachine{
 		States: objects.States{
 			objects.Default: objects.State{
+				Action: &FlipAction{},
 				Events: objects.Events{
-					FlipDown: Down,
+					Flip: Up,
 				},
 			},
 			Down: objects.State{
-				Action: &FlipUpAction{},
+				Action: &FlipAction{},
 				Events: objects.Events{
-					FlipUp: Up,
+					Flip: Up,
 				},
 			},
 			Up: objects.State{
-				Action: &FlipDownAction{},
+				Action: &FlipAction{},
 				Events: objects.Events{
-					FlipDown: Down,
+					Flip: Down,
 				},
 			},
 		},
@@ -124,14 +130,20 @@ func newCardFSM() *objects.StateMachine {
 }
 
 // NewCardObject creates a new card game object
-func NewCardObject(objectAsset assets.IObjectAsset, position pixel.Vec) Card {
+func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_name string) Card {
+	objectAsset := objectAssets.GetImage(card_name)
 	objAsset := objectAsset.(assets.ObjectImageAsset)
+
+	backAsset := objectAssets.GetImage(CARD_BACK)
+	backObjAsset := backAsset.(assets.ObjectImageAsset)
 
 	newCard := Card{
 		id:           objects.NextID,
+		currentState: Down,
 		stateMachine: newCardFSM(),
 		assets:       objectAsset.(assets.ObjectImageAsset),
-		sprite:       pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()[CARD_BACK]),
+		front_sprite: pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()[card_name]),
+		back_sprite:  pixel.NewSprite(backObjAsset.Sheet, backObjAsset.GetImages()[CARD_BACK]),
 		rate:         1.0,
 		dir:          0.0,
 		position:     position,

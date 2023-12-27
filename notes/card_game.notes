@@ -111,5 +111,5 @@ TODO:
 [√] figure out how to get each image out of assets
 - To get an image from the whole collection of assets: objectAssets.GetImage("<image name from csv file>")
 - to then get an image from one set of assets: objectAsset.GetImages["<image name from csv file>"]
-[√] each card created needs to have a front image and a back image
+[x] each card created needs to have a front image and a back image
 Activity Log:

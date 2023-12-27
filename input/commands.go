@@ -96,10 +96,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	switch selectedObject.(type) {
 	case card.ICard:
 		{
-			err := selectedObject.GetFSM().SendEvent(card.FlipUp, selectedObject)
-			if err != nil {
-				_ = selectedObject.GetFSM().SendEvent(card.FlipDown, selectedObject)
-			}
+			selectedObject.GetFSM().SendEvent(card.Flip, selectedObject)
 		}
 	}
 

@@ -11,8 +11,8 @@ type FlipUpAction struct{}
 
 // Execute Flip Up action
 func (a *FlipUpAction) Execute(gameObj objects.IGameObject) objects.EventType {
-	asset := gameObj.GetAssets()		
-	gameObj.Sprite().Set(asset.GetSheet(), asset.GetImages()[EVEN_MORE_ZOMBIES])
+	card := gameObj.(*Card)
+	card.currentState = Up
 	fmt.Println("Flip up action")
 	return objects.NoOp
 }

@@ -7,12 +7,17 @@ import (
 )
 
 // FlipDownAction represents the action executed on entering the Off state.
-type FlipDownAction struct{}
+type FlipAction struct{}
 
 // Execute Flip down action
-func (a *FlipDownAction) Execute(gameObj objects.IGameObject) objects.EventType {
-
-	gameObj.Sprite().Set(gameObj.GetAssets().GetSheet(), gameObj.GetAssets().GetImages()[CARD_BACK])
-	fmt.Println("Flip down action")
+func (a *FlipAction) Execute(gameObj objects.IGameObject) objects.EventType {
+	card := gameObj.(*Card)
+	if(card.currentState == Up){
+		card.currentState = Down
+	}else {
+		card.currentState = Up
+	}
+	fmt.Println("Flip action")
+	fmt.Printf("Current State: %s\n", card.currentState)
 	return objects.NoOp
 }

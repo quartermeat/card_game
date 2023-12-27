@@ -134,7 +134,7 @@ func NewDeck(assets assets.ObjectAssets, numCards int, imagePath string) *Deck {
 	}
 
 	for i := 0; i < numCards; i++ {
-		card := NewCardObject(nil, pixel.V(0, 0))
+		card := NewCardObject(nil, pixel.V(0, 0), "")
 		deck.cards = append(deck.cards, &card)
 	}
 
