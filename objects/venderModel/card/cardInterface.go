@@ -11,6 +11,7 @@ const (
 	EVEN_MORE_ZOMBIES = "even_more_zombies"
 	AMMO_BOX          = "ammo_box"
 	BARRICADE         = "barricade"
+	BULLET            = "bullet"
 	COURAGE           = "courage"
 	CUNNING           = "cunning"
 	DECOY             = "decoy"
@@ -37,4 +38,5 @@ const (
 
 // this only works as a label of object type
 type ICard interface {
+	// IGameObject interface is doing enough for this atm
 }

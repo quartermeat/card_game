@@ -3,7 +3,6 @@ package assets
 
 import (
 	"encoding/csv"
-	"fmt"
 	"image"
 	"io"
 	"os"
@@ -41,9 +40,17 @@ func (animation ObjectAnimationAsset) GetSheet() pixel.Picture {
 	return animation.Sheet
 }
 
+func (animation ObjectAnimationAsset) GetImage(desc string) pixel.Rect {
+	return animation.Anims[desc][0]
+}
+
 func (animation ObjectAnimationAsset) GetImages() map[string]pixel.Rect {
-	fmt.Printf("the hand is trying to do this for some reason\n")
-	return nil
+	imageMap := make(map[string]pixel.Rect)
+
+	for _, key := range animation.AnimKeys {
+		imageMap[key] = animation.Anims[key][0]
+	}
+	return imageMap
 }
 
 func (animation ObjectAnimationAsset) GetAnims() map[string][]pixel.Rect {

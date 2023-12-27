@@ -116,7 +116,7 @@ func AppRun() {
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 		win.SetMatrix(cam)
 
-		debugLog = inputHandler.HandleInput(
+		debugLog, _ = inputHandler.HandleInput(
 			win,
 			&cam,
 			gameCommands,
@@ -129,8 +129,9 @@ func AppRun() {
 			&camPos,
 			&drawHitBox,
 			consoleToInputChan,
+			debugLog,
 		)
-
+		
 		var waitGroup sync.WaitGroup
 
 		switch(StateManager.GetCurrentState()) {

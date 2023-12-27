@@ -36,9 +36,6 @@ const (
 	// background
 	BACKGROUND_IMAGE = "assets/images/background/woodenTable.png"
 	// actions3
-	HAM_RADIO_DESC  = "ham_radio"
-	HAM_RADIO_IMAGE = "assets/images/zombieCards/1xHamRadio.png"
-	HAM_RADIO_META  = "assets/images/zombieCards/hamRadio.csv"
 	TRASH_DESC      = "trash"
 	TRASH_IMAGE     = "assets/images/zombieCards/1xTrash.png"
 	TRASH_META      = "assets/images/zombieCards/trash.csv"
@@ -62,35 +59,49 @@ const (
 	BULLETS_META    = "assets/images/zombieCards/bullets.csv"
 )
 
+var cardTypesMap = make(map[string]string)
+
 // WINDOW_SIZE is the size of the window to be created by pixel gl
 var WINDOW_SIZE pixel.Rect = pixel.R(0, 0, window_width, window_height)
 
 // top left card in image
 var CardRect pixel.Rect = pixel.R(MinXCoord, MinYCoord, MaxXCoord, MaxYCoord)
 
+
 // LoadAssets loads assets used for the application
 func LoadAssets(sysErrors []error) assets.ObjectAssets {
+	
+	//setup images to load
 	var objectAssets assets.ObjectAssets
-	objectAssets, err1 := objectAssets.AddAnimationAssets(CURSOR_ANIMATIONS_DESC, CURSOR_SPRITE_SHEET, CURSOR_META, CURSOR_ICON_SIZE)
-	objectAssets, err2 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_1_DESC, ACTIONS_1_IMAGE, ACTIONS_1_META)
-	objectAssets, err3 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_2_DESC, ACTIONS_2_IMAGE, ACTIONS_2_META)
-	objectAssets, err4 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_3_DESC, ACTIONS_3_IMAGE, ACTIONS_3_META)
-	objectAssets, err5 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, TRASH_DESC, TRASH_IMAGE, TRASH_META)
-	objectAssets, err6 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, SLUGS_DESC, SLUGS_IMAGE, SLUGS_META)
-	objectAssets, err7 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ZOMBIES_DESC, ZOMBIES_IMAGE, ZOMBIES_META)
-	objectAssets, err8 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, BULLETS_DESC, BULLETS_IMAGE, BULLETS_META)
-	sysErrors = append(sysErrors, err1)
-	sysErrors = append(sysErrors, err2)
-	sysErrors = append(sysErrors, err3)
-	sysErrors = append(sysErrors, err4)
-	sysErrors = append(sysErrors, err5)
-	sysErrors = append(sysErrors, err6)
-	sysErrors = append(sysErrors, err7)
-	sysErrors = append(sysErrors, err8)
+	assetsToAdd := []struct {
+		desc  string
+		image string
+		meta  string
+	}{
+		{ACTIONS_1_DESC, ACTIONS_1_IMAGE, ACTIONS_1_META},
+		{ACTIONS_2_DESC, ACTIONS_2_IMAGE, ACTIONS_2_META},
+		{ACTIONS_3_DESC, ACTIONS_3_IMAGE, ACTIONS_3_META},
+		{TRASH_DESC, TRASH_IMAGE, TRASH_META},
+		{SLUGS_DESC, SLUGS_IMAGE, SLUGS_META},
+		{ZOMBIES_DESC, ZOMBIES_IMAGE, ZOMBIES_META},
+		{BULLETS_DESC, BULLETS_IMAGE, BULLETS_META},
+	}
+
+	var err error
+	for _, asset := range assetsToAdd {
+		objectAssets, err = objectAssets.AddImageAssets(cardTypesMap, CardRect, HorizontalGap, VerticalGap, asset.desc, asset.image, asset.meta)
+		sysErrors = append(sysErrors, err)
+	}
+
+	//load animations here
+	objectAssets, err = objectAssets.AddAnimationAssets(CURSOR_ANIMATIONS_DESC, CURSOR_SPRITE_SHEET, CURSOR_META, CURSOR_ICON_SIZE)
+	sysErrors = append(sysErrors, err)
+
 	for _, sysError := range sysErrors {
 		if sysError != nil {
 			panic(sysError)
 		}
 	}
+
 	return objectAssets
 }

@@ -2,7 +2,6 @@ package assets
 
 import (
 	"encoding/csv"
-	"fmt"
 	"image"
 	"io"
 	"os"
@@ -32,6 +31,10 @@ func (objImage ObjectImageAsset) GetImages() map[string]pixel.Rect {
 	return objImage.Images
 }
 
+func (objImage ObjectImageAsset) GetImage(desc string) pixel.Rect {
+	return objImage.Images[desc]
+}
+
 func (m ObjectImageAsset) GetAnims() map[string][]pixel.Rect {
 	panic("not implemented") // TODO: Implement
 }
@@ -59,7 +62,8 @@ func getImages(sheet pixel.Picture, imageRect pixel.Rect, offset_x float64, offs
 // offset_x is the horizontal space between images
 // offset_y is the vertical space between images
 
-func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x float64, offset_y float64, sheetDesc string, sheetPath, descPath string) (ObjectAssets, error) {
+func (objectAssets ObjectAssets) AddImageAssets(cardTypesMap map[string]string, imageRect pixel.Rect, offset_x float64, offset_y float64, sheetDesc string, sheetPath, descPath string) (ObjectAssets, error) {
+
 	var (
 		err       error
 		sheet     pixel.Picture
@@ -80,7 +84,6 @@ func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x f
 		return nil, err
 	}
 
-	fmt.Printf("sheetFile: %v\n", sheetFile.Name())
 	defer sheetFile.Close()
 	sheetImg, _, err := image.Decode(sheetFile)
 	if err != nil {
@@ -112,14 +115,16 @@ func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x f
 			return nil, err
 		}
 
+		
 		name := image[0]
 		row, _ := strconv.Atoi(image[1])
 		col, _ := strconv.Atoi(image[2])
-
+		
 		images[name] = tempImages[row][col]
-
+		
 		imageKeys = append(imageKeys, name)
-
+		
+		cardTypesMap[name] = sheetDesc 
 	}
 	newAsset := new(ObjectImageAsset)
 	newAsset.Description = sheetDesc

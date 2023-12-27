@@ -8,6 +8,7 @@ type IObjectAsset interface {
 	GetDescription() string
 	GetSheet() pixel.Picture
 	GetImages() map[string]pixel.Rect
+	GetImage(string) pixel.Rect
 	GetAnims() map[string][]pixel.Rect
 	GetKeys() []string
 }
@@ -17,8 +18,11 @@ type ObjectAssets []IObjectAsset
 // GetImage returns the image for the description
 func (objectAssets ObjectAssets) GetImage(desc string) IObjectAsset {
 	for _, objectAsset := range objectAssets {
-		if _, ok := objectAsset.GetImages()[desc]; ok {
-			return objectAsset
+		images := objectAsset.GetImages()
+		for image := range images {
+			if image == desc {
+				return objectAsset
+			}
 		}
 	}
 	return nil

@@ -76,11 +76,11 @@ func (input *InputHandler) HandleInput(
 	drawHitBox *bool,
 	readConsole <-chan console.ITxTopic,
 	debugLog debuglog.Entries,
-) (debuglog.Entries) {	//defaults
+) (debuglog.Entries, error) {	//defaults
 	var (
 		cursorToggle bool
 	)
-
+	
 	//do initialization of input handler
 	if !input.initialized {
 		//set window and cam
@@ -95,7 +95,8 @@ func (input *InputHandler) HandleInput(
 			return objectAssets.IsDescriptionAvailable(CursorDesription)
 		})
 		if idx != -1 {
-			input.CursorAssets = objectAssets[idx].(assets.ObjectAnimationAsset)
+			// input.CursorAssets = objectAssets[idx].(assets.ObjectAnimationAsset)
+			input.CursorAssets = objectAssets.GetImage(CursorDesription).(assets.ObjectAnimationAsset)
 			input.setCursor(cursorToggle)
 		} else {
 			indexError := debuglog.Entry{
@@ -103,6 +104,8 @@ func (input *InputHandler) HandleInput(
 			}
 			debugLog = append(debugLog, indexError)
 		}
+
+		return debugLog, nil
 	}
 
 	input.consoleInput = readConsole
@@ -139,7 +142,7 @@ func (input *InputHandler) HandleInput(
 
 	if win.JustPressed(pixelgl.Key0) {
 		mouse := cam.Unproject(win.MousePosition())
-		objectToPlace := card.NewCardObject(objectAssets.GetImage(card.CARD_BACK), mouse)
+		objectToPlace := card.NewCardObject(objectAssets.GetImage("even_more_zombies"), mouse)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
 	}
 
@@ -172,5 +175,5 @@ func (input *InputHandler) HandleInput(
 		fmt.Printf("New Cam zoom: %f\n", *camZoom)
 	}
 
-	return debugLog
+	return debugLog, nil
 }
