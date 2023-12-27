@@ -6,7 +6,7 @@ import (
 	"github.com/quartermeat/card_game/objects"
 )
 
-// FlipDownAction represents the action executed on entering the Off state.
+// FlipAction represents the action of flipping a card from one side to another
 type FlipAction struct{}
 
 // Execute Flip down action
