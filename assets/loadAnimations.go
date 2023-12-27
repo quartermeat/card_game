@@ -42,7 +42,7 @@ func (animation ObjectAnimationAsset) GetSheet() pixel.Picture {
 }
 
 func (animation ObjectAnimationAsset) GetImages() map[string]pixel.Rect {
-	fmt.Printf("GetImages() is not implemented for ObjectAnimationAsset:%s", animation.Description)
+	fmt.Printf("the hand is trying to do this for some reason\n")
 	return nil
 }
 

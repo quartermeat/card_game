@@ -75,8 +75,8 @@ func (input *InputHandler) HandleInput(
 	camPos *pixel.Vec,
 	drawHitBox *bool,
 	readConsole <-chan console.ITxTopic,
-) (debugLog debuglog.Entries) {
-	//defaults
+	debugLog debuglog.Entries,
+) (debuglog.Entries) {	//defaults
 	var (
 		cursorToggle bool
 	)
@@ -101,7 +101,6 @@ func (input *InputHandler) HandleInput(
 			indexError := debuglog.Entry{
 				Message: fmt.Sprintf("%s is not in assests", input.CursorAssets.Description),
 			}
-			fmt.Printf("%s is not in assests", input.CursorAssets.Description)
 			debugLog = append(debugLog, indexError)
 		}
 	}

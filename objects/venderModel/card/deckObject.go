@@ -29,7 +29,8 @@ type Deck struct {
 	hitBox     pixel.Rect
 	matrix     pixel.Matrix
 	observable *observable.Observable
-	stateMachine *objects.StateMachine	
+	stateMachine *objects.StateMachine
+	image string		
 }
 
 // ObjectName is the string identifier for the object
@@ -51,7 +52,8 @@ func (deck *Deck) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 }
 
 func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	// TODO: Implement
+	// Use deck.image to draw the deck
+	// draw the same image with each image offset a little to see the one below it, draw as many cards as there are in the deck
 	waitGroup.Done()
 }
 
@@ -106,10 +108,10 @@ func newDeckFSM() *objects.StateMachine {
 					Pull: Operational,
 				},
 			},
-			Operational: objects.State{ 
+			Operational: objects.State{
 				Action: &PullAction{},
 				Events: objects.Events{
-					Pull: Operational, 
+					Pull: Operational,
 				},
 			},
 			Empty: objects.State{
@@ -121,13 +123,14 @@ func newDeckFSM() *objects.StateMachine {
 }
 
 // NewDeck creates a new deck object containing a set number of card objects
-func NewDeck(assets assets.ObjectAssets, numCards int) *Deck {
+func NewDeck(assets assets.ObjectAssets, numCards int, imagePath string) *Deck {
 	deck := &Deck{
 		stateMachine: newDeckFSM(),
 		cards:      make([]ICard, 0, numCards),
 		position:   pixel.V(0, 0),
 		matrix:     pixel.IM.Moved(pixel.V(0, 0)),
 		observable: observable.NewObservable(),
+		image: imagePath,
 	}
 
 	for i := 0; i < numCards; i++ {

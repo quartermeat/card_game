@@ -2,6 +2,7 @@ package assets
 
 import (
 	"encoding/csv"
+	"fmt"
 	"image"
 	"io"
 	"os"
@@ -57,6 +58,7 @@ func getImages(sheet pixel.Picture, imageRect pixel.Rect, offset_x float64, offs
 // imageRect is the size of the images being loaded as a rect
 // offset_x is the horizontal space between images
 // offset_y is the vertical space between images
+
 func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x float64, offset_y float64, sheetDesc string, sheetPath, descPath string) (ObjectAssets, error) {
 	var (
 		err       error
@@ -77,6 +79,8 @@ func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x f
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("sheetFile: %v\n", sheetFile.Name())
 	defer sheetFile.Close()
 	sheetImg, _, err := image.Decode(sheetFile)
 	if err != nil {
@@ -96,7 +100,6 @@ func (objectAssets ObjectAssets) AddImageAssets(imageRect pixel.Rect, offset_x f
 	images = make(map[string]pixel.Rect)
 	imageKeys = make([]string, 0)
 
-	// load the animation information, name and interval inside the spritesheet
 	desc := csv.NewReader(descFile)
 	desc.Comma = ','
 	desc.Comment = '#'

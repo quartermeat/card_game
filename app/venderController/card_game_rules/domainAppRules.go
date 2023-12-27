@@ -75,11 +75,10 @@ func LoadAssets(sysErrors []error) assets.ObjectAssets {
 	objectAssets, err2 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_1_DESC, ACTIONS_1_IMAGE, ACTIONS_1_META)
 	objectAssets, err3 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_2_DESC, ACTIONS_2_IMAGE, ACTIONS_2_META)
 	objectAssets, err4 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ACTIONS_3_DESC, ACTIONS_3_IMAGE, ACTIONS_3_META)
-	objectAssets, err5 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, HAM_RADIO_DESC, HAM_RADIO_IMAGE, HAM_RADIO_META)
-	objectAssets, err6 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, TRASH_DESC, TRASH_IMAGE, TRASH_META)
-	objectAssets, err7 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, SLUGS_DESC, SLUGS_IMAGE, SLUGS_META)
-	objectAssets, err8 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ZOMBIES_DESC, ZOMBIES_IMAGE, ZOMBIES_META)
-	objectAssets, err9 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, BULLETS_DESC, BULLETS_IMAGE, BULLETS_META)
+	objectAssets, err5 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, TRASH_DESC, TRASH_IMAGE, TRASH_META)
+	objectAssets, err6 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, SLUGS_DESC, SLUGS_IMAGE, SLUGS_META)
+	objectAssets, err7 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, ZOMBIES_DESC, ZOMBIES_IMAGE, ZOMBIES_META)
+	objectAssets, err8 := objectAssets.AddImageAssets(CardRect, HorizontalGap, VerticalGap, BULLETS_DESC, BULLETS_IMAGE, BULLETS_META)
 	sysErrors = append(sysErrors, err1)
 	sysErrors = append(sysErrors, err2)
 	sysErrors = append(sysErrors, err3)
@@ -88,7 +87,6 @@ func LoadAssets(sysErrors []error) assets.ObjectAssets {
 	sysErrors = append(sysErrors, err6)
 	sysErrors = append(sysErrors, err7)
 	sysErrors = append(sysErrors, err8)
-	sysErrors = append(sysErrors, err9)
 	for _, sysError := range sysErrors {
 		if sysError != nil {
 			panic(sysError)

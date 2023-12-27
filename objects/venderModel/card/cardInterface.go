@@ -5,6 +5,7 @@ const (
 	HAM_RADIO         = "ham_radio"
 	TRASH             = "trash"
 	SLUG              = "slug"
+	SURVIVOR          = "survivor"
 	ZOMBIES           = "zombies"
 	MORE_ZOMBIES      = "more_zombies"
 	EVEN_MORE_ZOMBIES = "even_more_zombies"
