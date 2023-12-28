@@ -1,5 +1,7 @@
 package card
 
+import "github.com/gopxl/pixel"
+
 const (
 	//card types
 	HAM_RADIO         = "ham_radio"
@@ -38,5 +40,7 @@ const (
 
 // this only works as a label of object type
 type ICard interface {
-	// IGameObject interface is doing enough for this atm
+	GetBackSprite() *pixel.Sprite
+	GetMatrix() pixel.Matrix
+	GetHitBox() pixel.Rect
 }

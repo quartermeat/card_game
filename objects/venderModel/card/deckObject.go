@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/gopxl/pixel"
+	"github.com/gopxl/pixel/imdraw"
 	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
@@ -64,28 +65,23 @@ func (deck *Deck) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 }
 
 func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	//dummy object, with no updates atm
+	card := deck.cards[0]
+	
+	if(deck.currentState == Operational) {
+		card.GetBackSprite().Draw(win, card.GetMatrix())
+	} else {
+		//do nothing
+	}
+	
+	if drawHitBox {
+		imd := imdraw.New(nil)
+		imd.Color = pixel.RGB(0, 255, 0)
+		imd.Push(card.GetHitBox().Min, card.GetHitBox().Max)
+		imd.Rectangle(1)
+		imd.Draw(win)
+	}
 	waitGroup.Done()
 }
-
-// func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	// card := deck.cards[0]
-	
-	// if(card.currentState == Down) {
-	// 	card.back_sprite.Draw(win, card.matrix)
-	// } else {
-	// 	card.front_sprite.Draw(win, card.matrix)
-	// }
-	
-	// if drawHitBox {
-	// 	imd := imdraw.New(nil)
-	// 	imd.Color = pixel.RGB(0, 255, 0)
-	// 	imd.Push(card.hitBox.Min, card.hitBox.Max)
-	// 	imd.Rectangle(1)
-	// 	imd.Draw(win)
-	// }
-// 	waitGroup.Done()
-// }
 
 func (deck *Deck) SetHitBox() {
 	width := DeckWidth
@@ -158,7 +154,7 @@ func NewDeck(assets assets.ObjectAssets, numCards int, card_type string, positio
 	deck := &Deck{
 		id:		 	objects.NextID,
 		stateMachine: newDeckFSM(),
-		currentState: objects.Default,
+		currentState: Operational,
 		cards:      make([]ICard, 0, numCards),
 		position:   position,
 		matrix:     pixel.IM.Moved(position),

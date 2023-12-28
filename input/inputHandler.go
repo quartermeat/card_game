@@ -150,7 +150,7 @@ func (input *InputHandler) HandleInput(
 	if win.JustPressed(pixelgl.KeyH) {
 		*drawHitBox = !*drawHitBox
 	}
-
+		
 	//move camera
 	if win.Pressed(pixelgl.KeyA) {
 		camPos.X -= camSpeed * dt

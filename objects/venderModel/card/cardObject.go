@@ -129,6 +129,14 @@ func newCardFSM() *objects.StateMachine {
 	}
 }
 
+func (card *Card) GetBackSprite() *pixel.Sprite {
+	return card.back_sprite
+}
+
+func (card* Card) GetMatrix() pixel.Matrix {
+	return card.matrix
+}
+
 // NewCardObject creates a new card game object
 func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_name string) Card {
 	objectAsset := objectAssets.GetImage(card_name)
