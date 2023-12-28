@@ -44,3 +44,7 @@ type ICard interface {
 	GetMatrix() pixel.Matrix
 	GetHitBox() pixel.Rect
 }
+
+type IDeck interface {
+	
+}

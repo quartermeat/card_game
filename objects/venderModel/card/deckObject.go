@@ -26,6 +26,7 @@ const (
 
 type Deck struct {
 	cards      	 []ICard
+	asset 		 assets.ObjectImageAsset
 	position   	 pixel.Vec
 	hitBox     	 pixel.Rect
 	matrix     	 pixel.Matrix
@@ -34,6 +35,10 @@ type Deck struct {
 	currentState objects.StateType
 	id 			 int
 	counter      float64
+	vel          pixel.Vec
+	dir          float64
+	rate         float64
+	sprite	     *pixel.Sprite
 }
 
 // ObjectName is the string identifier for the object
@@ -46,11 +51,11 @@ func (deck *Deck) GetFSM() *objects.StateMachine {
 }
 
 func (deck *Deck) Sprite() *pixel.Sprite {
-	return nil
+	return deck.sprite
 }
 
 func (deck *Deck) GetAssets() assets.IObjectAsset {
-	return nil
+	return deck.asset
 }
 
 func (deck *Deck) GetID() int {
@@ -66,13 +71,8 @@ func (deck *Deck) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 
 func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	card := deck.cards[0]
-	
-	if(deck.currentState == Operational) {
-		card.GetBackSprite().Draw(win, card.GetMatrix())
-	} else {
-		//do nothing
-	}
-	
+	card.GetBackSprite().Draw(win, card.GetMatrix())
+
 	if drawHitBox {
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
@@ -150,8 +150,8 @@ func newDeckFSM() *objects.StateMachine {
 }
 
 // NewDeck creates a new deck object containing a set number of card objects
-func NewDeck(assets assets.ObjectAssets, numCards int, card_type string, position pixel.Vec) *Deck {
-	deck := &Deck{
+func NewDeckObject(assets assets.ObjectAssets, numCards int, card_type string, position pixel.Vec) Deck {
+	deck := Deck{
 		id:		 	objects.NextID,
 		stateMachine: newDeckFSM(),
 		currentState: Operational,
@@ -159,10 +159,12 @@ func NewDeck(assets assets.ObjectAssets, numCards int, card_type string, positio
 		position:   position,
 		matrix:     pixel.IM.Moved(position),
 		observable: observable.NewObservable(),
+		rate:	   1.0,
+		dir: 	  0.0,
+		vel: 	 pixel.V(0, 0),
 	}
 
 	for i := 0; i < numCards; i++ {
-		
 		card := NewCardObject(assets, position, card_type)
 		deck.cards = append(deck.cards, &card)
 	}

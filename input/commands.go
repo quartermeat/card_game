@@ -42,6 +42,10 @@ func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 		{
 			*command.gameObjs = command.gameObjs.AppendGameObject(command.objectToPlace)
 		}
+	case card.IDeck:
+		{
+			*command.gameObjs = command.gameObjs.AppendGameObject(command.objectToPlace)
+		}
 	}
 
 	waitGroup.Done()
