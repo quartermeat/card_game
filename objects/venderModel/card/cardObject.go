@@ -93,6 +93,7 @@ func (card *Card) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.Wai
 		imd.Rectangle(1)
 		imd.Draw(win)
 	}
+	
 	waitGroup.Done()
 }
 

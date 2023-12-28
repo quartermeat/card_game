@@ -70,13 +70,15 @@ func (deck *Deck) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 }
 
 func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	card := deck.cards[0]
-	card.GetBackSprite().Draw(win, card.GetMatrix())
+	for _, card := range deck.cards {
+		waitGroup.Add(1)
+		card.Draw(win, drawHitBox, waitGroup)
+	}
 
 	if drawHitBox {
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
-		imd.Push(card.GetHitBox().Min, card.GetHitBox().Max)
+		imd.Push(deck.GetHitBox().Min, deck.GetHitBox().Max)
 		imd.Rectangle(1)
 		imd.Draw(win)
 	}
@@ -164,11 +166,15 @@ func NewDeckObject(assets assets.ObjectAssets, numCards int, card_type string, p
 		vel: 	 pixel.V(0, 0),
 	}
 
+	temp_position := deck.position
+	
 	for i := 0; i < numCards; i++ {
-		card := NewCardObject(assets, position, card_type)
+		temp_position.X += 5
+		temp_position.Y += 5
+		card := NewCardObject(assets, temp_position, card_type)
 		deck.cards = append(deck.cards, &card)
 	}
-
+	
 	deck.SetHitBox()
 	objects.NextID++
 
