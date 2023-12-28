@@ -3,7 +3,6 @@ package card
 import (
 	"sync"
 
-	"github.com/gopxl/pixel"
 	"github.com/gopxl/pixel/pixelgl"
 )
 
@@ -45,12 +44,8 @@ const (
 
 // this only works as a label of object type
 type ICard interface {
-	GetBackSprite() *pixel.Sprite
-	GetMatrix() pixel.Matrix
-	GetHitBox() pixel.Rect
 	Draw(*pixelgl.Window, bool, *sync.WaitGroup)
 }
 
 type IDeck interface {
-
 }
