@@ -42,10 +42,10 @@ const (
 	CARD_BACK         = "card_back"
 )
 
-// this only works as a label of object type
+
 type ICard interface {
 	Draw(*pixelgl.Window, bool, *sync.WaitGroup)
 }
 
-type IDeck interface {
+type IDeck interface {	
 }

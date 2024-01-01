@@ -9,7 +9,6 @@ import (
 	"github.com/gopxl/pixel"
 	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
-	"github.com/quartermeat/card_game/objects/venderModel/card"
 	"github.com/quartermeat/card_game/observable"
 )
 
@@ -25,6 +24,7 @@ type IGameObject interface {
 	GetFSM() *StateMachine
 	Sprite() *pixel.Sprite
 	GetAssets() assets.IObjectAsset
+	Selectable() bool
 	GetID() int
 	SetHitBox()
 	GetHitBox() pixel.Rect
@@ -78,17 +78,21 @@ func (gameObjs GameObjects) DrawAllObjects(win *pixelgl.Window, drawHitBox bool,
 // It returns the intersected game object, its index, and whether an object was found.
 // TODO: Optimize for only objects on screen. Consider changing errors to debugLog instead.
 func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IGameObject, int, bool, error) {
-	foundObject := true
+	foundObject := false
 	noIndex := -1
 
 	if len(gameObjs) == 0 {
-		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exists")
+		return nil, noIndex, foundObject, errors.New("getSelectedGameObj: no game object exists")
 	}
 	for index, object := range gameObjs {
-		if object.GetHitBox().Contains(position) && object.GetFSM().Current != card.Hidden {
+		hit := object.GetHitBox().Contains(position)
+		selectable := object.Selectable()
+
+		if hit && selectable {
+			foundObject = true
 			return object, index, foundObject, nil
 		}
 	}
 
-	return gameObjs[0], noIndex, !foundObject, nil
+	return nil, noIndex, foundObject, nil
 }

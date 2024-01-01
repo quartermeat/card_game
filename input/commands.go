@@ -92,24 +92,27 @@ type selectObjectAtPositionCommand struct {
 }
 
 func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
-	selectedObject, _, _, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
-	if err != nil {
-		panic(err)
+	selectedObject, _, objectFound, _ := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
+	if !objectFound {
+		selectedObject = nil
+		waitGroup.Done()
+		return
 	}
 
-	switch selectedObject.(type) {
-	case card.ICard:
+	switch selectedObject.ObjectName() {
+	case Card:
 		{
 			fmt.Printf("selected card: %s\n", selectedObject.ObjectName())
-			selectedObject.GetFSM().SendEvent(card.Flip, selectedObject)
+			selectedObject.GetFSM().SendEvent(Flip, selectedObject)
 		}
-	case card.IDeck:
+	case Deck:
 		{
 			fmt.Printf("selected deck: %s\n", selectedObject.ObjectName())
-			selectedObject.GetFSM().SendEvent(card.Pull, selectedObject)
+			selectedObject.GetFSM().SendEvent(Pull, selectedObject)
 		}
 	}
 
+	selectedObject = nil
 	waitGroup.Done()
 }
 

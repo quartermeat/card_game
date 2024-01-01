@@ -47,6 +47,10 @@ func (deck *Deck) ObjectName() string {
 	return "Deck"
 }
 
+func (deck *Deck) Selectable() bool {
+	return true
+}
+
 func (deck *Deck) GetFSM() *objects.StateMachine {
 	return deck.stateMachine
 }

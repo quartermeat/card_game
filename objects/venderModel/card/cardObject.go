@@ -17,7 +17,7 @@ const (
 	Down objects.StateType = "Down"
 	Up   objects.StateType = "Up"
 	Hidden objects.StateType = "Hidden"
-
+	
 	Flip objects.EventType = "Flip"
 )
 
@@ -41,6 +41,13 @@ type Card struct {
 // ObjectName is the string identifier for the object
 func (card *Card) ObjectName() string {
 	return "Card"
+}
+
+func (card *Card) Selectable() bool {
+	if card.currentState == Hidden {
+		return false
+	}
+	return true
 }
 
 func (card *Card) Sprite() *pixel.Sprite {
@@ -126,8 +133,6 @@ func newCardFSM() *objects.StateMachine {
 				Events: objects.Events{
 					Flip: Down,
 				},
-			},
-			Hidden: objects.State{
 			},
 		},
 	}
