@@ -13,7 +13,7 @@ import (
 )
 
 // maxGameObjects is the maximum number of game objects that can be stored.
-const maxGameObjects = 400
+const maxGameObjects = 10000
 
 // NextID is the generator of a new game object ID.
 var NextID = 0
@@ -35,12 +35,6 @@ type IGameObject interface {
 
 // GameObjects is a slice of all game objects.
 type GameObjects []IGameObject
-
-func (gameObjs GameObjects) InitGameObjects(assets assets.ObjectAssets, waitGroup *sync.WaitGroup) bool {
-	// setup a deck of cards positioned on the wooden background
-	
-	return true
-}
 
 // FastRemoveIndex removes a game object from the GameObjects slice by its index.
 func (gameObjs GameObjects) FastRemoveIndex(index int) GameObjects {

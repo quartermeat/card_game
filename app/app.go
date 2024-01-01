@@ -136,8 +136,8 @@ func AppRun() {
 
 		switch(StateManager.GetCurrentState()) {
 		case gamestates.Init:{
-			//setup game objects
-			if(gameObjs.InitGameObjects(objectAssets, &waitGroup)){
+			//do check for initialization
+			if(inputHandler.IsInitialized()){
 				StateManager.SetCurrentState(gamestates.Ready)
 			}
 		}
@@ -165,7 +165,8 @@ func AppRun() {
 		gameObjs.DrawAllObjects(win, drawHitBox, &waitGroup, &appState)
 		waitGroup.Wait()
 
-		gui.DrawGUI(win, &cam)
+		//hide GUI for now
+		// gui.DrawGUI(win, &cam)
 
 		//draw cursor based on selected object
 		//must be done outside of inputHandler to be the last thing drawn

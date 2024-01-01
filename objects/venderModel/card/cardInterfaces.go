@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/gopxl/pixel/pixelgl"
+	"github.com/quartermeat/card_game/objects"
 )
 
 const (
@@ -42,10 +43,27 @@ const (
 	CARD_BACK         = "card_back"
 )
 
-
 type ICard interface {
 	Draw(*pixelgl.Window, bool, *sync.WaitGroup)
 }
 
-type IDeck interface {	
+type IDeck interface {
+	PullCard() ICard
 }
+
+type IHand interface{
+
+}
+
+// States and Events
+const (
+	Down objects.StateType = "Down"
+	Up   objects.StateType = "Up"
+	Hidden objects.StateType = "Hidden"
+	Operational objects.StateType = "Operational"
+	Empty objects.StateType = "Empty"
+	
+	Flip objects.EventType = "Flip"
+	Pull objects.EventType = "Pull"	
+	Play objects.EventType = "Play"
+)

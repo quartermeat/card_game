@@ -110,6 +110,11 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 			fmt.Printf("selected deck: %s\n", selectedObject.ObjectName())
 			selectedObject.GetFSM().SendEvent(Pull, selectedObject)
 		}
+	case PlayerDeck:
+		{
+			fmt.Printf("selected player deck: %s\n", selectedObject.ObjectName())
+			selectedObject.GetFSM().SendEvent(Pull, selectedObject)
+		}
 	}
 
 	selectedObject = nil

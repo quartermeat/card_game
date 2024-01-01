@@ -60,6 +60,10 @@ func (input *InputHandler) handleConsole(someFlag bool, debugLog debuglog.Entrie
 	return debugLog
 }
 
+func (input *InputHandler) IsInitialized() bool {
+	return input.initialized
+}
+
 // HandleInput is a super method ran from main
 // atm: handles input from the keyboard, mouse and console
 func (input *InputHandler) HandleInput(
@@ -95,7 +99,6 @@ func (input *InputHandler) HandleInput(
 			return objectAssets.IsDescriptionAvailable(CursorDesription)
 		})
 		if idx != -1 {
-			// input.CursorAssets = objectAssets[idx].(assets.ObjectAnimationAsset)
 			input.CursorAssets = objectAssets.GetImage(CursorDesription).(assets.ObjectAnimationAsset)
 			input.setCursor(cursorToggle)
 		} else {
@@ -104,7 +107,15 @@ func (input *InputHandler) HandleInput(
 			}
 			debugLog = append(debugLog, indexError)
 		}
+		input.initialized = InitGame(win, cam, gameCommands, gameObjs, objectAssets)
+		return debugLog, nil
+	}
 
+	if(!input.initialized){
+		indexError := debuglog.Entry{
+			Message: fmt.Sprintf("InputHandler is not initialized"),
+		}
+		debugLog = append(debugLog, indexError)
 		return debugLog, nil
 	}
 
@@ -148,7 +159,13 @@ func (input *InputHandler) HandleInput(
 
 	if win.JustPressed(pixelgl.Key9) {
 		mouse := cam.Unproject(win.MousePosition())
-		objectToPlace := card.NewCardObject(objectAssets, mouse, "zombies", card.Up)
+		objectToPlace := card.NewCardObject(objectAssets, mouse, "bullet", card.Up)
+		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
+	}
+
+	if win.JustPressed(pixelgl.Key1){
+		mouse := cam.Unproject(win.MousePosition())
+		objectToPlace := card.NewHandObject(objectAssets, mouse)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, mouse)
 	}
 

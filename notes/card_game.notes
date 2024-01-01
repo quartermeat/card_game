@@ -123,6 +123,12 @@ Activity Log:
 [2024-01-01]
 Notes:
 Ideas:
+Make everything for just a 2 player game for starters, setting up the turns will be the next thing after setting up the board
 TODO:
-[ ] add a 'clickable property' to the card object, so that we can turn that off in all cards within a deck
+[√] add a 'clickable property' to the card object, so that we can turn that off in all cards within a deck
+[x] layout all decks on the board for a default game setup
+- money decks: bullets - 80, slugs - 70, shells - 48
+- Kindom decks: 10 piles of any selection of the cards 10 each
+- curses: 2 player game, 10 curses
+- estate: estate, duchy, province 8 copies of each
 Activity Log:

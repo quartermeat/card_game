@@ -13,6 +13,10 @@ type PullAction struct{}
 func (pa *PullAction) Execute(gameObj objects.IGameObject) objects.EventType{
 	fmt.Printf("Pulling card\n")
 	// Add your pull logic here
+	deck := gameObj.(IDeck)
+
+	deck.PullCard()
+
 	return objects.NoOp
 }
 

@@ -12,15 +12,6 @@ import (
 	"github.com/quartermeat/card_game/observable"
 )
 
-// States and Events
-const (
-	Down objects.StateType = "Down"
-	Up   objects.StateType = "Up"
-	Hidden objects.StateType = "Hidden"
-	
-	Flip objects.EventType = "Flip"
-)
-
 type Card struct {
 	stateMachine *objects.StateMachine
 	currentState objects.StateType
@@ -44,10 +35,7 @@ func (card *Card) ObjectName() string {
 }
 
 func (card *Card) Selectable() bool {
-	if card.currentState == Hidden {
-		return false
-	}
-	return true
+	return card.currentState != Hidden
 }
 
 func (card *Card) Sprite() *pixel.Sprite {
@@ -94,7 +82,7 @@ func (card *Card) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.Wai
 		card.front_sprite.Draw(win, card.matrix)
 	}
 	
-	if drawHitBox {
+	if drawHitBox && card.Selectable(){
 		imd := imdraw.New(nil)
 		imd.Color = pixel.RGB(0, 255, 0)
 		imd.Push(card.hitBox.Min, card.hitBox.Max)

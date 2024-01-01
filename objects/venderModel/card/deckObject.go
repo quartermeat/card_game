@@ -12,19 +12,6 @@ import (
 	"github.com/quartermeat/card_game/observable"
 )
 
-const (
-	DeckWidth  = 70
-	DeckHeight = 100
-)
-
-// States and Events
-const (
-	Operational objects.StateType = "Operational"
-	Empty objects.StateType = "Empty"
-	
-	Pull objects.EventType = "Pull"	
-)
-
 type Deck struct {
 	cards      	 []ICard
 	asset 		 assets.ObjectImageAsset
@@ -40,15 +27,13 @@ type Deck struct {
 	dir          float64
 	rate         float64
 	sprite	     *pixel.Sprite
+	height		 float64
+	width		 float64
 }
 
 // ObjectName is the string identifier for the object
 func (deck *Deck) ObjectName() string {
 	return "Deck"
-}
-
-func (deck *Deck) Selectable() bool {
-	return true
 }
 
 func (deck *Deck) GetFSM() *objects.StateMachine {
@@ -61,6 +46,10 @@ func (deck *Deck) Sprite() *pixel.Sprite {
 
 func (deck *Deck) GetAssets() assets.IObjectAsset {
 	return deck.asset
+}
+
+func (deck *Deck) Selectable() bool {
+	return true
 }
 
 func (deck *Deck) GetID() int {
@@ -91,10 +80,8 @@ func (deck *Deck) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.Wai
 }
 
 func (deck *Deck) SetHitBox() {
-	width := DeckWidth
-	height := DeckHeight
-	topRight := pixel.V(deck.position.X-float64(width/2), deck.position.Y-float64(height/2))
-	bottomLeft := pixel.V(deck.position.X+float64(width/2), deck.position.Y+float64(width/2))
+	topRight := pixel.V(deck.position.X-float64(deck.width/2), deck.position.Y-float64(deck.height/2))
+	bottomLeft := pixel.V(deck.position.X+float64(deck.width/2), deck.position.Y+float64(deck.width/2))
 	deck.hitBox = pixel.R(topRight.X, topRight.Y, bottomLeft.X, bottomLeft.Y)
 }
 
@@ -127,6 +114,17 @@ func (deck *Deck) Deal() ICard {
 
 func (deck *Deck) AddCard(card ICard) {
 	deck.cards = append(deck.cards, card)
+}
+
+func (deck *Deck) PullCard() ICard {
+	if len(deck.cards) == 0 {
+		return nil
+	}
+
+	card := deck.cards[len(deck.cards)-1]
+	deck.cards = deck.cards[:len(deck.cards)-1]
+
+	return card
 }
 
 func (deck *Deck) GetObservable() *observable.Observable {
@@ -174,12 +172,18 @@ func NewDeckObject(assets assets.ObjectAssets, numCards int, card_type string, p
 	temp_position := deck.position
 	
 	for i := 0; i < numCards; i++ {
-		temp_position.X += 2
-		temp_position.Y += 2
+		if(i % 13 == 0)	{
+			temp_position.X += 2
+			temp_position.Y += 2
+		}		
 		card := NewCardObject(assets, temp_position, card_type, Hidden)
 		deck.cards = append(deck.cards, &card)
+		if(i == numCards -1)	{
+			deck.width = card.front_sprite.Frame().Max.X - card.front_sprite.Frame().Min.X
+			deck.height = card.front_sprite.Frame().Max.Y - card.front_sprite.Frame().Min.Y
+		}
 	}
-	
+
 	deck.SetHitBox()
 	objects.NextID++
 
