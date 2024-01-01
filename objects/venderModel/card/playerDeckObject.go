@@ -158,7 +158,7 @@ func newPlayerDeckFSM() *objects.StateMachine {
 func NewPlayerDeckObject(assets assets.ObjectAssets, position pixel.Vec) PlayerDeck {
 	playerDeck := PlayerDeck{
 		id:		 	objects.NextID,
-		stateMachine: newDeckFSM(),
+		stateMachine: newPlayerDeckFSM(),
 		currentState: Operational,
 		cards:      make([]ICard, 0, 10),
 		position:   position,

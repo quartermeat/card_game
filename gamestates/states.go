@@ -5,6 +5,8 @@ type State int
 const (
 	Init State = iota
 	Ready
+	PlayerTurn
+	AiTurn
 )
 
 type StateManager struct {

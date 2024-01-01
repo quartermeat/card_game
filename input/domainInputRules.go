@@ -223,12 +223,30 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		return false
 	}
 	case 17:{
-		// Player 1 Deck setup
+		// Player Deck setup
 		// executing: SelectObjectAtPosition x:-394.317658, y:-295.212168
 		location := pixel.Vec{X: -400, Y: -300}
 		objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
 		Stage = 18
+		return false
+	}
+	case 18:{
+		// AI Deck setup
+		location := pixel.Vec{X: 2000, Y: -300}
+		objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
+		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
+		Stage = 19
+		return false
+	}
+	case 19:{
+		// Player Hand setup
+
+		// location := pixel.Vec{X: 2000, Y: -300}
+		// objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
+		// gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
+				
+		Stage = 20
 		return true
 	}
 	default:{

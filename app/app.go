@@ -54,6 +54,7 @@ func AppRun() {
 		Title:       card_game_rules.APP_TITLE,
 		Bounds:      card_game_rules.WINDOW_SIZE,
 		VSync:       true,
+		Monitor:     nil,//pixelgl.Monitors()[0],
 	}
 
 	win, err := pixelgl.NewWindow(cfg)
@@ -140,6 +141,24 @@ func AppRun() {
 			if(inputHandler.IsInitialized()){
 				StateManager.SetCurrentState(gamestates.Ready)
 			}
+		}
+		case gamestates.Ready:{
+			// randomly choose first player
+			// set currentState to that player's turn
+			StateManager.SetCurrentState(gamestates.PlayerTurn)
+		}
+		case gamestates.PlayerTurn:{
+			// check for player actions that can be taken, track actions that have been taken
+			//Turn Phases:
+			// Action Phase
+			// Buy Phase
+			// Cleanup Phase
+			StateManager.SetCurrentState(gamestates.AiTurn)
+		}
+		case gamestates.AiTurn:{
+			// randomly choose first player
+			// set currentState to that player's turn
+			StateManager.SetCurrentState(gamestates.PlayerTurn)
 		}
 		default:{
 			//do nothing
