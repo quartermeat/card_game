@@ -21,6 +21,7 @@ const (
 const (
 	Operational objects.StateType = "Operational"
 	Empty objects.StateType = "Empty"
+	
 	Pull objects.EventType = "Pull"	
 )
 
@@ -169,9 +170,9 @@ func NewDeckObject(assets assets.ObjectAssets, numCards int, card_type string, p
 	temp_position := deck.position
 	
 	for i := 0; i < numCards; i++ {
-		temp_position.X += 5
-		temp_position.Y += 5
-		card := NewCardObject(assets, temp_position, card_type)
+		temp_position.X += 2
+		temp_position.Y += 2
+		card := NewCardObject(assets, temp_position, card_type, Hidden)
 		deck.cards = append(deck.cards, &card)
 	}
 	

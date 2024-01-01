@@ -9,6 +9,7 @@ import (
 	"github.com/gopxl/pixel"
 	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
+	"github.com/quartermeat/card_game/objects/venderModel/card"
 	"github.com/quartermeat/card_game/observable"
 )
 
@@ -84,7 +85,7 @@ func (gameObjs GameObjects) GetSelectedGameObjAtPosition(position pixel.Vec) (IG
 		return nil, noIndex, !foundObject, errors.New("getSelectedGameObj: no game object exists")
 	}
 	for index, object := range gameObjs {
-		if object.GetHitBox().Contains(position) {
+		if object.GetHitBox().Contains(position) && object.GetFSM().Current != card.Hidden {
 			return object, index, foundObject, nil
 		}
 	}

@@ -119,3 +119,10 @@ TODO:
 [ ] create a map or grid for decks
 [ ] 2 x 5 grid, called the store
 Activity Log:
+
+[2024-01-01]
+Notes:
+Ideas:
+TODO:
+[ ] add a 'clickable property' to the card object, so that we can turn that off in all cards within a deck
+Activity Log:

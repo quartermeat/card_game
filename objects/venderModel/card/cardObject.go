@@ -16,6 +16,7 @@ import (
 const (
 	Down objects.StateType = "Down"
 	Up   objects.StateType = "Up"
+	Hidden objects.StateType = "Hidden"
 
 	Flip objects.EventType = "Flip"
 )
@@ -126,6 +127,8 @@ func newCardFSM() *objects.StateMachine {
 					Flip: Down,
 				},
 			},
+			Hidden: objects.State{
+			},
 		},
 	}
 }
@@ -139,7 +142,7 @@ func (card* Card) GetMatrix() pixel.Matrix {
 }
 
 // NewCardObject creates a new card game object
-func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_name string) Card {
+func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_name string, state objects.StateType) Card {
 	objectAsset := objectAssets.GetImage(card_name)
 	objAsset := objectAsset.(assets.ObjectImageAsset)
 
@@ -148,7 +151,7 @@ func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_na
 
 	newCard := Card{
 		id:           objects.NextID,
-		currentState: Down,
+		currentState: state,
 		stateMachine: newCardFSM(),
 		asset:       objectAsset.(assets.ObjectImageAsset),
 		front_sprite: pixel.NewSprite(objAsset.Sheet, objAsset.GetImages()[card_name]),

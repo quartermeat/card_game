@@ -100,7 +100,13 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 	switch selectedObject.(type) {
 	case card.ICard:
 		{
+			fmt.Printf("selected card: %s\n", selectedObject.ObjectName())
 			selectedObject.GetFSM().SendEvent(card.Flip, selectedObject)
+		}
+	case card.IDeck:
+		{
+			fmt.Printf("selected deck: %s\n", selectedObject.ObjectName())
+			selectedObject.GetFSM().SendEvent(card.Pull, selectedObject)
 		}
 	}
 
