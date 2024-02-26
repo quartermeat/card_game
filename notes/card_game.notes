@@ -134,3 +134,34 @@ TODO:
 [ ] setup player deck for AI player
 [ ] setup turns, and turn phases
 Activity Log:
+
+[2024-01-06]
+Notes:
+Ideas:
+TODO:
+[ ] 
+Activity Log:
+
+[2024-01-20]
+Notes:
+need to make a card taken from the deck go to a player's hand which selected it
+- need to be instances for player's, AI and player
+- These instances need to be given turns, which will have actions that do the PullCard() action on the Deck
+- there needs to be a turn mechanism
+Ideas:
+- release this
+TODO:
+[x] run it
+Activity Log:
+
+[2024-02-25]
+Notes:
+Ideas:
+- do it in draw
+TODO:
+[√] do I have a hand?
+- nope, just a deck
+[√] create a hand
+[x] fan out the hand graphicall so you can see all cards
+Activity Log:
+

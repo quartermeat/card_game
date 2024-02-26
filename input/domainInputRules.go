@@ -20,6 +20,7 @@ var (
 	Card = "Card"
 	Deck = "Deck"
 	PlayerDeck = "PlayerDeck"
+	PlayerHand = "PlayerHand"
 )
 
 var (
@@ -30,7 +31,7 @@ var (
 
 // seems I can't stack commands, so InitGame has to happen in stages
 var (
-	Stage = 0
+	CommandStage = 0
 	kingdom_card_bag = []string{"ham_radio", 
 								"survivors",
 								"1_in_the_chamber",
@@ -80,14 +81,14 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 	victory_point_deck_size := 8
 	kingdom_card_deck_size := 8
 
-	switch(Stage){
+	switch(CommandStage){
 	case 0:{
 		//first deck is the bullet deck
 		bullet_deck_size := 80
 		location := pixel.Vec{X: startx, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, bullet_deck_size, "bullet", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)
-		Stage = 1
+		CommandStage = 1
 		return false
 	}
 	case 1:{
@@ -96,7 +97,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 250, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, slug_deck_size, "slug", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 2
+		CommandStage = 2
 		return false
 	}
 	case 2:{
@@ -105,7 +106,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 500, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, shell_deck_size, "shells", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 3
+		CommandStage = 3
 		return false
 	}
 	case 3:{
@@ -113,7 +114,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 800, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, victory_point_deck_size, "zombies", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 4
+		CommandStage = 4
 		return false
 	}
 	case 4:{
@@ -121,7 +122,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1050, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, victory_point_deck_size, "more_zombies", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 5
+		CommandStage = 5
 		return false
 	}
 	case 5:{
@@ -129,7 +130,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1300, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, victory_point_deck_size, "even_more_zombies", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 6
+		CommandStage = 6
 		return false
 	}
 	case 6:{
@@ -138,7 +139,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1550, Y: starty}
 		objectToPlace := card.NewDeckObject(objectAssets, infections_deck_size, "infection", location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 7
+		CommandStage = 7
 		return false
 	}
 	case 7:{
@@ -147,7 +148,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 8
+		CommandStage = 8
 		return false
 	}
 	case 8:{
@@ -155,7 +156,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 250, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 9
+		CommandStage = 9
 		return false
 	}
 	case 9:{
@@ -163,7 +164,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 500, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 10
+		CommandStage = 10
 		return false
 	}
 	case 10:{
@@ -171,7 +172,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 750, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 11
+		CommandStage = 11
 		return false
 	}
 	case 11:{
@@ -179,7 +180,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1000, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 12
+		CommandStage = 12
 		return false
 	}
 	case 12:{
@@ -187,7 +188,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1250, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 13
+		CommandStage = 13
 		return false
 	}
 	case 13:{
@@ -195,7 +196,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1500, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 14
+		CommandStage = 14
 		return false
 	}
 	case 14:{
@@ -203,7 +204,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 1750, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 15
+		CommandStage = 15
 		return false
 	}
 	case 15:{
@@ -211,7 +212,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 2000, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 16
+		CommandStage = 16
 		return false
 	}
 	case 16:{
@@ -219,7 +220,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: startx + 2250, Y: rowy}
 		objectToPlace := card.NewDeckObject(objectAssets, kingdom_card_deck_size, getRandomKingdomCard(), location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 17
+		CommandStage = 17
 		return false
 	}
 	case 17:{
@@ -228,7 +229,7 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: -400, Y: -300}
 		objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 18
+		CommandStage = 18
 		return false
 	}
 	case 18:{
@@ -236,21 +237,21 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 		location := pixel.Vec{X: 2000, Y: -300}
 		objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
-		Stage = 19
+		CommandStage = 19
 		return false
 	}
 	case 19:{
 		// Player Hand setup
 
-		// location := pixel.Vec{X: 2000, Y: -300}
-		// objectToPlace := card.NewPlayerDeckObject(objectAssets, location)
-		// gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)	
+		location := pixel.Vec{X: 700, Y: -300}
+		objectToPlace := card.NewHandObject(objectAssets, location)
+		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)
 				
-		Stage = 20
+		CommandStage = 20
 		return true
 	}
 	default:{
-		fmt.Printf("InitGame: Stage %d is not defined, objectToPlace: %s", Stage, objectToPlace.ObjectName())
+		fmt.Printf("InitGame: CommandStage %d is not defined, objectToPlace: %s", CommandStage, objectToPlace.ObjectName())
 	}
 	}
 

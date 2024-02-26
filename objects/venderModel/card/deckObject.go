@@ -101,6 +101,10 @@ func (deck *Deck) Shuffle() {
 	})
 }
 
+func (deck *Deck) GetPosition() pixel.Vec{
+	return deck.position
+}
+
 func (deck *Deck) Deal() ICard {
 	if len(deck.cards) == 0 {
 		return nil

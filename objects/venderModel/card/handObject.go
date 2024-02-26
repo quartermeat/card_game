@@ -112,6 +112,10 @@ func (hand *Hand) Deal() ICard {
 	return card
 }
 
+func (hand *Hand) GetPosition() pixel.Vec{
+	return hand.position
+}
+
 func (hand *Hand) AddCard(card ICard) {
 	hand.cards = append(hand.cards, card)
 }

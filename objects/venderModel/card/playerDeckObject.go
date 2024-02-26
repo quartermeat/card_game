@@ -112,6 +112,10 @@ func (playerDeck *PlayerDeck) Deal() ICard {
 	return card
 }
 
+func (playerDeck *PlayerDeck) GetPosition() pixel.Vec{
+	return playerDeck.position
+}
+
 func (playerDeck *PlayerDeck) AddCard(card ICard) {
 	playerDeck.cards = append(playerDeck.cards, card)
 }

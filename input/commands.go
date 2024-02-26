@@ -17,6 +17,7 @@ type Commands map[string]ICommand
 // ICommand interface is used to execute game commands
 type ICommand interface {
 	execute(*sync.WaitGroup)
+	GetPositionOfOjbectCommand() pixel.Vec
 }
 
 // ExecuteCommands executes the queued list of commands
@@ -34,6 +35,10 @@ type addObjectAtPositionCommand struct {
 	objectToPlace objects.IGameObject
 	position      pixel.Vec
 	objectAssets  assets.IObjectAsset
+}
+
+func (command *addObjectAtPositionCommand) GetPositionOfOjbectCommand() pixel.Vec{
+	return command.position
 }
 
 func (command *addObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
@@ -66,6 +71,10 @@ type removeObjectAtPositionCommand struct {
 	position pixel.Vec
 }
 
+func (command *removeObjectAtPositionCommand) GetPositionOfOjbectCommand() pixel.Vec{
+	return command.position
+}
+
 func (command *removeObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
 	_, index, hit, err := command.gameObjs.GetSelectedGameObjAtPosition(command.position)
 	if err != nil {
@@ -87,8 +96,13 @@ func RemoveObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) I
 }
 
 type selectObjectAtPositionCommand struct {
-	gameObjs *objects.GameObjects
-	position pixel.Vec
+	gameObjs       *objects.GameObjects
+	position       pixel.Vec
+	actualPosition pixel.Vec
+}
+
+func (command *selectObjectAtPositionCommand) GetPositionOfOjbectCommand() pixel.Vec{
+	return command.actualPosition
 }
 
 func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup) {
@@ -98,7 +112,7 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 		waitGroup.Done()
 		return
 	}
-
+	command.actualPosition = selectedObject.GetPosition()
 	switch selectedObject.ObjectName() {
 	case Card:
 		{
@@ -115,13 +129,17 @@ func (command *selectObjectAtPositionCommand) execute(waitGroup *sync.WaitGroup)
 			fmt.Printf("selected player deck: %s\n", selectedObject.ObjectName())
 			selectedObject.GetFSM().SendEvent(Pull, selectedObject)
 		}
+	case PlayerHand:
+		{
+			fmt.Printf("selected player hand: %s\n", selectedObject.ObjectName())
+		}
 	}
 
 	selectedObject = nil
 	waitGroup.Done()
 }
 
-// SelectObjectAtPosition allows for changing the state of a game object based on Vec location to selected
+// SelectObjectAtPosition allows for the selection of a game object
 func SelectObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) ICommand {
 	return &selectObjectAtPositionCommand{
 		gameObjs: objs,
@@ -132,6 +150,10 @@ func SelectObjectAtPosition(objs *objects.GameObjects, fromPosition pixel.Vec) I
 type moveSelectedObjectToPositionCommand struct {
 	gameObjs *objects.GameObjects
 	position pixel.Vec
+}
+
+func (command *moveSelectedObjectToPositionCommand) GetPositionOfOjbectCommand() pixel.Vec{
+	return command.position
 }
 
 func (command *moveSelectedObjectToPositionCommand) execute(waitGroup *sync.WaitGroup) {

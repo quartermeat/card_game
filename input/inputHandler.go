@@ -142,7 +142,8 @@ func (input *InputHandler) HandleInput(
 		win.SetCursorVisible(true)
 		if win.JustPressed(pixelgl.MouseButtonLeft) { //ctrl + left click
 			mouse := cam.Unproject(win.MousePosition())
-			gameCommands[fmt.Sprintf("SelectObjectAtPosition x:%f, y:%f", mouse.X, mouse.Y)] = SelectObjectAtPosition(gameObjs, mouse)
+			selectedObject := SelectObjectAtPosition(gameObjs, mouse)
+			gameCommands[fmt.Sprintf("SelectObjectAtPosition x:%f, y:%f, ObjectType:%s", mouse.X, mouse.Y, selectedObject)] = selectedObject
 		}
 	}
 

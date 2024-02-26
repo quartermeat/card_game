@@ -26,6 +26,7 @@ type IGameObject interface {
 	GetAssets() assets.IObjectAsset
 	Selectable() bool
 	GetID() int
+	GetPosition() pixel.Vec
 	SetHitBox()
 	GetHitBox() pixel.Rect
 	Update(dt float64, gameObjects GameObjects, waitGroup *sync.WaitGroup)

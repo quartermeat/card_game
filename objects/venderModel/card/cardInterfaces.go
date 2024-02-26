@@ -3,6 +3,7 @@ package card
 import (
 	"sync"
 
+	"github.com/gopxl/pixel"
 	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/objects"
 )
@@ -45,6 +46,7 @@ const (
 
 type ICard interface {
 	Draw(*pixelgl.Window, bool, *sync.WaitGroup)
+	GetPosition() pixel.Vec
 }
 
 type IDeck interface {

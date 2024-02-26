@@ -93,6 +93,10 @@ func (card *Card) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.Wai
 	waitGroup.Done()
 }
 
+func (card *Card) GetPosition() pixel.Vec {
+	return card.position
+}
+
 func (card *Card) MoveToPosition(position pixel.Vec) {
 	panic("not implemented") // TODO: Implement
 }
