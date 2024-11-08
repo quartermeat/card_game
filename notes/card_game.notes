@@ -173,3 +173,10 @@ TODO:
 [x] fan out the hand graphically so you can see all cards
 Activity Log:
 
+[2024-11-08]
+Notes:
+Ideas:
+TODO:
+[ ] need to update hitbox of fanned out cards within the hand, so individual cards can be selected
+Activity Log:
+Got fanned out hand to display correctly

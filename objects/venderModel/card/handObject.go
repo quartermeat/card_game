@@ -76,13 +76,15 @@ func (hand *Hand) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.Wai
 
 	cardIndex := 0
 	for angle := 0.0; angle < interval; angle += increment{
+		waitGroup.Add(1)
 		cardAngle := initialAngle + angle
 		cardOrigin := pixel.Lerp(rightCorner, leftCorner, angle/interval)
 		cardMatrix := pixel.IM.Rotated(pixel.ZV, cardAngle).Moved(cardOrigin.Add(hand.position))
-		hand.cards[cardIndex].Sprite().Draw(win, cardMatrix)
+		hand.cards[cardIndex].SetMatrix((cardMatrix))
+		//hard coded not drawing hit box for now, need to fix hit box for cards in a hand/deck
+		hand.cards[cardIndex].Draw(win, false, waitGroup)
 		cardIndex++
-	}
-	
+	}	
 	waitGroup.Done()
 }
 
@@ -182,13 +184,10 @@ func NewHandObject(assets assets.ObjectAssets, position pixel.Vec) Hand {
 	}
 
 	//need to implement to setup a default hand with specific cards per dominion rules
-
 	temp_position := hand.position
 	
 	for i := 0; i < numCards; i++ {
-		temp_position.X += 2
-		temp_position.Y += 2
-		card := NewCardObject(assets, temp_position, "zombies", Hidden)
+		card := NewCardObject(assets, temp_position, "zombies", Operational)
 		hand.cards = append(hand.cards, &card)
 		if(i == numCards -1)	{
 			hand.width = card.front_sprite.Frame().Max.X - card.front_sprite.Frame().Min.X
@@ -196,7 +195,6 @@ func NewHandObject(assets assets.ObjectAssets, position pixel.Vec) Hand {
 		}
 	}
 
-	hand.SetHitBox()
 	objects.NextID++
 
 	return hand
