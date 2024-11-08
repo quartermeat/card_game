@@ -1,11 +1,11 @@
 package card
 
 import (
+	"math"
 	"math/rand"
 	"sync"
 
 	"github.com/gopxl/pixel"
-	"github.com/gopxl/pixel/imdraw"
 	"github.com/gopxl/pixel/pixelgl"
 	"github.com/quartermeat/card_game/assets"
 	"github.com/quartermeat/card_game/objects"
@@ -63,67 +63,26 @@ func (hand *Hand) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 	waitGroup.Done()
 }
 
-// func (hand *Hand) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-//     // Calculate the spread of cards in radians, e.g., PI/6 for a 30° spread
-//     spread := math.Pi / 6 // Adjust this value to control the spread of the fan
-//     startAngle := -spread * float64(len(hand.cards)-1) / 2 // Starting angle for the first card
-
-//     for i, card := range hand.cards {
-//         waitGroup.Add(1)
-
-//         // Calculate the angle for the current card
-//         angle := startAngle + spread*float64(i)
-//         // Calculate the position offset based on the angle
-//         // Adjust the radius to control how far out the cards spread from the center
-//         radius := 50.0 // This controls how spread out the cards are
-//         offsetX := math.Cos(angle) * radius
-//         offsetY := math.Sin(angle) * radius
-
-//         // Update card's position based on the calculated offset
-//         cardPosition := pixel.V(hand.position.X+offsetX, hand.position.Y+offsetY)
-//         // Update card's rotation based on the angle
-//         cardMatrix := pixel.IM.Rotated(pixel.ZV, angle).Moved(cardPosition)
-
-//         // Use the card's updated matrix for drawing
-//         cardSprite := card.Sprite()
-//         cardSprite.SetMatrix(cardMatrix)
-//         cardSprite.Draw(win)
-
-//         if drawHitBox {
-//             imd := imdraw.New(nil)
-//             imd.Color = pixel.RGB(0, 255, 0)
-//             // Adjust this to draw the hitbox around the rotated card if necessary
-//             imd.Push(cardPosition, cardPosition.Add(pixel.V(10, 10))) // Example; adjust as needed
-//             imd.Rectangle(1)
-//             imd.Draw(win)
-//         }
-
-//         waitGroup.Done()
-//     }
-
-//     if drawHitBox {
-//         imd := imdraw.New(nil)
-//         imd.Color = pixel.RGB(0, 255, 0)
-//         imd.Push(hand.GetHitBox().Min, hand.GetHitBox().Max)
-//         imd.Rectangle(1)
-//         imd.Draw(win)
-//     }
-//     waitGroup.Done()
-// }
-
 func (hand *Hand) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
-	for _, card := range hand.cards {
-		waitGroup.Add(1)
-		card.Draw(win, drawHitBox, waitGroup)
-	}
 
-	if drawHitBox {
-		imd := imdraw.New(nil)
-		imd.Color = pixel.RGB(0, 255, 0)
-		imd.Push(hand.GetHitBox().Min, hand.GetHitBox().Max)
-		imd.Rectangle(1)
-		imd.Draw(win)
+	textureHeight := hand.cards[0].Sprite().Frame().H()
+	textureWidth := hand.cards[0].Sprite().Frame().W()
+	numOfcards := len(hand.cards)
+	interval := 90 * (math.Pi /180)
+	initialAngle := -45 * (math.Pi /180)
+	increment := interval / float64(numOfcards)
+	leftCorner := pixel.V(0,textureHeight * 0.9)
+	rightCorner := pixel.V(textureWidth, textureHeight * 0.9)
+
+	cardIndex := 0
+	for angle := 0.0; angle < interval; angle += increment{
+		cardAngle := initialAngle + angle
+		cardOrigin := pixel.Lerp(rightCorner, leftCorner, angle/interval)
+		cardMatrix := pixel.IM.Rotated(pixel.ZV, cardAngle).Moved(cardOrigin.Add(hand.position))
+		hand.cards[cardIndex].Sprite().Draw(win, cardMatrix)
+		cardIndex++
 	}
+	
 	waitGroup.Done()
 }
 
