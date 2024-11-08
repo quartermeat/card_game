@@ -138,6 +138,10 @@ func (card* Card) GetMatrix() pixel.Matrix {
 	return card.matrix
 }
 
+func (card *Card) SetMatrix(matrix pixel.Matrix) {
+	card.matrix = matrix
+}
+
 // NewCardObject creates a new card game object
 func NewCardObject(objectAssets assets.ObjectAssets, position pixel.Vec, card_name string, state objects.StateType) Card {
 	objectAsset := objectAssets.GetImage(card_name)

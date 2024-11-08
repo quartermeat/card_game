@@ -63,6 +63,54 @@ func (hand *Hand) Update(dt float64, gameObjects objects.GameObjects, waitGroup 
 	waitGroup.Done()
 }
 
+// func (hand *Hand) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
+//     // Calculate the spread of cards in radians, e.g., PI/6 for a 30° spread
+//     spread := math.Pi / 6 // Adjust this value to control the spread of the fan
+//     startAngle := -spread * float64(len(hand.cards)-1) / 2 // Starting angle for the first card
+
+//     for i, card := range hand.cards {
+//         waitGroup.Add(1)
+
+//         // Calculate the angle for the current card
+//         angle := startAngle + spread*float64(i)
+//         // Calculate the position offset based on the angle
+//         // Adjust the radius to control how far out the cards spread from the center
+//         radius := 50.0 // This controls how spread out the cards are
+//         offsetX := math.Cos(angle) * radius
+//         offsetY := math.Sin(angle) * radius
+
+//         // Update card's position based on the calculated offset
+//         cardPosition := pixel.V(hand.position.X+offsetX, hand.position.Y+offsetY)
+//         // Update card's rotation based on the angle
+//         cardMatrix := pixel.IM.Rotated(pixel.ZV, angle).Moved(cardPosition)
+
+//         // Use the card's updated matrix for drawing
+//         cardSprite := card.Sprite()
+//         cardSprite.SetMatrix(cardMatrix)
+//         cardSprite.Draw(win)
+
+//         if drawHitBox {
+//             imd := imdraw.New(nil)
+//             imd.Color = pixel.RGB(0, 255, 0)
+//             // Adjust this to draw the hitbox around the rotated card if necessary
+//             imd.Push(cardPosition, cardPosition.Add(pixel.V(10, 10))) // Example; adjust as needed
+//             imd.Rectangle(1)
+//             imd.Draw(win)
+//         }
+
+//         waitGroup.Done()
+//     }
+
+//     if drawHitBox {
+//         imd := imdraw.New(nil)
+//         imd.Color = pixel.RGB(0, 255, 0)
+//         imd.Push(hand.GetHitBox().Min, hand.GetHitBox().Max)
+//         imd.Rectangle(1)
+//         imd.Draw(win)
+//     }
+//     waitGroup.Done()
+// }
+
 func (hand *Hand) Draw(win *pixelgl.Window, drawHitBox bool, waitGroup *sync.WaitGroup) {
 	for _, card := range hand.cards {
 		waitGroup.Add(1)

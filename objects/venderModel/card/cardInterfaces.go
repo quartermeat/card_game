@@ -47,6 +47,8 @@ const (
 type ICard interface {
 	Draw(*pixelgl.Window, bool, *sync.WaitGroup)
 	GetPosition() pixel.Vec
+	Sprite() *pixel.Sprite
+	SetMatrix(matrix pixel.Matrix)
 }
 
 type IDeck interface {

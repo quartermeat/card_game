@@ -242,7 +242,6 @@ func InitGame(win *pixelgl.Window, cam *pixel.Matrix, gameCommands Commands, gam
 	}
 	case 19:{
 		// Player Hand setup
-
 		location := pixel.Vec{X: 700, Y: -300}
 		objectToPlace := card.NewHandObject(objectAssets, location)
 		gameCommands[fmt.Sprintf("AddObjectAtPosition: x:%f, y:%f, ObjectType:%s", location.X, location.Y, objectToPlace.ObjectName())] = AddObjectAtPosition(gameObjs, &objectToPlace, location)
